@@ -158,7 +158,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: 7ba3073c-273e-446d-87f9-376adffe587c
-      m_Path: <Keyboard>/upArrow
+      m_Path: <Keyboard>/downArrow
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -226,7 +226,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: ef4c718e-27d9-44fe-a119-167c2eaeab55
-      m_Path: <Keyboard>/downArrow
+      m_Path: <Keyboard>/upArrow
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -236,6 +236,10 @@ MonoBehaviour:
   playerLanes: []
   bullet: {fileID: 5213706024248716814, guid: 786df1131a3287d449c6a7a84ba26833, type: 3}
   weaponCooldown: 0.3
+  playerShoot: {fileID: 0}
+  playerMove: {fileID: 0}
+  changeWeapon: {fileID: 0}
+  reload: {fileID: 0}
 --- !u!82 &-5083929678541783941
 AudioSource:
   m_ObjectHideFlags: 0

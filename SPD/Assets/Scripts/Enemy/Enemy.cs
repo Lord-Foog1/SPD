@@ -66,7 +66,8 @@ public class Enemy : MonoBehaviour
         }
         if(collision.gameObject.tag == "LastChance")
         {
-            rb.AddForce(new Vector2(0, speed));
+            // rb.AddForce(new Vector2(0, speed));
+
         }
         if(collision.gameObject.tag == "SoundTrigger")
         {
