@@ -17,6 +17,8 @@ public class Enemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Make sound
+
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));
     }
@@ -25,5 +27,18 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag == "Bullet")
+        {
+            Destroy(collision.gameObject);
+            /*
+             * Code to add points
+             */
+            Destroy(this.gameObject);
+        }
     }
 }
