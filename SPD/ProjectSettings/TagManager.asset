@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Bullet
+  - Killbox
+  - LastChance
+  - SoundTrigger
   layers:
   - Default
   - TransparentFX

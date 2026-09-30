@@ -13,6 +13,16 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject[] playerLanes;
 
     [SerializeField] GameObject bullet;
+    [SerializeField] float weaponCooldown = 0.3f;
+
+    private float timeStamp;
+
+    [Header("Sound")]
+    [SerializeField] AudioClip playerShoot;
+    [SerializeField] AudioClip playerMove;
+    [SerializeField] AudioClip changeWeapon;
+    [SerializeField] AudioClip reload;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,6 +31,8 @@ public class Player : MonoBehaviour
         leftLane.Enable();
         rightLane.Enable();
         shoot.Enable();
+
+        timeStamp = Time.time;
     }
 
     // Update is called once per frame
@@ -32,6 +44,7 @@ public class Player : MonoBehaviour
             transform.position = playerLanes[1].transform.position;
             leftLane.Enable();
             rightLane.Enable();
+            // MakeSound(playeMove);
         }
         if (leftLane.IsPressed())
         {
@@ -39,6 +52,7 @@ public class Player : MonoBehaviour
             transform.position = playerLanes[0].transform.position;
             middleLane.Enable();
             rightLane.Enable();
+            // MakeSound(playeMove);
         }
         if (rightLane.IsPressed())
         {
@@ -46,12 +60,18 @@ public class Player : MonoBehaviour
             transform.position = playerLanes[2].transform.position;
             middleLane.Enable();
             leftLane.Enable();
+            // MakeSound(playeMove);
         }
-        if (shoot.IsPressed())
+        if (shoot.IsPressed() && timeStamp + weaponCooldown <= Time.time)
         {
-            //shoot.Disable();
-            Instantiate(bullet, this.transform);
-            
+            Instantiate(bullet, this.transform.position, this.transform.rotation);
+            timeStamp = Time.time;
+            // MakeSound(playerShoot);
         }
+    }
+
+    void MakeSound(AudioClip sound)
+    {
+
     }
 }
