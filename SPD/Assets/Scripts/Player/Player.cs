@@ -70,6 +70,7 @@ public class Player : MonoBehaviour
         {
             reloadTimeStamp = Time.time;
             isReloading = true;
+            // MakeSound(playerReload);
         }
         if (isReloading)
         {
@@ -80,21 +81,11 @@ public class Player : MonoBehaviour
         }
         if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading)
         {
-            Shoot();
+            Instantiate(bullet, this.transform.position, this.transform.rotation);
+            weaponCooldownTimeStamp = Time.time;
+            // MakeSound(playerShoot);
+            ammo--;
         }
-    }
-
-    void Shoot()
-    {
-        Instantiate(bullet, this.transform.position, this.transform.rotation);
-        weaponCooldownTimeStamp = Time.time;
-        // MakeSound(playerShoot);
-        ammo--;
-    }
-
-    void Reload()
-    {
-        
     }
 
     void MakeSound(AudioClip sound)
