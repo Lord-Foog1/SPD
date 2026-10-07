@@ -73,9 +73,9 @@ public class Player : MonoBehaviour
         }
         if (isReloading)
         {
-            if (reloadTimeStamp + reloadTime <= reloadTime.time)
+            if (reloadTimeStamp + reloadTime <= Time.time)
             {
-
+                isReloading = false;
             }
         }
         if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading)
