@@ -81,10 +81,10 @@ public class UAP_AccessibilityManager : MonoBehaviour
 	public bool m_DebugOutput = false;
 
 	/// <value>How many seconds after selecting a UI element will the usage hint be triggered.</value>
-	float m_HintDelay = 0.6f;
+	float m_HintDelay = 0.1f;
 	float m_DisabledDelay = 0.2f;
 	float m_ValueDelay = 0.25f;
-	float m_TypeDelay = 1.0f;
+	float m_TypeDelay = 0.2f;
 
 	public bool m_WindowsUseMouseSwipes = false;
 	// This setting will become obsolete
@@ -125,7 +125,7 @@ public class UAP_AccessibilityManager : MonoBehaviour
 	private KeyCode m_NextContainerKey = KeyCode.RightArrow;
 	private KeyCode m_PreviousContainerKey = KeyCode.LeftArrow;
 	private bool m_UseTabAndShiftTabForContainerJumping = true;
-	private KeyCode m_InteractKey = KeyCode.Return;
+	private KeyCode m_InteractKey = KeyCode.Space;
 	private KeyCode m_SliderIncrementKey = KeyCode.UpArrow;
 	private KeyCode m_SliderDecrementKey = KeyCode.DownArrow;
 	private KeyCode m_DropDownPreviousKey = KeyCode.UpArrow;
