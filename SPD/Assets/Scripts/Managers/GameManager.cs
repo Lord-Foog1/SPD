@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject[] enemyLanes;
     [SerializeField] GameObject[] enemies;
-    [SerializeField] Text finishText;
+    [SerializeField] TMP_Text finishText;
 
     private float timeStamp;
     private float timeToNextSpawn;
@@ -38,7 +39,10 @@ public class GameManager : MonoBehaviour
         if (timeStamp + timeToNextSpawn <= Time.time && !gameOver)
         {
             timeStamp = Time.time;
-            SpawnEnemy(ChooseEnemy(), ChooseLane());
+            for (int i = 0; i < spawnAmount; i++)
+            {
+                SpawnEnemy(ChooseEnemy(), ChooseLane());
+            }
             timeToNextSpawn = GetSpawnTime();
             Debug.Log("Hello");
         }
@@ -50,6 +54,7 @@ public class GameManager : MonoBehaviour
         else
         {
             gameOver = true;
+            ShowText();
             Debug.Log("Time over");
         }
 
@@ -93,11 +98,12 @@ public class GameManager : MonoBehaviour
 
     void UpdateText(float points)
     {
-
+        finishText.text = "Round over, points earned: " + pointTotal.ToString();
     }
 
     void ShowText()
     {
-
+        UpdateText(pointTotal);
+        finishText.enabled = true;
     }
 }
