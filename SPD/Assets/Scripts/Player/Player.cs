@@ -17,7 +17,9 @@ public class Player : MonoBehaviour
     [SerializeField] float reloadTime = 1f;
     [SerializeField] int ammo = 6;
 
-    private float timeStamp;
+    private float weaponCooldownTimeStamp;
+    private float reloadTimeStamp;
+    private bool isReloading;
 
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
@@ -34,7 +36,7 @@ public class Player : MonoBehaviour
         rightLane.Enable();
         shoot.Enable();
 
-        timeStamp = Time.time;
+        weaponCooldownTimeStamp = Time.time;
     }
 
     // Update is called once per frame
@@ -64,26 +66,36 @@ public class Player : MonoBehaviour
             leftLane.Enable();
             // MakeSound(playeMove);
         }
-        if (shoot.IsPressed() && timeStamp + weaponCooldown <= Time.time)
+        if (ammo == 0 && !isReloading)
         {
-            Instantiate(bullet, this.transform.position, this.transform.rotation);
-            timeStamp = Time.time;
-            // MakeSound(playerShoot);
-            ammo--;
+            reloadTimeStamp = Time.time;
+            isReloading = true;
+        }
+        if (isReloading)
+        {
+            if (reloadTimeStamp + reloadTime <= reloadTime.time)
+            {
+
+            }
+        }
+        if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading)
+        {
+            Shoot();
         }
     }
 
     void Shoot()
     {
-        if (weaponCooldown <= Time.time && ammo > 0)
-        {
-            Instantiate(bullet, this.transform.position, this.transform.rotation);
-            timeStamp = Time.time;
-            // MakeSound(playerShoot);
-            ammo--;
-        }
+        Instantiate(bullet, this.transform.position, this.transform.rotation);
+        weaponCooldownTimeStamp = Time.time;
+        // MakeSound(playerShoot);
+        ammo--;
     }
 
+    void Reload()
+    {
+        
+    }
 
     void MakeSound(AudioClip sound)
     {
