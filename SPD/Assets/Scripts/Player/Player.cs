@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject[] playerLanes;
 
     [SerializeField] GameObject bullet;
+    [SerializeField] GameObject archingBullet;
     [SerializeField] float weaponCooldown = 0.3f;
     [SerializeField] float reloadTime = 1f;
     [SerializeField] int maxAmmo = 6;
@@ -21,6 +22,7 @@ public class Player : MonoBehaviour
     private float reloadTimeStamp;
     private bool isReloading;
     private int ammo;
+    private float equippedWeapon;
 
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
@@ -38,6 +40,7 @@ public class Player : MonoBehaviour
         leftLane.Enable();
         rightLane.Enable();
         shoot.Enable();
+        weaponSwap.Enable();
 
         weaponCooldownTimeStamp = Time.time;
 
@@ -72,6 +75,10 @@ public class Player : MonoBehaviour
             leftLane.Enable();
             MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
         }
+        if (weaponSwap.IsPressed())
+        {
+            SwapWeapon();
+        }
         if (ammo <= 0 && !isReloading)
         {
             reloadTimeStamp = Time.time;
@@ -88,11 +95,23 @@ public class Player : MonoBehaviour
         }
         if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading && ammo > 0)
         {
-            Instantiate(bullet, this.transform.position, this.transform.rotation);
             weaponCooldownTimeStamp = Time.time;
             MakeSound(playerShoot, 0.1f);
             ammo--;
+            if (equippedWeapon == 1)
+            {
+                Instantiate(bullet, this.transform.position, this.transform.rotation);
+            }
+            if (equippedWeapon == 2)
+            {
+                Instantiate(archingBullet, this.transform.position, this.transform.rotation);
+            }
         }
+    }
+
+    void SwapWeapon()
+    {
+        
     }
 
     void MakeSound(AudioClip sound, float vol)
