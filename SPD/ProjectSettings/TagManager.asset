@@ -8,6 +8,8 @@ TagManager:
   - Killbox
   - LastChance
   - SoundTrigger
+  - Civillian
+  - Enemy
   layers:
   - Default
   - TransparentFX

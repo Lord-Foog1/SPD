@@ -15,17 +15,20 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject bullet;
     [SerializeField] float weaponCooldown = 0.3f;
     [SerializeField] float reloadTime = 1f;
-    [SerializeField] int ammo = 6;
+    [SerializeField] int maxAmmo = 6;
 
     private float weaponCooldownTimeStamp;
     private float reloadTimeStamp;
     private bool isReloading;
+    private int ammo;
 
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
-    [SerializeField] AudioClip playerMove;
+    [SerializeField] AudioClip[] playerMove;
     [SerializeField] AudioClip changeWeapon;
     [SerializeField] AudioClip reload;
+
+    private AudioSource source;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -37,6 +40,9 @@ public class Player : MonoBehaviour
         shoot.Enable();
 
         weaponCooldownTimeStamp = Time.time;
+
+        source = GetComponent<AudioSource>();
+        ammo = maxAmmo;
     }
 
     // Update is called once per frame
@@ -48,7 +54,7 @@ public class Player : MonoBehaviour
             transform.position = playerLanes[1].transform.position;
             leftLane.Enable();
             rightLane.Enable();
-            // MakeSound(playeMove);
+            MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
         }
         if (leftLane.IsPressed())
         {
@@ -56,7 +62,7 @@ public class Player : MonoBehaviour
             transform.position = playerLanes[0].transform.position;
             middleLane.Enable();
             rightLane.Enable();
-            // MakeSound(playeMove);
+            MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
         }
         if (rightLane.IsPressed())
         {
@@ -64,32 +70,33 @@ public class Player : MonoBehaviour
             transform.position = playerLanes[2].transform.position;
             middleLane.Enable();
             leftLane.Enable();
-            // MakeSound(playeMove);
+            MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
         }
-        if (ammo == 0 && !isReloading)
+        if (ammo <= 0 && !isReloading)
         {
             reloadTimeStamp = Time.time;
             isReloading = true;
-            // MakeSound(playerReload);
+            MakeSound(reload, 1);
         }
         if (isReloading)
         {
             if (reloadTimeStamp + reloadTime <= Time.time)
             {
+                ammo = maxAmmo;
                 isReloading = false;
             }
         }
-        if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading)
+        if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading && ammo > 0)
         {
             Instantiate(bullet, this.transform.position, this.transform.rotation);
             weaponCooldownTimeStamp = Time.time;
-            // MakeSound(playerShoot);
+            MakeSound(playerShoot, 0.1f);
             ammo--;
         }
     }
 
-    void MakeSound(AudioClip sound)
+    void MakeSound(AudioClip sound, float vol)
     {
-
+        source.PlayOneShot(sound, vol);
     }
 }

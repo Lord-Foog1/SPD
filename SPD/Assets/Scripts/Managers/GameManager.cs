@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     {
         pointTotal = 0;
         timeStamp = Time.time;
-        timeToNextSpawn = 0;
+        timeToNextSpawn = gracePeriod;
 
         // play tutorial soundclip
     }

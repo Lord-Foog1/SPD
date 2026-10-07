@@ -1259,7 +1259,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1197118751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2139,8 +2139,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 281359221}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: gracePeriod
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: maxWaitTime
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: minwaitTime
@@ -2148,7 +2152,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: spawnAmount
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: gameTimeInSeconds
@@ -2156,12 +2160,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: enemies.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: 'enemies.Array.data[0]'
       value: 
       objectReference: {fileID: 2444179556522089278, guid: 41061ed567c93444bafd54731765dbf4, type: 3}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: 'enemies.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2444179556522089278, guid: 916354f05dfca0c448946c0d9e9aae44, type: 3}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: enemyLanes.Array.size
       value: 3
@@ -2251,6 +2259,10 @@ PrefabInstance:
       propertyPath: 'playerLanes.Array.data[2]'
       value: 
       objectReference: {fileID: 35351795}
+    - target: {fileID: -5083929678541783941, guid: 375fd9f0e5707ee4d92b66e95de87295, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 924293390912924089, guid: 375fd9f0e5707ee4d92b66e95de87295, type: 3}
       propertyPath: m_Color.b
       value: 0

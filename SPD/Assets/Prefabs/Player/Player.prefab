@@ -236,10 +236,15 @@ MonoBehaviour:
   playerLanes: []
   bullet: {fileID: 5213706024248716814, guid: 786df1131a3287d449c6a7a84ba26833, type: 3}
   weaponCooldown: 0.3
-  playerShoot: {fileID: 0}
-  playerMove: {fileID: 0}
+  reloadTime: 1
+  ammo: 6
+  playerShoot: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
+  playerMove:
+  - {fileID: 8300000, guid: 5583642874ba6ba429260bf1532eb27d, type: 3}
+  - {fileID: 8300000, guid: d946db1e083601e47829b0f067a27d98, type: 3}
+  - {fileID: 8300000, guid: 06aca86d9a6d9a84986292705a0af120, type: 3}
   changeWeapon: {fileID: 0}
-  reload: {fileID: 0}
+  reload: {fileID: 8300000, guid: eff17f20ce5694d4590d8b1cd7c78aca, type: 3}
 --- !u!82 &-5083929678541783941
 AudioSource:
   m_ObjectHideFlags: 0
