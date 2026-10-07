@@ -2,6 +2,8 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,6 +23,7 @@ public class GameManager : MonoBehaviour
     private float timeStamp;
     private float timeToNextSpawn;
     private bool gameOver = false;
+    private bool hasBeenRead;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -51,11 +54,12 @@ public class GameManager : MonoBehaviour
         {
             gameTimeInSeconds -= Time.deltaTime;
         }
-        else
+        else if (!gameOver)
         {
             gameOver = true;
             ShowText();
             Debug.Log("Time over");
+            StartCoroutine(ReturnToMenuTimer());
         }
 
         /*
@@ -63,6 +67,13 @@ public class GameManager : MonoBehaviour
          * 
          * vid 30 sekunder ändra till mer suspensfylld musik och varna att det är 30 sekunder kvar
          */
+    }
+
+    private System.Collections.IEnumerator ReturnToMenuTimer()
+    {
+        yield return new WaitForSeconds(5f);
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 
     public void ChangePoints(float pointAmount)
@@ -103,8 +114,12 @@ public class GameManager : MonoBehaviour
 
     void ShowText()
     {
-        UpdateText(pointTotal);
-        finishText.enabled = true;
-        UAP_AccessibilityManager.Say("Round over, points earned: " + pointTotal.ToString());
+        if (!hasBeenRead)
+        {
+            UpdateText(pointTotal);
+            finishText.enabled = true;
+            UAP_AccessibilityManager.Say("Round over, points earned: " + pointTotal.ToString());
+            hasBeenRead = true;
+        }
     }
 }
