@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     private float timeStamp;
     private float timeToNextSpawn;
     private bool gameOver = false;
+    private bool hasBeenRead;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -103,8 +104,12 @@ public class GameManager : MonoBehaviour
 
     void ShowText()
     {
-        UpdateText(pointTotal);
-        finishText.enabled = true;
-        UAP_AccessibilityManager.Say("Round over, points earned: " + pointTotal.ToString());
+        if (!hasBeenRead)
+        {
+            UpdateText(pointTotal);
+            finishText.enabled = true;
+            UAP_AccessibilityManager.Say("Round over, points earned: " + pointTotal.ToString());
+            hasBeenRead = true;
+        }
     }
 }

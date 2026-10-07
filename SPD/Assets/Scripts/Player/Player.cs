@@ -17,12 +17,14 @@ public class Player : MonoBehaviour
     [SerializeField] float weaponCooldown = 0.3f;
     [SerializeField] float reloadTime = 1f;
     [SerializeField] int maxAmmo = 6;
+    [SerializeField] float equipWeaponCooldown;
 
     private float weaponCooldownTimeStamp;
     private float reloadTimeStamp;
     private bool isReloading;
     private int ammo;
     public float equippedWeapon = 1;
+    private float equippedWeaponTimeStamp;
 
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
@@ -75,9 +77,10 @@ public class Player : MonoBehaviour
             leftLane.Enable();
             MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
         }
-        if (weaponSwap.IsPressed())
+        if (weaponSwap.IsPressed() && equippedWeaponTimeStamp + equipWeaponCooldown <= Time.time)
         {
             SwapWeapon();
+            equippedWeaponTimeStamp = Time.time;
         }
         if (ammo <= 0 && !isReloading)
         {
@@ -114,10 +117,14 @@ public class Player : MonoBehaviour
         if (equippedWeapon == 1)
         {
             equippedWeapon = 2;
+            Debug.Log("swapped to 2nd weapon");
+            return;
         }
         if (equippedWeapon == 2)
         {
             equippedWeapon = 1;
+            Debug.Log("swapped to 1st weapon");
+            return;
         }
     }
 

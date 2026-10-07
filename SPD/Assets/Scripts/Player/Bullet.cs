@@ -27,11 +27,14 @@ public class Bullet : MonoBehaviour
         
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (isSpceial)
+        Debug.Log("test");
+        if (isSpceial && (collision.gameObject.tag == "Civillian" || collision.gameObject.tag == "Enemy"))
         {
             Instantiate(bullet, this.transform.position + new Vector3(0, specialBulletOffset), this.transform.rotation);
+            Debug.Log("Test");
+            Destroy(this.gameObject);
         }
     }
 }

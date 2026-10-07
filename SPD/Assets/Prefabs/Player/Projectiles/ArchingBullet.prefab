@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1755402762991676847}
   m_Layer: 0
   m_Name: ArchingBullet
-  m_TagString: Bullet
+  m_TagString: ArchingBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -142,7 +142,7 @@ MonoBehaviour:
   isSpceial: 1
   bulletSpeed: 500
   lifeTime: 5
-  specialBulletOffset: 1
+  specialBulletOffset: 1.5
   bullet: {fileID: 5213706024248716814, guid: 786df1131a3287d449c6a7a84ba26833, type: 3}
 --- !u!50 &-2663843186877506459
 Rigidbody2D:

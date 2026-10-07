@@ -10,6 +10,7 @@ TagManager:
   - SoundTrigger
   - Civillian
   - Enemy
+  - ArchingBullet
   layers:
   - Default
   - TransparentFX
