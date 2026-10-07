@@ -105,5 +105,6 @@ public class GameManager : MonoBehaviour
     {
         UpdateText(pointTotal);
         finishText.enabled = true;
+        UAP_AccessibilityManager.Say("Round over, points earned: " + pointTotal.ToString());
     }
 }

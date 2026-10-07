@@ -6,6 +6,9 @@ public class Bullet : MonoBehaviour
     [SerializeField] bool isSpceial = false;
     [SerializeField] float bulletSpeed = 500.0f;
     [SerializeField] float lifeTime = 5.0f;
+    [SerializeField] float specialBulletOffset = 1;
+
+    [SerializeField] GameObject bullet;
 
 
 
@@ -22,5 +25,13 @@ public class Bullet : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (isSpceial)
+        {
+            Instantiate(bullet, this.transform.position + new Vector3(0, specialBulletOffset), this.transform.rotation);
+        }
     }
 }

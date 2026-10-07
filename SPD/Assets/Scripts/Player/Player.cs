@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
     private float reloadTimeStamp;
     private bool isReloading;
     private int ammo;
-    private float equippedWeapon;
+    public float equippedWeapon = 1;
 
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
@@ -111,7 +111,14 @@ public class Player : MonoBehaviour
 
     void SwapWeapon()
     {
-        
+        if (equippedWeapon == 1)
+        {
+            equippedWeapon = 2;
+        }
+        if (equippedWeapon == 2)
+        {
+            equippedWeapon = 1;
+        }
     }
 
     void MakeSound(AudioClip sound, float vol)
