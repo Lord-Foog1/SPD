@@ -52,14 +52,18 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Bullet")
+        if(collision.gameObject.tag == "Bullet" && enemyHealth == 1)
         {
             Destroy(collision.gameObject);
             gameManager.ChangePoints(enemyReward);
             // MakeSound(deathSound)
             Destroy(this.gameObject);
         }
-        if(collision.gameObject.tag == "Killbox")
+        if (collision.gameObject.tag == "Bullet" && enemyHealth > 1)
+        {
+            enemyHealth--;
+        }
+        if (collision.gameObject.tag == "Killbox")
         {
             gameManager.ChangePoints(enemyDamage);
             Destroy(this.gameObject);

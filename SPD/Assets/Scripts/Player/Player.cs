@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] GameObject bullet;
     [SerializeField] float weaponCooldown = 0.3f;
+    [SerializeField] float reloadTime = 1f;
+    [SerializeField] int ammo = 6;
 
     private float timeStamp;
 
@@ -67,8 +69,21 @@ public class Player : MonoBehaviour
             Instantiate(bullet, this.transform.position, this.transform.rotation);
             timeStamp = Time.time;
             // MakeSound(playerShoot);
+            ammo--;
         }
     }
+
+    void Shoot()
+    {
+        if (weaponCooldown <= Time.time && ammo > 0)
+        {
+            Instantiate(bullet, this.transform.position, this.transform.rotation);
+            timeStamp = Time.time;
+            // MakeSound(playerShoot);
+            ammo--;
+        }
+    }
+
 
     void MakeSound(AudioClip sound)
     {
