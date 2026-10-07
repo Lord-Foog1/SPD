@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
         pointTotal = 0;
         timeStamp = Time.time;
         timeToNextSpawn = 0;
+
+        // play tutorial soundclip
     }
 
     // Update is called once per frame
