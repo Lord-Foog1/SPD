@@ -2009,7 +2009,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: gameTimeInSeconds
-      value: 144
+      value: 82
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: enemies.Array.size
