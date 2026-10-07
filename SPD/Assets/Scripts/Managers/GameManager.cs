@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject[] enemyLanes;
     [SerializeField] GameObject[] enemies;
+    [SerializeField] Text finishText;
 
     private float timeStamp;
     private float timeToNextSpawn;
@@ -85,6 +87,16 @@ public class GameManager : MonoBehaviour
     }
 
     void SavePoints()
+    {
+
+    }
+
+    void UpdateText(float points)
+    {
+
+    }
+
+    void ShowText()
     {
 
     }
