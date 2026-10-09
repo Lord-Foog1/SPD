@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -5083929678541783941}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -223,6 +223,7 @@ MonoBehaviour:
   reloadTime: 1
   maxAmmo: 6
   equipWeaponCooldown: 0
+  moveCooldown: 0.5
   equippedWeapon: 1
   playerShoot: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
   playerMove:
