@@ -4,9 +4,8 @@ using UnityEngine.Rendering.VirtualTexturing;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] InputAction middleLane;
-    [SerializeField] InputAction leftLane;
-    [SerializeField] InputAction rightLane;
+    [SerializeField] InputAction moveLeft;
+    [SerializeField] InputAction moveRight;
     [SerializeField] InputAction shoot;
     [SerializeField] InputAction weaponSwap;
 
@@ -18,6 +17,7 @@ public class Player : MonoBehaviour
     [SerializeField] float reloadTime = 1f;
     [SerializeField] int maxAmmo = 6;
     [SerializeField] float equipWeaponCooldown;
+    [SerializeField] private float moveCooldown = 0.5f;
 
     private float weaponCooldownTimeStamp;
     private float reloadTimeStamp;
@@ -25,6 +25,8 @@ public class Player : MonoBehaviour
     private int ammo;
     public float equippedWeapon = 1;
     private float equippedWeaponTimeStamp;
+    private int currentPos = 1;
+    private float moveTimeStamp;
 
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
@@ -38,13 +40,13 @@ public class Player : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        middleLane.Enable();
-        leftLane.Enable();
-        rightLane.Enable();
+        moveLeft.Enable();
+        moveRight.Enable();
         shoot.Enable();
         weaponSwap.Enable();
 
         weaponCooldownTimeStamp = Time.time;
+        moveTimeStamp = Time.time;
 
         source = GetComponent<AudioSource>();
         ammo = maxAmmo;
@@ -53,29 +55,35 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (middleLane.IsPressed())
+        if (moveLeft.IsPressed() && moveTimeStamp + moveCooldown <= Time.time)
         {
-            middleLane.Disable();
-            transform.position = playerLanes[1].transform.position;
-            leftLane.Enable();
-            rightLane.Enable();
-            MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+            if (transform.position == playerLanes[0].transform.position)
+            {
+                // MakeSound(wallHit);
+            }
+            else
+            {
+                transform.position = playerLanes[currentPos-1].transform.position;
+                currentPos--;
+                MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+            }
+            
+            moveTimeStamp = Time.time;
         }
-        if (leftLane.IsPressed())
+        if (moveRight.IsPressed() && moveTimeStamp + moveCooldown <= Time.time)
         {
-            leftLane.Disable();
-            transform.position = playerLanes[0].transform.position;
-            middleLane.Enable();
-            rightLane.Enable();
-            MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
-        }
-        if (rightLane.IsPressed())
-        {
-            rightLane.Disable();
-            transform.position = playerLanes[2].transform.position;
-            middleLane.Enable();
-            leftLane.Enable();
-            MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+            if (transform.position == playerLanes[2].transform.position)
+            {
+                // MakeSound(wallHit);
+            }
+            else
+            {
+                transform.position = playerLanes[currentPos+1].transform.position;
+                currentPos++;
+                MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+            }
+            
+            moveTimeStamp = Time.time;
         }
         if (weaponSwap.IsPressed() && equippedWeaponTimeStamp + equipWeaponCooldown <= Time.time)
         {

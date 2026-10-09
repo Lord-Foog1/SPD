@@ -1993,7 +1993,7 @@ PrefabInstance:
       objectReference: {fileID: 88604865}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: gracePeriod
-      value: 0
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: maxWaitTime

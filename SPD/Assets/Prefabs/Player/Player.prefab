@@ -148,55 +148,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8e67a9bbc06bdd4ba775d54b9c0c9c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  middleLane:
-    m_Name: Middle Lane
+  moveLeft:
+    m_Name: Move Left
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: daa222e8-d180-4a15-9bbc-20aa9e09c352
+    m_Id: 6cb4c46a-7274-4d9c-a6da-243f6d86f007
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings:
     - m_Name: 
-      m_Id: 7ba3073c-273e-446d-87f9-376adffe587c
-      m_Path: <Keyboard>/downArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Middle Lane
-      m_Flags: 0
-    m_Flags: 0
-  leftLane:
-    m_Name: Left Lane
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: b621c9a2-80e8-442f-8309-58bc991e1204
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 096b5888-be5e-4265-a729-1d76377e5c32
+      m_Id: ab699d74-33a2-4200-9f12-39c016ed2141
       m_Path: <Keyboard>/leftArrow
       m_Interactions: 
       m_Processors: 
       m_Groups: 
-      m_Action: Left Lane
+      m_Action: Move Left
       m_Flags: 0
     m_Flags: 0
-  rightLane:
-    m_Name: Right Lane
+  moveRight:
+    m_Name: Move Right
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: b0696d58-474e-4fb9-a88a-8970575c2921
+    m_Id: a57ac317-6de0-4578-8d74-12feafa9be34
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings:
     - m_Name: 
-      m_Id: ed5125dc-3b15-477b-9b64-e59e223fd2f5
+      m_Id: 59d0eb8f-2038-445b-b34f-6ced3b3a20c0
       m_Path: <Keyboard>/rightArrow
       m_Interactions: 
       m_Processors: 
       m_Groups: 
-      m_Action: Right Lane
+      m_Action: Move Right
       m_Flags: 0
     m_Flags: 0
   shoot:
@@ -235,9 +218,12 @@ MonoBehaviour:
     m_Flags: 0
   playerLanes: []
   bullet: {fileID: 5213706024248716814, guid: 786df1131a3287d449c6a7a84ba26833, type: 3}
+  archingBullet: {fileID: 0}
   weaponCooldown: 0.3
   reloadTime: 1
-  ammo: 6
+  maxAmmo: 6
+  equipWeaponCooldown: 0
+  equippedWeapon: 1
   playerShoot: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
   playerMove:
   - {fileID: 8300000, guid: 5583642874ba6ba429260bf1532eb27d, type: 3}
