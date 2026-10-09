@@ -5,8 +5,11 @@ public class RushingEnemy : MonoBehaviour
     [SerializeField] float chargeTime = 10;
     [Tooltip("Amount of points you lose when hit")]
     [SerializeField] float enemyDamage = -200.0f;
-    [SerializeField] private AudioClip chargeSound;
     [SerializeField] private float enemySpeed = 1000;
+
+    [Header("Sound")]
+    [SerializeField] private AudioClip chargeSound;
+    [SerializeField] private AudioClip hitPlayerSound;
     
     private GameManager gameManager;
     private Rigidbody2D rb;
@@ -22,6 +25,8 @@ public class RushingEnemy : MonoBehaviour
         
         audioSource = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
+        
+        // MakeSound(chargeSound, 1);
     }
 
     // Update is called once per frame

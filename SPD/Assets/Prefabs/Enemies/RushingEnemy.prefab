@@ -273,7 +273,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5cfd666d3412b4a82831bea56fb90d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chargeTime: 5
+  chargeTime: 10
   enemyDamage: -200
-  chargeSound: {fileID: 0}
   enemySpeed: 1500
+  chargeSound: {fileID: 0}
+  hitPlayerSound: {fileID: 0}
