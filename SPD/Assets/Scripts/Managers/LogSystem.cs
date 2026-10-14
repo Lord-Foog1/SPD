@@ -47,6 +47,6 @@ public class LogSystem : MonoBehaviour
         string finalJson = JsonUtility.ToJson(wrapper, true);
         File.WriteAllText(path, finalJson);
 
-        Debug.Log(finalJson);
+        //Debug.Log(finalJson);
     }
 }

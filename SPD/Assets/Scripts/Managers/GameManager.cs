@@ -50,7 +50,6 @@ public class GameManager : MonoBehaviour
                 SpawnEnemy(ChooseEnemy(), ChooseLane());
             }
             timeToNextSpawn = GetSpawnTime();
-            Debug.Log("Hello");
         }
 
         if (gameTimeInSeconds > 0 && !gameOver)
@@ -84,7 +83,7 @@ public class GameManager : MonoBehaviour
     public void ChangePoints(float pointAmount)
     {
         pointTotal += pointAmount;
-        Debug.Log(pointTotal);
+        //Debug.Log(pointTotal);
     }
 
     GameObject ChooseEnemy()
