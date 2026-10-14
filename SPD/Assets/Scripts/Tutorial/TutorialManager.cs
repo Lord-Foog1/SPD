@@ -33,32 +33,36 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator Start()
     {
+        if (guideSource == null)
+        {
+            Debug.LogError("TutorialManager: assign Guide Source in the Inspector.", this);
+            yield break;
+        }
+        guideSource.loop = false;
+
         // STEP 1: Introduction
         yield return PlayAudioList(introduction);
 
-        // STEP 2: Calibrate right
-        yield return PlayAudioList(askRight);
-
-        yield return WaitForDirection(
-            Key.RightArrow,
-            Key.LeftArrow,
-            wrongRight,
-            askRight
-        );
-
-        yield return PlayAudioList(correctRight);
-
-        // STEP 3: Calibrate left
+        // STEP 2: Face left first, matching the recorded instructions.
         yield return PlayAudioList(askLeft);
-
         yield return WaitForDirection(
             Key.LeftArrow,
             Key.RightArrow,
             wrongLeft,
             askLeft
         );
-
         yield return PlayAudioList(correctLeft);
+
+        // STEP 3: correctLeft may already say "now right";
+        // leave askRight empty in that case to avoid repeating it.
+        yield return PlayAudioList(askRight);
+        yield return WaitForDirection(
+            Key.RightArrow,
+            Key.LeftArrow,
+            wrongRight,
+            askRight
+        );
+        yield return PlayAudioList(correctRight);
 
         // STEP 4: Explain dummy
         yield return PlayAudioList(explainDummy);
@@ -185,3 +189,4 @@ public class TutorialManager : MonoBehaviour
         }
     }
 }
+
