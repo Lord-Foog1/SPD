@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject[] enemies;
     [SerializeField] TMP_Text finishText;
 
+    [SerializeField] AudioSource[] ambientAudioSources;
+
     private float timeStamp;
     private float timeToNextSpawn;
     private bool gameOver = false;
@@ -42,6 +44,8 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateSoundVolume();
+
         if (timeStamp + timeToNextSpawn <= Time.time && !gameOver)
         {
             timeStamp = Time.time;
@@ -106,11 +110,6 @@ public class GameManager : MonoBehaviour
         Instantiate(enemy, lane.transform);
     }
 
-    void SavePoints()
-    {
-
-    }
-
     void UpdateText(float points)
     {
         finishText.text = "Round over, points earned: " + pointTotal.ToString();
@@ -124,6 +123,14 @@ public class GameManager : MonoBehaviour
             finishText.enabled = true;
             UAP_AccessibilityManager.Say("Round over, points earned: " + pointTotal.ToString());
             hasBeenRead = true;
+        }
+    }
+
+    void UpdateSoundVolume()
+    {
+        foreach(AudioSource audio in ambientAudioSources)
+        {
+            audio.volume = SettingsManager.ambienceSoundLevel;
         }
     }
 }

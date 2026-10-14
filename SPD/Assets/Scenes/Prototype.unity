@@ -2047,6 +2047,18 @@ PrefabInstance:
       propertyPath: 'enemyLanes.Array.data[2]'
       value: 
       objectReference: {fileID: 1541058054}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: ambientAudioSources.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: 'ambientAudioSources.Array.data[0]'
+      value: 
+      objectReference: {fileID: 401509159}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: 'ambientAudioSources.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1682090492}
     - target: {fileID: 5223693149971035896, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.5266576
