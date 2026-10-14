@@ -4893,17 +4893,25 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 895465604}
     - target: {fileID: -2562026648769092316, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
+      propertyPath: playerExample
+      value: 
+      objectReference: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
+    - target: {fileID: -2562026648769092316, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
       propertyPath: ambienceSlider
       value: 
       objectReference: {fileID: 21523757}
     - target: {fileID: -2562026648769092316, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
       propertyPath: monsterExample
       value: 
-      objectReference: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
+      objectReference: {fileID: 8300000, guid: 788cfc162f08e3a4781a48740b96219c, type: 3}
     - target: {fileID: -2562026648769092316, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
       propertyPath: operatorSlider
       value: 
       objectReference: {fileID: 1455856274}
+    - target: {fileID: -2562026648769092316, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
+      propertyPath: ambienceExample
+      value: 
+      objectReference: {fileID: 8300000, guid: 46f2878969d398c4d8800ec48ca5be80, type: 3}
     - target: {fileID: 2211192869674838065, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
       propertyPath: m_Name
       value: SettingsManager
