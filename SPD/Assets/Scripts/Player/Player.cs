@@ -106,6 +106,8 @@ public class Player : MonoBehaviour
         }
         if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading && ammo > 0)
         {
+            LogSystem log = new LogSystem();
+            log.SaveEvent("#Shot");
             weaponCooldownTimeStamp = Time.time;
             MakeSound(playerShoot, 0.1f);
             ammo--;

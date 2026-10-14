@@ -33,6 +33,9 @@ public class GameManager : MonoBehaviour
         timeStamp = Time.time;
         timeToNextSpawn = gracePeriod;
 
+        LogSystem log = new LogSystem();
+        log.SaveEvent("#RoundStart");
+
         // play tutorial soundclip
     }
 
@@ -59,6 +62,8 @@ public class GameManager : MonoBehaviour
             gameOver = true;
             ShowText();
             Debug.Log("Time over");
+            LogSystem log = new LogSystem();
+            log.SaveEvent("#EndRound");
             StartCoroutine(ReturnToMenuTimer());
         }
 
