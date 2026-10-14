@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,11 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private AudioClip ambienceExample;
     [SerializeField] private AudioClip operatorExample;
     [SerializeField] private AudioClip menuExample;
+
+    [Header("Sound Duration")]
+    [SerializeField] private float soundDuration = 5f;
+    [SerializeField] private float playCooldown = 0.5f;
+    private float nextPlayTime;
 
     private static float monsterSoundLevel { get; set; }
     private static float playerSoundLevel { get; set; }
@@ -70,7 +76,21 @@ public class SettingsManager : MonoBehaviour
     {
         if(audioSource != null && clip != null)
         {
+            if (Time.time < nextPlayTime) return;
+
+            nextPlayTime = Time.time + playCooldown;
+
+            StopAllCoroutines();
+            audioSource.Stop();
             audioSource.PlayOneShot(clip, vol);
+
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
         }
+    }
+
+    private IEnumerator StopSoundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        audioSource.Stop();
     }
 }
