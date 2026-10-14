@@ -28,28 +28,9 @@ public class LaneJumper : MonoBehaviour
 
     private float jumpTimeStamp;
     private float timeToNextJump;
-
+    private bool canJump;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    /*void Start()
-    {
-        jumpTimeStamp = Time.time;
-        timeToNextJump = 0;
-
-    // Update is called once per frame
-    /*void Update()
-    {
-        if (timeStamp + timeToNextSpawn <= Time.time && canJump)
-        {
-            timeStamp = Time.time;
-            for (int i = 0; i < spawnAmount; i++)
-            {
-                SpawnEnemy(ChooseEnemy(), ChooseLane());
-            }
-            timeToNextSpawn = GetSpawnTime();
-        }*/
-
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         source = GetComponent<AudioSource>();
@@ -65,22 +46,37 @@ public class LaneJumper : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));
 
-        source.PlayOneShot(enemyGroans[UnityEngine.Random.Range(0, enemyGroans.Length)]);
+        //source.PlayOneShot(enemyGroans[UnityEngine.Random.Range(0, enemyGroans.Length)]);
         source.loop = true;
 
         boxCollider = GetComponent<BoxCollider2D>();
+
+        jumpTimeStamp = Time.time;
+        timeToNextJump = Random.Range(minTimeBetweenJumps, maxTimeBetweenJumps + 1);
+        canJump = true;
     }
 
     // Update is called once per frame
     void Update()
     {
         SetSoundPosition(transform.position.x);
+
+        if (jumpTimeStamp + timeToNextJump <= Time.time && canJump)
+        {
+            jumpTimeStamp = Time.time;
+
+            Jump(transform.position.x);
+            Debug.Log("Jumped lanes");
+
+            timeToNextJump = Random.Range(minTimeBetweenJumps, maxTimeBetweenJumps + 1);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Bullet" && enemyHealth == 1)
         {
+            canJump = false;
             Destroy(collision.gameObject);
             gameManager.ChangePoints(enemyReward);
             source.Stop();
@@ -98,6 +94,7 @@ public class LaneJumper : MonoBehaviour
         }
         if (collision.gameObject.tag == "Killbox")
         {
+            canJump = false;
             gameManager.ChangePoints(enemyDamage);
             //play escape sound
             Destroy(this.gameObject, 1.5f);
@@ -110,6 +107,32 @@ public class LaneJumper : MonoBehaviour
         if (collision.gameObject.tag == "SoundTrigger")
         {
             // MakeSound(attackSound)
+        }
+    }
+
+    void Jump(float currentLane)
+    {
+        float linePicker = Random.Range(0, 2);
+        if (currentLane == 0) //middle
+        {
+            if (linePicker < 0.5)
+                transform.position = new Vector3(-5, transform.position.y, transform.position.z);
+            else
+                transform.position = new Vector3(5, transform.position.y, transform.position.z);
+        }
+        else if (currentLane > 0) //right
+        {
+            if (linePicker < 0.5)
+                transform.position = new Vector3(-5, transform.position.y, transform.position.z);
+            else
+                transform.position = new Vector3(0, transform.position.y, transform.position.z);
+        }
+        else if (currentLane < 0) //left
+        {
+            if (linePicker < 0.5)
+                transform.position = new Vector3(0, transform.position.y, transform.position.z);
+            else
+                transform.position = new Vector3(5, transform.position.y, transform.position.z);
         }
     }
 

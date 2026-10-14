@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3362223553326956571}
   - component: {fileID: 6975385498852225824}
   - component: {fileID: -2220592309705280006}
+  - component: {fileID: -2255577339188320167}
   m_Layer: 0
   m_Name: LaneJumper
   m_TagString: Enemy
@@ -260,3 +261,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-2255577339188320167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2444179556522089278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26fc0e981b3cc064087c068ec92fdf62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 75
+  enemyDamage: -250
+  enemyReward: 250
+  enemyHealth: 2
+  enemyGroans: []
+  spawnSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  attackSound: {fileID: 0}
+  muffledSound: {fileID: 0}
+  escapeSound: {fileID: 0}
+  maxTimeBetweenJumps: 4
+  minTimeBetweenJumps: 2
