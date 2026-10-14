@@ -71,7 +71,7 @@ public class Player : MonoBehaviour
             {
                 transform.position = playerLanes[currentPos-1].transform.position;
                 currentPos--;
-                MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+                MakeSound(playerMove[Random.Range(0, playerMove.Length)]);
             }
             
             moveTimeStamp = Time.time;
@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
             {
                 transform.position = playerLanes[currentPos+1].transform.position;
                 currentPos++;
-                MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+                MakeSound(playerMove[Random.Range(0, playerMove.Length)]);
             }
             
             moveTimeStamp = Time.time;
@@ -100,7 +100,7 @@ public class Player : MonoBehaviour
         {
             reloadTimeStamp = Time.time;
             isReloading = true;
-            MakeSound(reloadSound, 1);
+            MakeSound(reloadSound);
             reload.Disable();
             Debug.Log("reloading");
         }
@@ -139,7 +139,7 @@ public class Player : MonoBehaviour
                 ammo--;
                 weaponCooldownTimeStamp = Time.time;
                 Debug.Log("shot");
-                MakeSound(playerShoot, 0.1f);
+                MakeSound(playerShoot);
                 Instantiate(bullet, this.transform.position + new Vector3(0, bulletSpawnOffset), this.transform.rotation);
             }
             else
@@ -204,8 +204,8 @@ public class Player : MonoBehaviour
         }
     }*/
 
-    void MakeSound(AudioClip sound, float vol)
+    void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, vol);
+        source.PlayOneShot(sound, SettingsManager.playerSoundLevel);
     }
 }

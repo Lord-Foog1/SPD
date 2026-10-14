@@ -23,13 +23,13 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private float playCooldown = 0.5f;
     private float nextPlayTime;
 
-    private static float monsterSoundLevel { get; set; }
-    private static float playerSoundLevel { get; set; }
-    private static float menuSoundLevel { get; set; }
-    private static float ambienceSoundLevel { get; set; }
-    private static float operatorSoundLevel { get; set; }
+    public static float monsterSoundLevel { get; set; }
+    public static float playerSoundLevel { get; set; }
+    public static float menuSoundLevel { get; set; }
+    public static float ambienceSoundLevel { get; set; }
+    public static float operatorSoundLevel { get; set; }
 
-    static private bool soundSet = false;
+    private static bool soundSet = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
