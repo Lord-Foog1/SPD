@@ -125,7 +125,7 @@ public class UAP_AccessibilityManager : MonoBehaviour
 	private KeyCode m_NextContainerKey = KeyCode.RightArrow;
 	private KeyCode m_PreviousContainerKey = KeyCode.LeftArrow;
 	private bool m_UseTabAndShiftTabForContainerJumping = true;
-	private KeyCode m_InteractKey = KeyCode.Space;
+	private KeyCode m_InteractKey = KeyCode.Return;
 	private KeyCode m_SliderIncrementKey = KeyCode.UpArrow;
 	private KeyCode m_SliderDecrementKey = KeyCode.DownArrow;
 	private KeyCode m_DropDownPreviousKey = KeyCode.UpArrow;
@@ -779,7 +779,7 @@ public class UAP_AccessibilityManager : MonoBehaviour
 		if (element.ReadType())
 		{
 			if (instance.m_ContinuousReading)
-				instance.SayPause(instance.m_TypeDelay * 0.5f);
+				instance.SayPause(instance.m_TypeDelay * 0.0f);
 			else
 				instance.SayPause(instance.m_TypeDelay);
 			instance.ReadType();

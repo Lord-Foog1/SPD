@@ -19,8 +19,8 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private AudioClip menuExample;
 
     [Header("Sound Duration")]
-    [SerializeField] private float soundDuration = 5f;
-    [SerializeField] private float playCooldown = 0.5f;
+    [SerializeField] private float soundDuration = 2f;
+    [SerializeField] private float playCooldown = 0.0f;
     private float nextPlayTime;
 
     public static float monsterSoundLevel { get; set; }
