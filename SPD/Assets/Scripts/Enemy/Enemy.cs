@@ -47,7 +47,7 @@ public class Enemy : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));
 
-        source.PlayOneShot(enemyGroans[UnityEngine.Random.Range(0, enemyGroans.Length)]);
+        // source.PlayOneShot(enemyGroans[UnityEngine.Random.Range(0, enemyGroans.Length)]);
         source.loop = true;
 
         boxCollider = GetComponent<BoxCollider2D>();

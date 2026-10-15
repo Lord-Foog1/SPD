@@ -239,15 +239,12 @@ MonoBehaviour:
   weaponCooldown: 0.3
   reloadTime: 2.5
   maxAmmo: 6
-  equipWeaponCooldown: 0
   moveCooldown: 0.1
   bulletSpawnOffset: 0.2
   equippedWeapon: 1
   playerShoot: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
   playerMove:
-  - {fileID: 8300000, guid: 5583642874ba6ba429260bf1532eb27d, type: 3}
-  - {fileID: 8300000, guid: d946db1e083601e47829b0f067a27d98, type: 3}
-  - {fileID: 8300000, guid: 06aca86d9a6d9a84986292705a0af120, type: 3}
+  - {fileID: 8300000, guid: 8fc66b759485ab441901bb77babefe90, type: 3}
   changeWeapon: {fileID: 0}
   reloadSound: {fileID: 8300000, guid: eff17f20ce5694d4590d8b1cd7c78aca, type: 3}
 --- !u!82 &-5083929678541783941

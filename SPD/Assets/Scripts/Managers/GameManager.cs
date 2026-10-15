@@ -14,9 +14,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] int maxWaitTime = 10;
     [SerializeField] int minwaitTime = 1;
     [SerializeField] int spawnAmount = 1;
-    [SerializeField] float gracePeriod = 0;
     [SerializeField] float gameTimeInSeconds = 120;
 
+    [Header("New Enemy Tutorial")]
+    [SerializeField] bool newEnemyTutorial = false;
+    [SerializeField] AudioClip tutorialClip;
+    [SerializeField] float gracePeriod = 0;
+
+    [Header("Enemy Setup")]
     [SerializeField] GameObject[] enemyLanes;
     [SerializeField] GameObject[] enemies;
     [SerializeField] TMP_Text finishText;
@@ -27,11 +32,19 @@ public class GameManager : MonoBehaviour
     private float timeToNextSpawn;
     private bool gameOver = false;
     private bool hasBeenRead;
+    private AudioSource source;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        source = GetComponent<AudioSource>();
+
+        if (newEnemyTutorial)
+        {
+            source.PlayOneShot(tutorialClip);
+        }
+
         pointTotal = 0;
         timeStamp = Time.time;
         timeToNextSpawn = gracePeriod;
