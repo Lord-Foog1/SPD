@@ -5,6 +5,7 @@ public class LevelLoader : MonoBehaviour
 {
     public void StartGame()
     {
+        SettingsManager.playthrough++;
         // Byt ut "Level1" mot exakt det namn din spelscen har i projektet
         SceneManager.LoadScene("Prototype");
     }

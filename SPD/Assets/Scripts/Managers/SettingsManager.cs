@@ -28,7 +28,7 @@ public class SettingsManager : MonoBehaviour
     public static float menuSoundLevel { get; set; }
     public static float ambienceSoundLevel { get; set; }
     public static float operatorSoundLevel { get; set; }
-
+    public static int playthrough {  get; set; }
     private static bool soundSet = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

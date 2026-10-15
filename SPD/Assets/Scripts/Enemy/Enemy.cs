@@ -7,10 +7,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] float speed = 100.0f;
 
     [Tooltip("The amount of points you lose")]
-    [SerializeField] float enemyDamage = -100.0f;
+    [SerializeField] int enemyDamage = -100;
 
     [Tooltip("The amount of points you gain when killing")]
-    [SerializeField] float enemyReward = 100.0f;
+    [SerializeField] int enemyReward = 100;
 
     [Tooltip("Enemy health")]
     [SerializeField] float enemyHealth = 2.0f;
@@ -40,7 +40,7 @@ public class Enemy : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Make sound
-        MakeSound(spawnSound, 0.35f);
+        MakeSound(spawnSound);
 
         gameManager = FindObjectsOfType<GameManager>()[0];
 
@@ -58,14 +58,28 @@ public class Enemy : MonoBehaviour
     {
         
     }
-private void OnTriggerEnter2D(Collider2D collision)
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.tag == "Bullet" && enemyHealth == 1)
         {
+            
             Destroy(collision.gameObject);
             gameManager.ChangePoints(enemyReward);
+
+            if (gameObject.CompareTag("Civillian"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#CivilianKilled", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+            else if (gameObject.CompareTag("Enemy"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#EnemyKilled", gameManager.GetTimeLeft(),gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+
             source.Stop();
-            MakeSound(deathSound, 0.5f);
+            MakeSound(deathSound);
             source.loop = false;
             boxCollider.enabled = false;
             spriteRenderer.enabled = false;
@@ -79,8 +93,20 @@ private void OnTriggerEnter2D(Collider2D collision)
         if (collision.gameObject.tag == "Killbox")
         {
             gameManager.ChangePoints(enemyDamage);
+
+            if (gameObject.CompareTag("Enemy"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#EnemyEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+            else if (gameObject.CompareTag("Civillian"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#CivilianEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+
             source.Stop();
-            MakeSound(escapeSound, 1);
+            MakeSound(escapeSound);
             Destroy(this.gameObject, 1.5f);
         }
         if(collision.gameObject.tag == "LastChance")
@@ -106,9 +132,9 @@ private void OnTriggerEnter2D(Collider2D collision)
         }
     }*/
 
-    void MakeSound(AudioClip sound, float vol)
+    void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, vol);
+        source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
     }
 
     public void SetSoundPosition(float lane)
@@ -126,6 +152,4 @@ private void OnTriggerEnter2D(Collider2D collision)
             source.panStereo = -1;
         }
     }
-
-    
 }

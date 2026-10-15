@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 50
-  enemyDamage: 0
+  enemyDamage: 50
   enemyReward: -100
   enemyHealth: 1
   enemyGroans:

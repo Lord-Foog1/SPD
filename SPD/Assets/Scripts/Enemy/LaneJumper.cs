@@ -4,8 +4,8 @@ using UnityEngine;
 public class LaneJumper : MonoBehaviour
 {
     [SerializeField] float speed = 100.0f;
-    [SerializeField] float enemyDamage = -200.0f;
-    [SerializeField] float enemyReward = 100.0f;
+    [SerializeField] int enemyDamage = -200;
+    [SerializeField] int enemyReward = 100;
     [SerializeField] float enemyHealth = 2.0f;
 
     private GameManager gameManager;
@@ -79,6 +79,13 @@ public class LaneJumper : MonoBehaviour
             canJump = false;
             Destroy(collision.gameObject);
             gameManager.ChangePoints(enemyReward);
+
+            if (gameObject.CompareTag("Enemy"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#LaneJumperKilled", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+
             source.Stop();
             MakeSound(deathSound, 0.5f);
             source.loop = false;
@@ -89,6 +96,13 @@ public class LaneJumper : MonoBehaviour
         if (collision.gameObject.tag == "Bullet" && enemyHealth > 1)
         {
             enemyHealth--;
+
+            if (gameObject.CompareTag("Enemy"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#LaneJumperShot", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+
             Destroy(collision.gameObject);
             //make enemy hit sound
         }
@@ -96,6 +110,12 @@ public class LaneJumper : MonoBehaviour
         {
             canJump = false;
             gameManager.ChangePoints(enemyDamage);
+
+            if (gameObject.CompareTag("Enemy"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#LaneJumperEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
             //play escape sound
             Destroy(this.gameObject, 1.5f);
         }

@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.InputSystem.Controls;
 
 public class GameManager : MonoBehaviour
 {
 
-    private float pointTotal;
+    private int pointTotal;
 
     [SerializeField] int maxWaitTime = 10;
     [SerializeField] int minwaitTime = 1;
@@ -36,7 +37,7 @@ public class GameManager : MonoBehaviour
         timeToNextSpawn = gracePeriod;
 
         LogSystem log = new LogSystem();
-        log.SaveEvent("#RoundStart");
+        log.SaveEvent("#RoundStart", gameTimeInSeconds);
 
         // play tutorial soundclip
     }
@@ -66,7 +67,20 @@ public class GameManager : MonoBehaviour
             ShowText();
             Debug.Log("Time over");
             LogSystem log = new LogSystem();
-            log.SaveEvent("#EndRound");
+            log.SaveEvent("#RoundEnd", gameTimeInSeconds, pointTotal.ToString());
+            GameObject[] civilians = GameObject.FindGameObjectsWithTag("Civillian");
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+            foreach(GameObject toDestroy in civilians)
+            {
+                Destroy(toDestroy);
+            }
+
+            foreach(GameObject toDestroy in enemies)
+            {
+                Destroy(toDestroy);
+            }
+
             StartCoroutine(ReturnToMenuTimer());
         }
 
@@ -84,10 +98,15 @@ public class GameManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 
-    public void ChangePoints(float pointAmount)
+    public void ChangePoints(int pointAmount)
     {
         pointTotal += pointAmount;
         //Debug.Log(pointTotal);
+    }
+
+    public int GetPoints()
+    {
+        return pointTotal;
     }
 
     GameObject ChooseEnemy()
@@ -103,6 +122,11 @@ public class GameManager : MonoBehaviour
     int GetSpawnTime()
     {
         return UnityEngine.Random.Range(minwaitTime, maxWaitTime + 1);
+    }
+
+    public float GetTimeLeft()
+    {
+        return gameTimeInSeconds;
     }
 
     void SpawnEnemy(GameObject enemy, GameObject lane)
