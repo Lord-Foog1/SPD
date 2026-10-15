@@ -2137,6 +2137,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8834580161251220595, guid: 375fd9f0e5707ee4d92b66e95de87295, type: 3}
+      propertyPath: reloadTime
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8834580161251220595, guid: 375fd9f0e5707ee4d92b66e95de87295, type: 3}
       propertyPath: archingBullet
       value: 
       objectReference: {fileID: 5213706024248716814, guid: 5e2d1eb6882ec9949a0ec275e54805c2, type: 3}
@@ -2164,6 +2168,10 @@ PrefabInstance:
       propertyPath: 'playerLanes.Array.data[2]'
       value: 
       objectReference: {fileID: 35351795}
+    - target: {fileID: -8834580161251220595, guid: 375fd9f0e5707ee4d92b66e95de87295, type: 3}
+      propertyPath: chargeSpecial.m_Interactions
+      value: Hold(duration=1.5)
+      objectReference: {fileID: 0}
     - target: {fileID: -5083929678541783941, guid: 375fd9f0e5707ee4d92b66e95de87295, type: 3}
       propertyPath: m_Enabled
       value: 1

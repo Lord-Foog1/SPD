@@ -120,18 +120,6 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    /*private void OnTriggerExit2D(Collider2D collision)
-    {
-        if( collision.gameObject.tag == "LastChance" && this.gameObject.tag == "Civillian")
-        {
-            source.Stop();
-
-            MakeSound(escapeSound, 1);
-
-            Destroy(this.gameObject, 2);
-        }
-    }*/
-
     void MakeSound(AudioClip sound)
     {
         source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
