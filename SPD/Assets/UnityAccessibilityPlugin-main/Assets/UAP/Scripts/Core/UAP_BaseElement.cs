@@ -151,7 +151,7 @@ public abstract class UAP_BaseElement : MonoBehaviour
 		// Tell container to earmark a refresh next frame
 		//		m_ContainerRefreshNeeded = true;
 		CancelInvoke("RefreshContainerNextFrame");
-		Invoke("RefreshContainerNextFrame", 0.5f);
+		//Invoke("RefreshContainerNextFrame", 0.0f);
 		//		RefreshContainerNextFrame();
 	}
 
@@ -164,7 +164,7 @@ public abstract class UAP_BaseElement : MonoBehaviour
 		// Tell container to earmark a refresh next frame
 		//		m_ContainerRefreshNeeded = true;
 		CancelInvoke("RefreshContainerNextFrame");
-		Invoke("RefreshContainerNextFrame", 0.5f);
+		//Invoke("RefreshContainerNextFrame", 0.0f);
 		//		RefreshContainerNextFrame();
 	}
 
@@ -610,7 +610,12 @@ public abstract class UAP_BaseElement : MonoBehaviour
 
 	public virtual void HoverHighlight(bool enable, EHighlightSource selectionSource)
 	{
-		EventTrigger eventTrigger = null;
+        if (enable && Time.timeSinceLevelLoad > 1f)
+        {
+            UAP_AccessibilityManager.StopSpeaking();
+        }
+
+        EventTrigger eventTrigger = null;
 		if (m_ReferenceElement != null && m_ReferenceElement.activeInHierarchy)
 			eventTrigger = m_ReferenceElement.GetComponent<EventTrigger>();
 		if (eventTrigger == null && gameObject.activeInHierarchy)
