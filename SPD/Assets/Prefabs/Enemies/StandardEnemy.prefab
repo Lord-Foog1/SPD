@@ -182,11 +182,11 @@ MonoBehaviour:
   enemyHealth: 1
   enemyGroans:
   - {fileID: 8300000, guid: 9dc35c9e175e5f544ba66fdcb3b785bc, type: 3}
-  spawnSound: {fileID: 8300000, guid: 788cfc162f08e3a4781a48740b96219c, type: 3}
-  deathSound: {fileID: 8300000, guid: ff6b1d914dd9a78428177cd94d65e5b2, type: 3}
-  attackSound: {fileID: 0}
+  spawnSound: {fileID: 8300000, guid: 11668465ef797514e9f31c43ecbcc4c1, type: 3}
+  deathSound: {fileID: 8300000, guid: 649cd705421cc924bbb940727c868cf5, type: 3}
+  attackSound: {fileID: 8300000, guid: f5de53be81e00ce47ab68056c27ddd52, type: 3}
   muffledSound: {fileID: 0}
-  escapeSound: {fileID: 0}
+  escapeSound: {fileID: 8300000, guid: bb804988dd618fd448cb99bf3f709aea, type: 3}
 --- !u!82 &-2220592309705280006
 AudioSource:
   m_ObjectHideFlags: 0
