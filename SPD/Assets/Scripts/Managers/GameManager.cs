@@ -4,18 +4,24 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.InputSystem.Controls;
 
 public class GameManager : MonoBehaviour
 {
 
-    private float pointTotal;
+    private int pointTotal;
 
     [SerializeField] int maxWaitTime = 10;
     [SerializeField] int minwaitTime = 1;
     [SerializeField] int spawnAmount = 1;
-    [SerializeField] float gracePeriod = 0;
     [SerializeField] float gameTimeInSeconds = 120;
 
+    [Header("New Enemy Tutorial")]
+    [SerializeField] bool newEnemyTutorial = false;
+    [SerializeField] AudioClip tutorialClip;
+    [SerializeField] float gracePeriod = 0;
+
+    [Header("Enemy Setup")]
     [SerializeField] GameObject[] enemyLanes;
     [SerializeField] GameObject[] enemies;
     [SerializeField] TMP_Text finishText;
@@ -26,17 +32,25 @@ public class GameManager : MonoBehaviour
     private float timeToNextSpawn;
     private bool gameOver = false;
     private bool hasBeenRead;
+    private AudioSource source;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        source = GetComponent<AudioSource>();
+
+        if (newEnemyTutorial)
+        {
+            source.PlayOneShot(tutorialClip);
+        }
+
         pointTotal = 0;
         timeStamp = Time.time;
         timeToNextSpawn = gracePeriod;
 
         LogSystem log = new LogSystem();
-        log.SaveEvent("#RoundStart");
+        log.SaveEvent("#RoundStart", gameTimeInSeconds);
 
         // play tutorial soundclip
     }
@@ -66,7 +80,20 @@ public class GameManager : MonoBehaviour
             ShowText();
             Debug.Log("Time over");
             LogSystem log = new LogSystem();
-            log.SaveEvent("#EndRound");
+            log.SaveEvent("#RoundEnd", gameTimeInSeconds, pointTotal.ToString());
+            GameObject[] civilians = GameObject.FindGameObjectsWithTag("Civillian");
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+            foreach(GameObject toDestroy in civilians)
+            {
+                Destroy(toDestroy);
+            }
+
+            foreach(GameObject toDestroy in enemies)
+            {
+                Destroy(toDestroy);
+            }
+
             StartCoroutine(ReturnToMenuTimer());
         }
 
@@ -84,10 +111,15 @@ public class GameManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 
-    public void ChangePoints(float pointAmount)
+    public void ChangePoints(int pointAmount)
     {
         pointTotal += pointAmount;
         //Debug.Log(pointTotal);
+    }
+
+    public int GetPoints()
+    {
+        return pointTotal;
     }
 
     GameObject ChooseEnemy()
@@ -103,6 +135,11 @@ public class GameManager : MonoBehaviour
     int GetSpawnTime()
     {
         return UnityEngine.Random.Range(minwaitTime, maxWaitTime + 1);
+    }
+
+    public float GetTimeLeft()
+    {
+        return gameTimeInSeconds;
     }
 
     void SpawnEnemy(GameObject enemy, GameObject lane)

@@ -177,13 +177,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 50
-  enemyDamage: 0
+  enemyDamage: 50
   enemyReward: -100
   enemyHealth: 1
   enemyGroans:
-  - {fileID: 8300000, guid: 6d5fb7ef5bcc7194292ccf371ff930f1, type: 3}
+  - {fileID: 8300000, guid: 4bd61084d053c8d438303a3d313ebfee, type: 3}
+  - {fileID: 8300000, guid: 0f7cb75184a855e419ce506c721ca984, type: 3}
   spawnSound: {fileID: 0}
-  deathSound: {fileID: 8300000, guid: c925bbb1cd1f7b4468d86c4d4a00d965, type: 3}
+  deathSound: {fileID: 8300000, guid: d623c1c324cec5143af60c60b26e05e4, type: 3}
   attackSound: {fileID: 0}
   muffledSound: {fileID: 0}
   escapeSound: {fileID: 8300000, guid: cecd61cc1444c1e489e5eaeb9485f222, type: 3}

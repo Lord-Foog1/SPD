@@ -1,10 +1,11 @@
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 
 public class RushingEnemy : MonoBehaviour
 {
     [SerializeField] float chargeTime = 10;
     [Tooltip("Amount of points you lose when hit")]
-    [SerializeField] float enemyDamage = -200.0f;
+    [SerializeField] int enemyDamage = -200;
     [SerializeField] private float enemySpeed = 1000;
 
     [Header("Sound")]
@@ -16,6 +17,7 @@ public class RushingEnemy : MonoBehaviour
     private AudioSource audioSource;
     
     private bool isRunning = false;
+    private bool hitPlayer = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -69,12 +71,39 @@ public class RushingEnemy : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             gameManager.ChangePoints(enemyDamage);
+
+            if (gameObject.CompareTag("Enemy"))
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#HitByRushingEnemy", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+
+            hitPlayer = true;
             // MakeSound(hitPlayerSound)
+        }
+
+        if((collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Civillian")) && isRunning)
+        {
+            // source.Stop();
+            // MakeSound(deathSound);
+            // source.loop = false;
+            // boxCollider.enabled = false;
+            // spriteRenderer.enabled = false;
+
+            Debug.Log("Crushed by rushing enemy");
+
+            Destroy(collision.gameObject);
         }
 
         if (collision.CompareTag("Killbox"))
         {
-            Destroy(gameObject);
+            if (gameObject.CompareTag("Enemy") && !hitPlayer)
+            {
+                LogSystem log = new LogSystem();
+                log.SaveEvent("#AvoidedRushingEnemy", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+            }
+
+            Destroy(gameObject, 2);
         }
     }
 }

@@ -17,8 +17,6 @@ public class Player : MonoBehaviour
     [SerializeField] float weaponCooldown = 0.3f;
     [SerializeField] float reloadTime = 1f;
     [SerializeField] int maxAmmo = 6;
-    [SerializeField] float equipWeaponCooldown;
-    //[SerializeField] float specialShotTime; controlled in inputAction
     [SerializeField] private float moveCooldown = 0.5f;
     [SerializeField] float bulletSpawnOffset;
 
@@ -27,10 +25,8 @@ public class Player : MonoBehaviour
     private bool isReloading;
     private int ammo;
     public float equippedWeapon = 1;
-    private float equippedWeaponTimeStamp;
     private int currentPos = 1;
     private float moveTimeStamp;
-    private float shootPressTimestamp;
     private bool specialShotReady;
 
     [Header("Sound")]
@@ -91,11 +87,7 @@ public class Player : MonoBehaviour
             
             moveTimeStamp = Time.time;
         }
-        /*if (weaponSwap.IsPressed() && equippedWeaponTimeStamp + equipWeaponCooldown <= Time.time)
-        {
-            SwapWeapon();
-            equippedWeaponTimeStamp = Time.time;
-        }*/
+ 
         if (reload.IsPressed() && !isReloading && ammo != maxAmmo)
         {
             reloadTimeStamp = Time.time;
@@ -114,22 +106,6 @@ public class Player : MonoBehaviour
                 Debug.Log("reloaded");
             }
         }
-        /*if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading && ammo > 0)
-        {
-            LogSystem log = new LogSystem();
-            log.SaveEvent("#Shot");
-            weaponCooldownTimeStamp = Time.time;
-            MakeSound(playerShoot, 0.1f);
-            ammo--;
-            if (equippedWeapon == 1)
-            {
-                Instantiate(bullet, this.transform.position, this.transform.rotation);
-            }
-            if (equippedWeapon == 2)
-            {
-                Instantiate(archingBullet, this.transform.position, this.transform.rotation);
-            }
-        }*/
 
         if (shoot.WasPressedThisFrame() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading)
         {
@@ -146,7 +122,6 @@ public class Player : MonoBehaviour
             {
                 //play outOfAmmo sound
                 Debug.Log("play outOfAmmo sound");
-                //shoot.Reset();
             }
         }
 
@@ -187,22 +162,6 @@ public class Player : MonoBehaviour
             specialShotReady = true;
         }
     }
-
-    /*void SwapWeapon()
-    {
-        if (equippedWeapon == 1)
-        {
-            equippedWeapon = 2;
-            Debug.Log("swapped to 2nd weapon");
-            return;
-        }
-        if (equippedWeapon == 2)
-        {
-            equippedWeapon = 1;
-            Debug.Log("swapped to 1st weapon");
-            return;
-        }
-    }*/
 
     void MakeSound(AudioClip sound)
     {

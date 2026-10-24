@@ -107,7 +107,8 @@ public class UAP_AudioQueue : MonoBehaviour
 		SAudioEntry newEntry = new SAudioEntry();
 		newEntry.m_AudioType = EAudioType.Pause;
 		newEntry.m_PauseDuration = durationInSecs;
-		QueueAudio(newEntry, EInterrupt.None);
+        newEntry.m_IsInterruptible = true;
+        QueueAudio(newEntry, EInterrupt.None);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -117,7 +118,8 @@ public class UAP_AudioQueue : MonoBehaviour
 		StopAudio(true);
 		m_AudioQueue.Clear();
 		InvalidateActiveEntry();
-	}
+        m_TTS_SpeakingTimer = 0.0f;
+    }
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +135,8 @@ public class UAP_AudioQueue : MonoBehaviour
 			{
 				StopAudio();
 				InvalidateActiveEntry();
-			}
+                m_TTS_SpeakingTimer = 0.0f;
+            }
 		}
 
 		// Go through the rest of the queue (if any)

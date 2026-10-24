@@ -6,6 +6,7 @@ using UnityEngine;
 public class LogSystem : MonoBehaviour
 {
     private string path;
+    private GameManager gameManager;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -13,20 +14,18 @@ public class LogSystem : MonoBehaviour
         path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public void SaveEvent(string eventType)
+    public void SaveEvent(string eventType, float gameTimeLeft, string gamePoints = "Null", string lane = "Null")
     {
         path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
 
         LoggedEvent newEvent = new LoggedEvent
         {
             eventType = eventType,
-            dateAndTime = DateTime.Now.ToString()
+            dateAndTime = DateTime.Now.ToString(),
+            playthrough = SettingsManager.playthrough,
+            points = gamePoints,
+            timeLeftOnRound = gameTimeLeft,
+            occupiedLane = lane
         };
 
         EventListWrapper wrapper = new EventListWrapper();

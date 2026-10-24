@@ -19,8 +19,8 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private AudioClip menuExample;
 
     [Header("Sound Duration")]
-    [SerializeField] private float soundDuration = 5f;
-    [SerializeField] private float playCooldown = 0.5f;
+    [SerializeField] private float soundDuration = 2f;
+    [SerializeField] private float playCooldown = 0.0f;
     private float nextPlayTime;
 
     public static float monsterSoundLevel { get; set; }
@@ -28,7 +28,7 @@ public class SettingsManager : MonoBehaviour
     public static float menuSoundLevel { get; set; }
     public static float ambienceSoundLevel { get; set; }
     public static float operatorSoundLevel { get; set; }
-
+    public static int playthrough {  get; set; }
     private static bool soundSet = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
