@@ -19,6 +19,7 @@ public class Enemy : MonoBehaviour
     private Rigidbody2D rb;
     private AudioSource source;
     private BoxCollider2D boxCollider;
+    private SpriteRenderer spriteRenderer;
 
     [Header("Sound")]
     [Tooltip("Idle ljuden går här")]
@@ -35,6 +36,8 @@ public class Enemy : MonoBehaviour
     {
         source = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Make sound
         MakeSound(spawnSound, 0.35f);
@@ -55,9 +58,7 @@ public class Enemy : MonoBehaviour
     {
         
     }
-
-
-    private void OnTriggerEnter2D(Collider2D collision)
+private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.tag == "Bullet" && enemyHealth == 1)
         {
@@ -67,6 +68,7 @@ public class Enemy : MonoBehaviour
             MakeSound(deathSound, 0.5f);
             source.loop = false;
             boxCollider.enabled = false;
+            spriteRenderer.enabled = false;
             Destroy(this.gameObject, 1.5f);
         }
         if (collision.gameObject.tag == "Bullet" && enemyHealth > 1)
@@ -74,10 +76,12 @@ public class Enemy : MonoBehaviour
             enemyHealth--;
             Destroy(collision.gameObject);
         }
-        if (collision.gameObject.tag == "Killbox" && this.gameObject.tag == "Enemy")
+        if (collision.gameObject.tag == "Killbox")
         {
             gameManager.ChangePoints(enemyDamage);
-            Destroy(this.gameObject);
+            source.Stop();
+            MakeSound(escapeSound, 1);
+            Destroy(this.gameObject, 1.5f);
         }
         if(collision.gameObject.tag == "LastChance")
         {
@@ -90,7 +94,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    /*private void OnTriggerExit2D(Collider2D collision)
     {
         if( collision.gameObject.tag == "LastChance" && this.gameObject.tag == "Civillian")
         {
@@ -100,7 +104,7 @@ public class Enemy : MonoBehaviour
 
             Destroy(this.gameObject, 2);
         }
-    }
+    }*/
 
     void MakeSound(AudioClip sound, float vol)
     {
@@ -122,4 +126,6 @@ public class Enemy : MonoBehaviour
             source.panStereo = -1;
         }
     }
+
+    
 }

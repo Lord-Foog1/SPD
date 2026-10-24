@@ -7,7 +7,8 @@ public class Player : MonoBehaviour
     [SerializeField] InputAction moveLeft;
     [SerializeField] InputAction moveRight;
     [SerializeField] InputAction shoot;
-    [SerializeField] InputAction weaponSwap;
+    [SerializeField] InputAction reload;
+    [SerializeField] InputAction chargeSpecial;
 
     [SerializeField] GameObject[] playerLanes;
 
@@ -17,7 +18,9 @@ public class Player : MonoBehaviour
     [SerializeField] float reloadTime = 1f;
     [SerializeField] int maxAmmo = 6;
     [SerializeField] float equipWeaponCooldown;
+    //[SerializeField] float specialShotTime; controlled in inputAction
     [SerializeField] private float moveCooldown = 0.5f;
+    [SerializeField] float bulletSpawnOffset;
 
     private float weaponCooldownTimeStamp;
     private float reloadTimeStamp;
@@ -27,12 +30,14 @@ public class Player : MonoBehaviour
     private float equippedWeaponTimeStamp;
     private int currentPos = 1;
     private float moveTimeStamp;
+    private float shootPressTimestamp;
+    private bool specialShotReady;
 
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
     [SerializeField] AudioClip[] playerMove;
     [SerializeField] AudioClip changeWeapon;
-    [SerializeField] AudioClip reload;
+    [SerializeField] AudioClip reloadSound;
 
     private AudioSource source;
 
@@ -43,7 +48,8 @@ public class Player : MonoBehaviour
         moveLeft.Enable();
         moveRight.Enable();
         shoot.Enable();
-        weaponSwap.Enable();
+        reload.Enable();
+        chargeSpecial.Enable();
 
         weaponCooldownTimeStamp = Time.time;
         moveTimeStamp = Time.time;
@@ -65,7 +71,7 @@ public class Player : MonoBehaviour
             {
                 transform.position = playerLanes[currentPos-1].transform.position;
                 currentPos--;
-                MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+                MakeSound(playerMove[Random.Range(0, playerMove.Length)]);
             }
             
             moveTimeStamp = Time.time;
@@ -80,21 +86,23 @@ public class Player : MonoBehaviour
             {
                 transform.position = playerLanes[currentPos+1].transform.position;
                 currentPos++;
-                MakeSound(playerMove[Random.Range(0, playerMove.Length)], 1);
+                MakeSound(playerMove[Random.Range(0, playerMove.Length)]);
             }
             
             moveTimeStamp = Time.time;
         }
-        if (weaponSwap.IsPressed() && equippedWeaponTimeStamp + equipWeaponCooldown <= Time.time)
+        /*if (weaponSwap.IsPressed() && equippedWeaponTimeStamp + equipWeaponCooldown <= Time.time)
         {
             SwapWeapon();
             equippedWeaponTimeStamp = Time.time;
-        }
-        if (ammo <= 0 && !isReloading)
+        }*/
+        if (reload.IsPressed() && !isReloading && ammo != maxAmmo)
         {
             reloadTimeStamp = Time.time;
             isReloading = true;
-            MakeSound(reload, 1);
+            MakeSound(reloadSound);
+            reload.Disable();
+            Debug.Log("reloading");
         }
         if (isReloading)
         {
@@ -102,10 +110,14 @@ public class Player : MonoBehaviour
             {
                 ammo = maxAmmo;
                 isReloading = false;
+                reload.Enable();
+                Debug.Log("reloaded");
             }
         }
-        if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading && ammo > 0)
+        /*if (shoot.IsPressed() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading && ammo > 0)
         {
+            LogSystem log = new LogSystem();
+            log.SaveEvent("#Shot");
             weaponCooldownTimeStamp = Time.time;
             MakeSound(playerShoot, 0.1f);
             ammo--;
@@ -117,10 +129,66 @@ public class Player : MonoBehaviour
             {
                 Instantiate(archingBullet, this.transform.position, this.transform.rotation);
             }
+        }*/
+
+        if (shoot.WasPressedThisFrame() && weaponCooldownTimeStamp + weaponCooldown <= Time.time && !isReloading)
+        {
+            Debug.Log("shoot was pressed");
+            if (ammo > 0)
+            {
+                ammo--;
+                weaponCooldownTimeStamp = Time.time;
+                Debug.Log("shot");
+                MakeSound(playerShoot);
+                Instantiate(bullet, this.transform.position + new Vector3(0, bulletSpawnOffset), this.transform.rotation);
+            }
+            else
+            {
+                //play outOfAmmo sound
+                Debug.Log("play outOfAmmo sound");
+                //shoot.Reset();
+            }
+        }
+
+        if (chargeSpecial.WasPressedThisFrame())
+        {
+            //make chargeSpecialSound
+            Debug.Log("started charging");
+            moveLeft.Disable();
+            moveRight.Disable();
+            shoot.Disable();
+            reload.Disable();
+        }
+
+        if (chargeSpecial.WasReleasedThisFrame())
+        {
+            moveLeft.Enable();
+            moveRight.Enable();
+            shoot.Enable();
+            reload.Enable();
+
+            if (specialShotReady)
+            {
+                specialShotReady = false;
+                Debug.Log("special shot");
+                Instantiate(archingBullet, this.transform.position + new Vector3(0, bulletSpawnOffset), this.transform.rotation);
+            }
+            else
+            {
+                Debug.Log("stopped charging");
+                source.Stop();
+            }
+        }
+
+        if (chargeSpecial.WasPerformedThisFrame() && !isReloading && ammo > 0) // 1s
+        {
+            //play specialShotReady sound
+            Debug.Log("play specialShotReady sound");
+            specialShotReady = true;
         }
     }
 
-    void SwapWeapon()
+    /*void SwapWeapon()
     {
         if (equippedWeapon == 1)
         {
@@ -134,10 +202,10 @@ public class Player : MonoBehaviour
             Debug.Log("swapped to 1st weapon");
             return;
         }
-    }
+    }*/
 
-    void MakeSound(AudioClip sound, float vol)
+    void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, vol);
+        source.PlayOneShot(sound, SettingsManager.playerSoundLevel);
     }
 }

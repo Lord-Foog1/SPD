@@ -26,7 +26,7 @@ public class RushingEnemy : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
         
-        // MakeSound(chargeSound, 1);
+        // MakeSound(chargeSound);
     }
 
     // Update is called once per frame
@@ -59,9 +59,9 @@ public class RushingEnemy : MonoBehaviour
         }
     }
 
-    public void MakeSound(AudioClip sound, float vol)
+    public void MakeSound(AudioClip sound)
     {
-        audioSource.PlayOneShot(sound, vol);
+        audioSource.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -69,7 +69,7 @@ public class RushingEnemy : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             gameManager.ChangePoints(enemyDamage);
-            // MakeSound(hitPlayerSound, 1)
+            // MakeSound(hitPlayerSound)
         }
 
         if (collision.CompareTag("Killbox"))

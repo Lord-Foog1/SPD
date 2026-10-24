@@ -687,7 +687,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: f2e988446da6c0b43876e2303d96e7ae, type: 3}
+  m_Resource: {fileID: 8300000, guid: 46f2878969d398c4d8800ec48ca5be80, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.85
   m_Pitch: 1
@@ -1608,7 +1608,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: f2e988446da6c0b43876e2303d96e7ae, type: 3}
+  m_Resource: {fileID: 8300000, guid: 46f2878969d398c4d8800ec48ca5be80, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.85
   m_Pitch: 1
@@ -2047,6 +2047,18 @@ PrefabInstance:
       propertyPath: 'enemyLanes.Array.data[2]'
       value: 
       objectReference: {fileID: 1541058054}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: ambientAudioSources.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: 'ambientAudioSources.Array.data[0]'
+      value: 
+      objectReference: {fileID: 401509159}
+    - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: 'ambientAudioSources.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1682090492}
     - target: {fileID: 5223693149971035896, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.5266576

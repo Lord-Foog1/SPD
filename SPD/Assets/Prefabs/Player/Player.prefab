@@ -199,31 +199,49 @@ MonoBehaviour:
       m_Action: Shoot
       m_Flags: 0
     m_Flags: 0
-  weaponSwap:
-    m_Name: Weapon Swap
+  reload:
+    m_Name: Reload
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 9526868e-88c1-4d8a-90de-518b5b87df16
+    m_Id: 53f66c69-f795-4ddb-8685-5c5958f68d0d
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings:
     - m_Name: 
-      m_Id: ef4c718e-27d9-44fe-a119-167c2eaeab55
+      m_Id: fbcf621d-f649-43d1-81ca-2ba4a9c8f93a
+      m_Path: <Keyboard>/#(R)
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Reload
+      m_Flags: 0
+    m_Flags: 0
+  chargeSpecial:
+    m_Name: Charge Special
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: be75f0c7-c6a3-49c6-ab62-ce23d96655d5
+    m_Processors: 
+    m_Interactions: Hold(duration=2)
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: f5c29814-4c37-4ffe-9d88-37c8634f74cc
       m_Path: <Keyboard>/upArrow
       m_Interactions: 
       m_Processors: 
       m_Groups: 
-      m_Action: Weapon Swap
+      m_Action: Charge Special
       m_Flags: 0
     m_Flags: 0
   playerLanes: []
   bullet: {fileID: 5213706024248716814, guid: 786df1131a3287d449c6a7a84ba26833, type: 3}
   archingBullet: {fileID: 0}
   weaponCooldown: 0.3
-  reloadTime: 1
+  reloadTime: 3
   maxAmmo: 6
   equipWeaponCooldown: 0
-  moveCooldown: 0.5
+  moveCooldown: 0.1
+  bulletSpawnOffset: 0.2
   equippedWeapon: 1
   playerShoot: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
   playerMove:
@@ -231,7 +249,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: d946db1e083601e47829b0f067a27d98, type: 3}
   - {fileID: 8300000, guid: 06aca86d9a6d9a84986292705a0af120, type: 3}
   changeWeapon: {fileID: 0}
-  reload: {fileID: 8300000, guid: eff17f20ce5694d4590d8b1cd7c78aca, type: 3}
+  reloadSound: {fileID: 8300000, guid: eff17f20ce5694d4590d8b1cd7c78aca, type: 3}
 --- !u!82 &-5083929678541783941
 AudioSource:
   m_ObjectHideFlags: 0

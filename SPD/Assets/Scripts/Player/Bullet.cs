@@ -10,12 +10,14 @@ public class Bullet : MonoBehaviour
 
     [SerializeField] GameObject bullet;
 
+    private Rigidbody2D rb;
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, bulletSpeed));
 
         Destroy(this.gameObject, lifeTime);
@@ -29,11 +31,12 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("test");
+        //Debug.Log("test");
         if (isSpceial && (collision.gameObject.tag == "Civillian" || collision.gameObject.tag == "Enemy"))
         {
+            rb.AddForce(new Vector2(0, -bulletSpeed));
             Instantiate(bullet, this.transform.position + new Vector3(0, specialBulletOffset), this.transform.rotation);
-            Debug.Log("Test");
+            //Debug.Log("Test");
             Destroy(this.gameObject);
         }
     }
