@@ -33,6 +33,8 @@ public class LaneJumper : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        gameManager = FindObjectsOfType<GameManager>()[0];
+
         LogSystem log = new LogSystem();
         log.SaveEvent("#laneJumperSpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
 
@@ -43,8 +45,6 @@ public class LaneJumper : MonoBehaviour
 
         // Make spawn sound
         MakeSound(spawnSound, 0.35f);
-
-        gameManager = FindObjectsOfType<GameManager>()[0];
 
         rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));

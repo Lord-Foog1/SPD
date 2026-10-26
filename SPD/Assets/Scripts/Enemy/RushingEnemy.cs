@@ -28,10 +28,10 @@ public class RushingEnemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
         LogSystem log = new LogSystem();
         log.SaveEvent("#RushingEnemySpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
 
-        gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody2D>();
         
         audioSource = GetComponent<AudioSource>();

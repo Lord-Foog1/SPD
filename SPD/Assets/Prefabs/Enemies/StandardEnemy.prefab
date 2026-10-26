@@ -180,12 +180,14 @@ MonoBehaviour:
   enemyDamage: -100
   enemyReward: 100
   enemyHealth: 1
-  enemyGroans: []
+  idleSounds: []
   spawnSound: {fileID: 8300000, guid: f163dddc3cd0c724dbdd6c9586d48ba2, type: 3}
   deathSound: {fileID: 8300000, guid: f5cc85c3b26fc8941b54b40d7cf143c1, type: 3}
   attackSound: {fileID: 8300000, guid: aafde3d86a7941849b68c75de1b86dc5, type: 3}
   muffledSound: {fileID: 0}
   escapeSound: {fileID: 8300000, guid: 24516e4b9f3e1b549beb81a1dcc039fc, type: 3}
+  soundDuration: 2
+  playCooldown: 0.5
 --- !u!82 &-2220592309705280006
 AudioSource:
   m_ObjectHideFlags: 0
@@ -207,7 +209,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 4
+  MinDistance: 6
   MaxDistance: 500
   Pan2D: 1
   rolloffMode: 0

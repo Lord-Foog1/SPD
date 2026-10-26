@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.VirtualTexturing;
@@ -37,11 +38,11 @@ public class Player : MonoBehaviour
     [SerializeField] AudioClip reloadSound;
 
     [Header("Sound Duration")]
-    [SerializeField] private float soundDuration = 2f;
-    [SerializeField] private float playCooldown = 0.5f;
+    [SerializeField] private float soundDuration = 1f;
+    [SerializeField] private float playCooldown = 0.2f;
     private float nextPlayTime;
 
-    private AudioSource source;
+    private AudioSource[] sources;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -56,7 +57,7 @@ public class Player : MonoBehaviour
         weaponCooldownTimeStamp = Time.time;
         moveTimeStamp = Time.time;
 
-        source = GetComponent<AudioSource>();
+        sources = GetComponents<AudioSource>();
         ammo = maxAmmo;
     }
 
@@ -157,7 +158,7 @@ public class Player : MonoBehaviour
             else
             {
                 Debug.Log("stopped charging");
-                source.Stop();
+                sources[0].Stop();
             }
         }
 
@@ -171,23 +172,27 @@ public class Player : MonoBehaviour
 
     void MakeSound(AudioClip sound)
     {
-        if(source && sound)
+        if (sources[1] && playerMove.Contains(sound))
         {
             if (Time.time < nextPlayTime) return;
 
             nextPlayTime = Time.time + playCooldown;
 
             StopAllCoroutines();
-            source.Stop();
-            source.PlayOneShot(sound, SettingsManager.playerSoundLevel);
+            sources[1].Stop();
+            sources[1].PlayOneShot(sound, SettingsManager.playerSoundLevel);
 
             StartCoroutine(StopSoundAfterDelay(soundDuration));
+        }
+        else
+        {
+            sources[0].PlayOneShot(sound, SettingsManager.playerSoundLevel);
         }
     }
 
     private IEnumerator StopSoundAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        source.Stop();
+        sources[1].Stop();
     }
 }
