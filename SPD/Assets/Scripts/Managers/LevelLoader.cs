@@ -6,6 +6,7 @@ public class LevelLoader : MonoBehaviour
     public void StartGame()
     {
         SettingsManager.playthrough++;
+        LogSystem.ResetCount();
         // Byt ut "Level1" mot exakt det namn din spelscen har i projektet
         SceneManager.LoadScene("Level1");
     }

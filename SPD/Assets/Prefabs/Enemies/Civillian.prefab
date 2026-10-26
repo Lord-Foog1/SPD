@@ -182,7 +182,7 @@ MonoBehaviour:
   enemyReward: -100
   enemyHealth: 1
   idleSounds: []
-  spawnSound: {fileID: 8300000, guid: d0a3f88954d889d42be097cdbfa2df9a, type: 3}
+  spawnSound: {fileID: 8300000, guid: 4bd61084d053c8d438303a3d313ebfee, type: 3}
   deathSound: {fileID: 8300000, guid: d623c1c324cec5143af60c60b26e05e4, type: 3}
   attackSound: {fileID: 0}
   muffledSound: {fileID: 0}

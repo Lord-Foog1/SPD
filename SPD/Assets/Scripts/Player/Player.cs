@@ -36,6 +36,8 @@ public class Player : MonoBehaviour
     [SerializeField] AudioClip[] playerMove;
     [SerializeField] AudioClip changeWeapon;
     [SerializeField] AudioClip reloadSound;
+    [SerializeField] AudioClip wallHit;
+    [SerializeField] AudioClip noAmmoSound;
 
     [Header("Sound Duration")]
     [SerializeField] private float soundDuration = 1f;
@@ -68,7 +70,7 @@ public class Player : MonoBehaviour
         {
             if (transform.position == playerLanes[0].transform.position)
             {
-                // MakeSound(wallHit);
+                MakeSound(wallHit);
             }
             else
             {
@@ -83,7 +85,7 @@ public class Player : MonoBehaviour
         {
             if (transform.position == playerLanes[2].transform.position)
             {
-                // MakeSound(wallHit);
+                MakeSound(wallHit);
             }
             else
             {
@@ -129,6 +131,7 @@ public class Player : MonoBehaviour
             {
                 //play outOfAmmo sound
                 Debug.Log("play outOfAmmo sound");
+                MakeSound(noAmmoSound);
             }
         }
 

@@ -248,6 +248,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8fc66b759485ab441901bb77babefe90, type: 3}
   changeWeapon: {fileID: 8300000, guid: a7c06be5f81ce9d4c9de080334d0da7c, type: 3}
   reloadSound: {fileID: 8300000, guid: d8f919dc252d7674da8fc01068784244, type: 3}
+  wallHit: {fileID: 8300000, guid: 04208db4c6707004e9382884a8937e27, type: 3}
+  noAmmoSound: {fileID: 8300000, guid: dcf47d3215ea1b843a13e5ae44819b5e, type: 3}
   soundDuration: 2
   playCooldown: 0.5
 --- !u!82 &-5083929678541783941

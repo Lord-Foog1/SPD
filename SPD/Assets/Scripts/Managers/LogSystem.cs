@@ -19,6 +19,14 @@ public class LogSystem : MonoBehaviour
         path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
     }
 
+    public static void ResetCount()
+    {
+        totalEnemySpawned = 0;
+        totalEnemyKilled = 0;
+        totalCivilianKilled = 0;
+        totalCivilianSpwaned = 0;
+    }
+
     public void SaveEvent(string eventType, float gameTimeLeft, string gamePoints = "Null", string lane = "Null")
     {
         path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
