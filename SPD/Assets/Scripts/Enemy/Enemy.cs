@@ -40,14 +40,16 @@ public class Enemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        LogSystem log = new LogSystem();
+        gameManager = FindObjectsOfType<GameManager>()[0];
 
         if (gameObject.CompareTag("Civillian"))
         {
+            LogSystem log = new LogSystem();
             log.SaveEvent("#CivilianSpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
         }
         if (gameObject.CompareTag("Enemy"))
         {
+            LogSystem log = new LogSystem();
             log.SaveEvent("#EnemySpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
         }
 
@@ -61,8 +63,6 @@ public class Enemy : MonoBehaviour
         {
             MakeSound(spawnSound);
         }
-
-        gameManager = FindObjectsOfType<GameManager>()[0];
 
         rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));
