@@ -144,9 +144,16 @@ public class Enemy : MonoBehaviour
 
             StopAllCoroutines();
             source.Stop();
-            source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+            if (gameObject.CompareTag("Civillian"))
+            {
+                source.PlayOneShot(sound, SettingsManager.monsterSoundLevel + 0.5f);
+            }
+            else
+            {
+                source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+            }
 
-            StartCoroutine(StopSoundAfterDelay(soundDuration));
+                StartCoroutine(StopSoundAfterDelay(soundDuration));
         }
     }
 

@@ -243,7 +243,7 @@ MonoBehaviour:
   moveCooldown: 0.1
   bulletSpawnOffset: 0.2
   equippedWeapon: 1
-  playerShoot: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
+  playerShoot: {fileID: 8300000, guid: 06d9264a08fc1564690d4f34105df879, type: 3}
   playerMove:
   - {fileID: 8300000, guid: 8fc66b759485ab441901bb77babefe90, type: 3}
   changeWeapon: {fileID: 8300000, guid: a7c06be5f81ce9d4c9de080334d0da7c, type: 3}

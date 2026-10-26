@@ -6365,7 +6365,7 @@ PrefabInstance:
     - target: {fileID: -2562026648769092316, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
       propertyPath: playerExample
       value: 
-      objectReference: {fileID: 8300000, guid: ba79a2d876297fe41bf4da9867f66ee6, type: 3}
+      objectReference: {fileID: 8300000, guid: 06d9264a08fc1564690d4f34105df879, type: 3}
     - target: {fileID: -2562026648769092316, guid: a749bb2a618c9434fac10fa149e61ac7, type: 3}
       propertyPath: ambienceSlider
       value: 
