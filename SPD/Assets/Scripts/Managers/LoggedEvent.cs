@@ -11,4 +11,8 @@ public class LoggedEvent
     public string points;
     public float timeLeftOnRound;
     public string occupiedLane;
+    public int totalEnemySpawned;
+    public int totalEnemyKilled;
+    public int totalCivilianSpwaned;
+    public int totalCivilianKilled;
 }
