@@ -122,8 +122,8 @@ public class UAP_AccessibilityManager : MonoBehaviour
 	public bool m_WindowsUseKeys = true;
 	private KeyCode m_NextElementKey = KeyCode.DownArrow;
 	private KeyCode m_PreviousElementKey = KeyCode.UpArrow;
-	private KeyCode m_NextContainerKey = KeyCode.RightArrow;
-	private KeyCode m_PreviousContainerKey = KeyCode.LeftArrow;
+	//private KeyCode m_NextContainerKey = KeyCode.RightArrow;
+	//private KeyCode m_PreviousContainerKey = KeyCode.LeftArrow;
 	private bool m_UseTabAndShiftTabForContainerJumping = true;
 	private KeyCode m_InteractKey = KeyCode.Return;
 	private KeyCode m_SliderIncrementKey = KeyCode.UpArrow;
@@ -2946,8 +2946,8 @@ public class UAP_AccessibilityManager : MonoBehaviour
 			}
 			else
 			{
-				if (m_CurrentItem.m_Object.IsInteractable())
-					InteractWithElement(m_CurrentItem);
+				//if (m_CurrentItem.m_Object.IsInteractable())
+					//InteractWithElement(m_CurrentItem);
 			}
 		}
 	}
@@ -3117,7 +3117,7 @@ public class UAP_AccessibilityManager : MonoBehaviour
 						DecrementUIElement();
 						return;
 					}
-					if (Input.GetKeyDown(m_PreviousContainerKey) || (m_UseTabAndShiftTabForContainerJumping && Input.GetKeyDown(KeyCode.Tab) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))))
+					/*if (Input.GetKeyDown(m_PreviousContainerKey) || (m_UseTabAndShiftTabForContainerJumping && Input.GetKeyDown(KeyCode.Tab) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))))
 					{
 						int currentContainerIndex = m_ActiveContainerIndex;
 						if (DecrementContainer(true))
@@ -3151,70 +3151,71 @@ public class UAP_AccessibilityManager : MonoBehaviour
 						ReadItem(m_CurrentItem);
 						return;
 					}
+				} */
+
+					if (Input.GetKeyDown(m_InteractKey))
+					{
+						// Interact with current element
+						InteractWithElement(m_CurrentItem);
+					}
 				}
 
-				if (Input.GetKeyDown(m_InteractKey))
-				{
-					// Interact with current element
-					InteractWithElement(m_CurrentItem);
-				}
+				// #UAP: Backspace to go Back/Cancel, Escape for Pause
 			}
 
-			// #UAP: Backspace to go Back/Cancel, Escape for Pause
 		}
 
-	}
+		//////////////////////////////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////////////////////////////
-
-	void InteractWithElement(AccessibleUIGroupRoot.Accessible_UIElement item)
-	{
-		if (item == null)
-			return;
-
-		if (!item.m_Object.IsInteractable())
-			return;
-
-		// This will interrupt the type, hint etc reading of the current element
-		Say_Internal("");
-
-		switch (item.m_Type)
+		void InteractWithElement(AccessibleUIGroupRoot.Accessible_UIElement item)
 		{
-			case AccessibleUIGroupRoot.EUIElement.EButton:
-				PlaySFX(m_UIInteract);
-				item.m_Object.Interact();
-				break;
-			case AccessibleUIGroupRoot.EUIElement.EToggle:
-				PlaySFX(m_UIInteract);
-				item.m_Object.Interact();
-				// After something was toggled, repeat the item
-				ReadItem(m_CurrentItem);
-				break;
-			case AccessibleUIGroupRoot.EUIElement.ESlider:
-				// Sliders are special, they need the full focus
-				PlaySFX(m_UIFocusEnter);
-				item.m_Object.Interact();
-				m_CurrentElementHasSoleFocus = true;
-				// #UAP: Queue delayed focus hint on how to change the slider value
-				break;
-			case AccessibleUIGroupRoot.EUIElement.ETextEdit:
-				// Text Edit Fields are VERY special, they need the full focus
-				PlaySFX(m_UIFocusEnter);
-				item.m_Object.Interact();
-				m_CurrentElementHasSoleFocus = true;
-				// #UAP: Queue delayed focus hint on how to work the edit field
-				break;
-			case AccessibleUIGroupRoot.EUIElement.EDropDown:
-				// DropDowns are special, they need the full focus
-				PlaySFX(m_UIFocusEnter);
-				item.m_Object.Interact();
-				m_CurrentElementHasSoleFocus = true;
-				ReadValue(false, true);
-				ReadDropdownItemIndex(ref item);
-				// #UAP: Queue delayed focus hint on how to change the slider value
+			if (item == null)
+				return;
 
-				break;
+			if (!item.m_Object.IsInteractable())
+				return;
 
+			// This will interrupt the type, hint etc reading of the current element
+			Say_Internal("");
+
+			switch (item.m_Type)
+			{
+				case AccessibleUIGroupRoot.EUIElement.EButton:
+					PlaySFX(m_UIInteract);
+					item.m_Object.Interact();
+					break;
+				case AccessibleUIGroupRoot.EUIElement.EToggle:
+					PlaySFX(m_UIInteract);
+					item.m_Object.Interact();
+					// After something was toggled, repeat the item
+					ReadItem(m_CurrentItem);
+					break;
+				case AccessibleUIGroupRoot.EUIElement.ESlider:
+					// Sliders are special, they need the full focus
+					PlaySFX(m_UIFocusEnter);
+					item.m_Object.Interact();
+					m_CurrentElementHasSoleFocus = true;
+					// #UAP: Queue delayed focus hint on how to change the slider value
+					break;
+				case AccessibleUIGroupRoot.EUIElement.ETextEdit:
+					// Text Edit Fields are VERY special, they need the full focus
+					PlaySFX(m_UIFocusEnter);
+					item.m_Object.Interact();
+					m_CurrentElementHasSoleFocus = true;
+					// #UAP: Queue delayed focus hint on how to work the edit field
+					break;
+				case AccessibleUIGroupRoot.EUIElement.EDropDown:
+					// DropDowns are special, they need the full focus
+					PlaySFX(m_UIFocusEnter);
+					item.m_Object.Interact();
+					m_CurrentElementHasSoleFocus = true;
+					ReadValue(false, true);
+					ReadDropdownItemIndex(ref item);
+					// #UAP: Queue delayed focus hint on how to change the slider value
+
+					break;
+
+			}
 		}
 	}
 
