@@ -33,6 +33,9 @@ public class LaneJumper : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        LogSystem log = new LogSystem();
+        log.SaveEvent("#laneJumperSpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+
         source = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
 
@@ -97,12 +100,6 @@ public class LaneJumper : MonoBehaviour
         {
             enemyHealth--;
 
-            if (gameObject.CompareTag("Enemy"))
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#LaneJumperShot", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
-
             Destroy(collision.gameObject);
             //make enemy hit sound
         }
@@ -111,11 +108,6 @@ public class LaneJumper : MonoBehaviour
             canJump = false;
             gameManager.ChangePoints(enemyDamage);
 
-            if (gameObject.CompareTag("Enemy"))
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#LaneJumperEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
             //play escape sound
             Destroy(this.gameObject, 1.5f);
         }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.VirtualTexturing;
@@ -34,6 +35,11 @@ public class Player : MonoBehaviour
     [SerializeField] AudioClip[] playerMove;
     [SerializeField] AudioClip changeWeapon;
     [SerializeField] AudioClip reloadSound;
+
+    [Header("Sound Duration")]
+    [SerializeField] private float soundDuration = 2f;
+    [SerializeField] private float playCooldown = 0.5f;
+    private float nextPlayTime;
 
     private AudioSource source;
 
@@ -165,6 +171,23 @@ public class Player : MonoBehaviour
 
     void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, SettingsManager.playerSoundLevel);
+        if(source && sound)
+        {
+            if (Time.time < nextPlayTime) return;
+
+            nextPlayTime = Time.time + playCooldown;
+
+            StopAllCoroutines();
+            source.Stop();
+            source.PlayOneShot(sound, SettingsManager.playerSoundLevel);
+
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
+        }
+    }
+
+    private IEnumerator StopSoundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        source.Stop();
     }
 }

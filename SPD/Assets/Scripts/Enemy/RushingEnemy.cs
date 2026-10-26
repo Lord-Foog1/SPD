@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using static Unity.VisualScripting.Member;
 
@@ -11,7 +12,12 @@ public class RushingEnemy : MonoBehaviour
     [Header("Sound")]
     [SerializeField] private AudioClip chargeSound;
     [SerializeField] private AudioClip hitPlayerSound;
-    
+
+    [Header("Sound Duration")]
+    [SerializeField] private float soundDuration = 2.0f;
+    [SerializeField] private float playCooldown = 0.5f;
+    private float nextPlayTime;
+
     private GameManager gameManager;
     private Rigidbody2D rb;
     private AudioSource audioSource;
@@ -22,13 +28,16 @@ public class RushingEnemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        LogSystem log = new LogSystem();
+        log.SaveEvent("#RushingEnemySpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+
         gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody2D>();
         
         audioSource = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
         
-        // MakeSound(chargeSound);
+        MakeSound(chargeSound);
     }
 
     // Update is called once per frame
@@ -61,9 +70,26 @@ public class RushingEnemy : MonoBehaviour
         }
     }
 
-    public void MakeSound(AudioClip sound)
+    void MakeSound(AudioClip sound)
     {
-        audioSource.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+        if (audioSource && sound)
+        {
+            if (Time.time < nextPlayTime) return;
+
+            nextPlayTime = Time.time + playCooldown;
+
+            StopAllCoroutines();
+            audioSource.Stop();
+            audioSource.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
+        }
+    }
+
+    private IEnumerator StopSoundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        audioSource.Stop();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -72,14 +98,8 @@ public class RushingEnemy : MonoBehaviour
         {
             gameManager.ChangePoints(enemyDamage);
 
-            if (gameObject.CompareTag("Enemy"))
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#HitByRushingEnemy", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
-
             hitPlayer = true;
-            // MakeSound(hitPlayerSound)
+            MakeSound(hitPlayerSound);
         }
 
         if((collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Civillian")) && isRunning)
@@ -97,12 +117,6 @@ public class RushingEnemy : MonoBehaviour
 
         if (collision.CompareTag("Killbox"))
         {
-            if (gameObject.CompareTag("Enemy") && !hitPlayer)
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#AvoidedRushingEnemy", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
-
             Destroy(gameObject, 2);
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -23,7 +24,7 @@ public class Enemy : MonoBehaviour
 
     [Header("Sound")]
     [Tooltip("Idle ljuden går här")]
-    [SerializeField] AudioClip[] enemyGroans;
+    [SerializeField] AudioClip[] idleSounds;
 
     [SerializeField] AudioClip spawnSound;
     [SerializeField] AudioClip deathSound;
@@ -31,16 +32,35 @@ public class Enemy : MonoBehaviour
     [SerializeField] AudioClip muffledSound;
     [SerializeField] AudioClip escapeSound;
 
+    [Header("Sound Duration")]
+    [SerializeField] private float soundDuration = 2.0f;
+    [SerializeField] private float playCooldown = 0.5f;
+    private float nextPlayTime;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        LogSystem log = new LogSystem();
+
+        if (gameObject.CompareTag("Civillian"))
+        {
+            log.SaveEvent("#CivilianSpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+        }
+        if (gameObject.CompareTag("Enemy"))
+        {
+            log.SaveEvent("#EnemySpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+        }
+
         source = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
 
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Make sound
-        MakeSound(spawnSound);
+        if (spawnSound)
+        {
+            MakeSound(spawnSound);
+        }
 
         gameManager = FindObjectsOfType<GameManager>()[0];
 
@@ -51,6 +71,11 @@ public class Enemy : MonoBehaviour
         source.loop = true;
 
         boxCollider = GetComponent<BoxCollider2D>();
+
+        if(idleSounds.Length > 0)
+        {
+
+        }
     }
 
     // Update is called once per frame
@@ -94,17 +119,6 @@ public class Enemy : MonoBehaviour
         {
             gameManager.ChangePoints(enemyDamage);
 
-            if (gameObject.CompareTag("Enemy"))
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#EnemyEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
-            else if (gameObject.CompareTag("Civillian"))
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#CivilianEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
-
             source.Stop();
             MakeSound(escapeSound);
             Destroy(this.gameObject, 1.5f);
@@ -122,7 +136,24 @@ public class Enemy : MonoBehaviour
 
     void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+        if (source && sound)
+        {
+            if (Time.time < nextPlayTime) return;
+
+            nextPlayTime = Time.time + playCooldown;
+
+            StopAllCoroutines();
+            source.Stop();
+            source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
+        }
+    }
+
+    private IEnumerator StopSoundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        source.Stop();
     }
 
     public void SetSoundPosition(float lane)

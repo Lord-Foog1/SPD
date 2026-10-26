@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     {
         source = GetComponent<AudioSource>();
 
+        // play tutorial soundclip
         if (newEnemyTutorial)
         {
             source.PlayOneShot(tutorialClip);
@@ -48,11 +49,6 @@ public class GameManager : MonoBehaviour
         pointTotal = 0;
         timeStamp = Time.time;
         timeToNextSpawn = gracePeriod;
-
-        LogSystem log = new LogSystem();
-        log.SaveEvent("#RoundStart", gameTimeInSeconds);
-
-        // play tutorial soundclip
     }
 
     // Update is called once per frame
@@ -79,8 +75,6 @@ public class GameManager : MonoBehaviour
             gameOver = true;
             ShowText();
             Debug.Log("Time over");
-            LogSystem log = new LogSystem();
-            log.SaveEvent("#RoundEnd", gameTimeInSeconds, pointTotal.ToString());
             GameObject[] civilians = GameObject.FindGameObjectsWithTag("Civillian");
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
