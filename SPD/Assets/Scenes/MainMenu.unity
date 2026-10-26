@@ -283,7 +283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -343,7 +343,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ForceStartHere: 0
-  m_ManualPositionOrder: -1
+  m_ManualPositionOrder: -4
   m_ManualPositionParent: {fileID: 0}
   m_UseTargetForOutline: 0
   m_PositionOrder: 0
@@ -362,12 +362,13 @@ MonoBehaviour:
   m_TryToReadLabel: 0
   m_ReferenceElement: {fileID: 0}
   m_AllowVoiceOver: 1
-  m_ReadType: 1
+  m_ReadType: 0
   m_WasJustAdded: 1
   m_Type: 4
-  m_CustomHint: 0
+  m_CustomHint: 1
   m_HintAsAudio: {fileID: 0}
-  m_Hint: 
+  m_Hint: Press Enter to select, then use the up and down arrow keys to increase
+    or decrease the volume
   m_HintIsLocalizationKey: 0
   m_IsInsideScrollView: 0
   m_IsInitialized: 1
@@ -2014,7 +2015,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -2093,12 +2094,13 @@ MonoBehaviour:
   m_TryToReadLabel: 0
   m_ReferenceElement: {fileID: 0}
   m_AllowVoiceOver: 1
-  m_ReadType: 1
+  m_ReadType: 0
   m_WasJustAdded: 1
   m_Type: 4
-  m_CustomHint: 0
+  m_CustomHint: 1
   m_HintAsAudio: {fileID: 0}
-  m_Hint: 
+  m_Hint: Press Enter to select, then use the up and down arrow keys to increase
+    or decrease the volume
   m_HintIsLocalizationKey: 0
   m_IsInsideScrollView: 0
   m_IsInitialized: 1
@@ -2296,6 +2298,10 @@ PrefabInstance:
     - target: {fileID: 11475380, guid: 89f4a0ae7ea3fa84ea56c91291d7bd87, type: 3}
       propertyPath: m_CyclicMenus
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11475380, guid: 89f4a0ae7ea3fa84ea56c91291d7bd87, type: 3}
+      propertyPath: m_ExploreByTouch
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11475380, guid: 89f4a0ae7ea3fa84ea56c91291d7bd87, type: 3}
       propertyPath: m_UIBoundsReached
@@ -2993,6 +2999,7 @@ GameObject:
   - component: {fileID: 889389079}
   - component: {fileID: 889389081}
   - component: {fileID: 889389080}
+  - component: {fileID: 889389082}
   m_Layer: 5
   m_Name: SettingsContainer
   m_TagString: Untagged
@@ -3065,6 +3072,31 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &889389082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889389078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61b8ed8a1982c3745b6fb7dd1a6cce2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PopUp: 0
+  m_AllowExternalJoining: 0
+  m_AutoRead: 0
+  m_Priority: 0
+  m_ContainerName: 
+  m_IsLocalizationKey: 0
+  m_2DNavigation: 0
+  m_ConstrainToContainerUp: 0
+  m_ConstrainToContainerDown: 0
+  m_ConstrainToContainerLeft: 0
+  m_ConstrainToContainerRight: 0
+  m_AllowTouchExplore: 1
+  m_DoubleCheckUIElementsPositions: 1
 --- !u!1 &895465602
 GameObject:
   m_ObjectHideFlags: 0
@@ -3118,7 +3150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -3178,7 +3210,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ForceStartHere: 0
-  m_ManualPositionOrder: -1
+  m_ManualPositionOrder: -2
   m_ManualPositionParent: {fileID: 0}
   m_UseTargetForOutline: 0
   m_PositionOrder: 0
@@ -3197,12 +3229,13 @@ MonoBehaviour:
   m_TryToReadLabel: 0
   m_ReferenceElement: {fileID: 0}
   m_AllowVoiceOver: 1
-  m_ReadType: 1
+  m_ReadType: 0
   m_WasJustAdded: 1
   m_Type: 4
-  m_CustomHint: 0
+  m_CustomHint: 1
   m_HintAsAudio: {fileID: 0}
-  m_Hint: 
+  m_Hint: Press Enter to select, then use the up and down arrow keys to increase
+    or decrease the volume
   m_HintIsLocalizationKey: 0
   m_IsInsideScrollView: 0
   m_IsInitialized: 1
@@ -4271,7 +4304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -4331,7 +4364,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ForceStartHere: 0
-  m_ManualPositionOrder: -1
+  m_ManualPositionOrder: -5
   m_ManualPositionParent: {fileID: 0}
   m_UseTargetForOutline: 0
   m_PositionOrder: 0
@@ -4350,12 +4383,13 @@ MonoBehaviour:
   m_TryToReadLabel: 0
   m_ReferenceElement: {fileID: 0}
   m_AllowVoiceOver: 1
-  m_ReadType: 1
+  m_ReadType: 0
   m_WasJustAdded: 1
   m_Type: 4
-  m_CustomHint: 0
+  m_CustomHint: 1
   m_HintAsAudio: {fileID: 0}
-  m_Hint: 
+  m_Hint: Press Enter to select, then use the up and down arrow keys to increase
+    or decrease the volume
   m_HintIsLocalizationKey: 0
   m_IsInsideScrollView: 0
   m_IsInitialized: 1
@@ -4727,7 +4761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -4787,7 +4821,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ForceStartHere: 0
-  m_ManualPositionOrder: -1
+  m_ManualPositionOrder: -3
   m_ManualPositionParent: {fileID: 0}
   m_UseTargetForOutline: 0
   m_PositionOrder: 0
@@ -4806,12 +4840,13 @@ MonoBehaviour:
   m_TryToReadLabel: 0
   m_ReferenceElement: {fileID: 0}
   m_AllowVoiceOver: 1
-  m_ReadType: 1
+  m_ReadType: 0
   m_WasJustAdded: 1
   m_Type: 4
-  m_CustomHint: 0
+  m_CustomHint: 1
   m_HintAsAudio: {fileID: 0}
-  m_Hint: 
+  m_Hint: Press Enter to select, then use the up and down arrow keys to increase
+    or decrease the volume
   m_HintIsLocalizationKey: 0
   m_IsInsideScrollView: 0
   m_IsInitialized: 1
@@ -4875,7 +4910,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -4978,7 +5013,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ForceStartHere: 0
-  m_ManualPositionOrder: -1
+  m_ManualPositionOrder: -5
   m_ManualPositionParent: {fileID: 0}
   m_UseTargetForOutline: 0
   m_PositionOrder: 0
@@ -4997,7 +5032,7 @@ MonoBehaviour:
   m_TryToReadLabel: 1
   m_ReferenceElement: {fileID: 0}
   m_AllowVoiceOver: 1
-  m_ReadType: 1
+  m_ReadType: 0
   m_WasJustAdded: 1
   m_Type: 1
   m_CustomHint: 0
@@ -5473,10 +5508,10 @@ MonoBehaviour:
   m_TryToReadLabel: 1
   m_ReferenceElement: {fileID: 0}
   m_AllowVoiceOver: 1
-  m_ReadType: 1
+  m_ReadType: 0
   m_WasJustAdded: 1
   m_Type: 1
-  m_CustomHint: 0
+  m_CustomHint: 1
   m_HintAsAudio: {fileID: 0}
   m_Hint: 
   m_HintIsLocalizationKey: 0
