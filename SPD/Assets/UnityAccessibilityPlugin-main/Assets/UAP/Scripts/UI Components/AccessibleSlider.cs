@@ -133,22 +133,23 @@ public class AccessibleSlider : UAP_BaseElement
 		}
 #endif
 
-		if (foundValue)
-		{
+        if (foundValue)
+        {
 
-			string valueAsText = value.ToString("0.##");
+            string valueAsText = value.ToString("0.##");
 
-			if (m_WholeNumbersOnly || (slider != null && slider.wholeNumbers))
-				valueAsText = value.ToString("0");
+            if (m_WholeNumbersOnly || (slider != null && slider.wholeNumbers))
+                valueAsText = value.ToString("0");
 
-			if (m_ReadPercentages)
-				valueAsText += "%";
+            if (m_ReadPercentages)
+                valueAsText += "%";
 
-			return valueAsText;
-		}
+            // Tvingar systemet att alltid baka in namnet före procenten
+            return m_Text + ", " + valueAsText;
+        }
 
-		return "";
-	}
+        return "";
+    }
 
 	//////////////////////////////////////////////////////////////////////////
 
