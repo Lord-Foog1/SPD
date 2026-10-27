@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6975385498852225824}
   - component: {fileID: -6191314296798181006}
   - component: {fileID: -2220592309705280006}
+  - component: {fileID: -6824658431756029046}
   m_Layer: 0
   m_Name: StandardEnemy
   m_TagString: Enemy
@@ -180,7 +181,8 @@ MonoBehaviour:
   enemyDamage: -100
   enemyReward: 100
   enemyHealth: 1
-  idleSounds: []
+  idleSounds:
+  - {fileID: 8300000, guid: f5cdc0f8cc09dd64f93ea833bc4dca40, type: 3}
   spawnSound: {fileID: 8300000, guid: f163dddc3cd0c724dbdd6c9586d48ba2, type: 3}
   deathSound: {fileID: 8300000, guid: f5cc85c3b26fc8941b54b40d7cf143c1, type: 3}
   attackSound: {fileID: 8300000, guid: aafde3d86a7941849b68c75de1b86dc5, type: 3}
@@ -276,6 +278,31 @@ AudioSource:
     - serializedVersion: 3
       time: 0
       value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!169 &-6824658431756029046
+AudioLowPassFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2444179556522089278}
+  m_Enabled: 0
+  serializedVersion: 3
+  m_LowpassResonanceQ: 1
+  lowpassLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.22692133
       inSlope: 0
       outSlope: 0
       tangentMode: 0

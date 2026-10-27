@@ -223,7 +223,7 @@ MonoBehaviour:
     m_ExpectedControlType: 
     m_Id: be75f0c7-c6a3-49c6-ab62-ce23d96655d5
     m_Processors: 
-    m_Interactions: Hold(duration=1.5)
+    m_Interactions: Hold(duration=1.4)
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: f5c29814-4c37-4ffe-9d88-37c8634f74cc
@@ -246,8 +246,10 @@ MonoBehaviour:
   playerShoot: {fileID: 8300000, guid: 06d9264a08fc1564690d4f34105df879, type: 3}
   playerMove:
   - {fileID: 8300000, guid: 8fc66b759485ab441901bb77babefe90, type: 3}
-  changeWeapon: {fileID: 8300000, guid: a7c06be5f81ce9d4c9de080334d0da7c, type: 3}
-  reloadSound: {fileID: 8300000, guid: d8f919dc252d7674da8fc01068784244, type: 3}
+  chargeWeapon: {fileID: 8300000, guid: a7c06be5f81ce9d4c9de080334d0da7c, type: 3}
+  firedChargedWeapon: {fileID: 8300000, guid: 8877e85ca327c99409e9eabee2b0665e, type: 3}
+  releaseChargingWeapon: {fileID: 8300000, guid: 7241a2d10313b454180d3d8dd78acd94, type: 3}
+  reloadSound: {fileID: 8300000, guid: a06661aa783535149a40390bf10a4e7f, type: 3}
   wallHit: {fileID: 8300000, guid: 04208db4c6707004e9382884a8937e27, type: 3}
   noAmmoSound: {fileID: 8300000, guid: dcf47d3215ea1b843a13e5ae44819b5e, type: 3}
   soundDuration: 2

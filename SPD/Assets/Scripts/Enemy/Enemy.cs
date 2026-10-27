@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Enemy : MonoBehaviour
 {
@@ -21,6 +23,7 @@ public class Enemy : MonoBehaviour
     private AudioSource source;
     private BoxCollider2D boxCollider;
     private SpriteRenderer spriteRenderer;
+    private AudioLowPassFilter filter;
 
     [Header("Sound")]
     [Tooltip("Idle ljuden går här")]
@@ -55,6 +58,7 @@ public class Enemy : MonoBehaviour
 
         source = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
+        filter = GetComponent<AudioLowPassFilter>();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -62,13 +66,16 @@ public class Enemy : MonoBehaviour
         if (spawnSound)
         {
             MakeSound(spawnSound);
+
+            source.loop = true;
+
+            StartCoroutine(StartIdleSounds(2.5f));
         }
 
         rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));
 
         // source.PlayOneShot(enemyGroans[UnityEngine.Random.Range(0, enemyGroans.Length)]);
-        source.loop = true;
 
         boxCollider = GetComponent<BoxCollider2D>();
 
@@ -81,7 +88,27 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        /*
+        Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
+        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
+
+        if (hit)
+        {
+            if (hit.collider.gameObject.CompareTag("Civillian") || hit.collider.gameObject.CompareTag("Enemy"))
+            {
+                filter.enabled = true;
+                Debug.Log("Hit");
+            }
+        }
+        else
+        {
+            filter.enabled = false;
+            Debug.Log("No Hit");
+        }
+        */
+
+
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -153,7 +180,7 @@ public class Enemy : MonoBehaviour
                 source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
             }
 
-                StartCoroutine(StopSoundAfterDelay(soundDuration));
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
         }
     }
 
@@ -161,6 +188,13 @@ public class Enemy : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         source.Stop();
+    }
+
+    private IEnumerator StartIdleSounds(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        source.resource = idleSounds[0];
+        source.Play();
     }
 
     public void SetSoundPosition(float lane)

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -6191314296798181006}
   - component: {fileID: -2220592309705280006}
   - component: {fileID: -5847927088965629759}
+  - component: {fileID: 1614972371948064922}
   m_Layer: 0
   m_Name: Civillian
   m_TagString: Civillian
@@ -181,7 +182,8 @@ MonoBehaviour:
   enemyDamage: 50
   enemyReward: -100
   enemyHealth: 1
-  idleSounds: []
+  idleSounds:
+  - {fileID: 8300000, guid: 0f7cb75184a855e419ce506c721ca984, type: 3}
   spawnSound: {fileID: 8300000, guid: 4bd61084d053c8d438303a3d313ebfee, type: 3}
   deathSound: {fileID: 8300000, guid: d623c1c324cec5143af60c60b26e05e4, type: 3}
   attackSound: {fileID: 0}
@@ -374,6 +376,31 @@ AudioSource:
     - serializedVersion: 3
       time: 0
       value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!169 &1614972371948064922
+AudioLowPassFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2444179556522089278}
+  m_Enabled: 0
+  serializedVersion: 3
+  m_LowpassResonanceQ: 1
+  lowpassLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.22727273
       inSlope: 0
       outSlope: 0
       tangentMode: 0

@@ -11,6 +11,7 @@ TagManager:
   - Civillian
   - Enemy
   - ArchingBullet
+  - LaneBox
   layers:
   - Default
   - TransparentFX

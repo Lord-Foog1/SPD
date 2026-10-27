@@ -34,7 +34,9 @@ public class Player : MonoBehaviour
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
     [SerializeField] AudioClip[] playerMove;
-    [SerializeField] AudioClip changeWeapon;
+    [SerializeField] AudioClip chargeWeapon;
+    [SerializeField] AudioClip firedChargedWeapon;
+    [SerializeField] AudioClip releaseChargingWeapon;
     [SerializeField] AudioClip reloadSound;
     [SerializeField] AudioClip wallHit;
     [SerializeField] AudioClip noAmmoSound;
@@ -138,6 +140,7 @@ public class Player : MonoBehaviour
         if (chargeSpecial.WasPressedThisFrame())
         {
             //make chargeSpecialSound
+            MakeSound(chargeWeapon);
             Debug.Log("started charging");
             moveLeft.Disable();
             moveRight.Disable();
@@ -154,6 +157,7 @@ public class Player : MonoBehaviour
 
             if (specialShotReady)
             {
+                MakeSound(firedChargedWeapon);
                 specialShotReady = false;
                 Debug.Log("special shot");
                 Instantiate(archingBullet, this.transform.position + new Vector3(0, bulletSpawnOffset), this.transform.rotation);
@@ -162,6 +166,7 @@ public class Player : MonoBehaviour
             {
                 Debug.Log("stopped charging");
                 sources[0].Stop();
+                MakeSound(releaseChargingWeapon);
             }
         }
 
