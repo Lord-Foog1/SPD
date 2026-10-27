@@ -60,6 +60,8 @@ public class Enemy : MonoBehaviour
         SetSoundPosition(transform.position.x);
         filter = GetComponent<AudioLowPassFilter>();
 
+        filter.enabled = false;
+
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Make sound
@@ -69,7 +71,7 @@ public class Enemy : MonoBehaviour
 
             source.loop = true;
 
-            StartCoroutine(StartIdleSounds(2.5f));
+            StartCoroutine(StartIdleSounds(1.6f));
         }
 
         rb = GetComponent<Rigidbody2D>();
@@ -88,26 +90,20 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*
+        
         Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
 
-        if (hit)
+        if (hit && (hit.collider.gameObject.CompareTag("Civillian") || hit.collider.gameObject.CompareTag("Enemy")))
         {
-            if (hit.collider.gameObject.CompareTag("Civillian") || hit.collider.gameObject.CompareTag("Enemy"))
-            {
-                filter.enabled = true;
-                Debug.Log("Hit");
-            }
+            filter.enabled = true;
+            Debug.Log("Hit");
         }
         else
         {
             filter.enabled = false;
             Debug.Log("No Hit");
         }
-        */
-
-
 
     }
 

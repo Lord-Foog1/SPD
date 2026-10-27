@@ -79,7 +79,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 0.48776132, b: 0, a: 1}
   m_FlipX: 0
@@ -185,10 +185,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
+  MinDistance: 2
+  MaxDistance: 15
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -278,5 +278,5 @@ MonoBehaviour:
   enemySpeed: 1500
   chargeSound: {fileID: 8300000, guid: bc1fe7766a53f50478e86378dcad35c4, type: 3}
   hitPlayerSound: {fileID: 8300000, guid: 04208db4c6707004e9382884a8937e27, type: 3}
-  soundDuration: 2
+  soundDuration: 15
   playCooldown: 0.5

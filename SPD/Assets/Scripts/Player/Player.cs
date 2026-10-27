@@ -68,7 +68,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (moveLeft.IsPressed() && moveTimeStamp + moveCooldown <= Time.time)
+        if (moveLeft.WasPressedThisFrame() && moveTimeStamp + moveCooldown <= Time.time)
         {
             if (transform.position == playerLanes[0].transform.position)
             {
@@ -83,7 +83,7 @@ public class Player : MonoBehaviour
             
             moveTimeStamp = Time.time;
         }
-        if (moveRight.IsPressed() && moveTimeStamp + moveCooldown <= Time.time)
+        if (moveRight.WasPressedThisFrame() && moveTimeStamp + moveCooldown <= Time.time)
         {
             if (transform.position == playerLanes[2].transform.position)
             {

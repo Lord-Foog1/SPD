@@ -11,6 +11,14 @@ public class LevelLoader : MonoBehaviour
         SceneManager.LoadScene("Level1");
     }
 
+    public void StartLevel2()
+    {
+        SettingsManager.playthrough++;
+        LogSystem.ResetCount();
+
+        SceneManager.LoadScene("Level2");
+    }
+
     public void QuitGame()
     {
         // Detta stänger spelet i den färdiga Builden
