@@ -247,7 +247,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guideSource: {fileID: 1018947144}
-  dummySource: {fileID: 0}
+  guideUsesOperatorVolume: 1
+  repeatHelp:
+  - {fileID: 8300000, guid: e25dc35238b433546a2346bd2dedb7be, type: 3}
   introduction:
   - {fileID: 8300000, guid: a2bafe71d147d9147a978b9e649e2105, type: 3}
   - {fileID: 8300000, guid: 95bd77dfabaa9c7478d3871f59112449, type: 3}
@@ -263,10 +265,103 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ddb24fb815af9814aab8222852691739, type: 3}
   correctLeft:
   - {fileID: 8300000, guid: a8c6313a3c716214f9e0b4a0bee599a9, type: 3}
-  explainDummy: []
-  dummySound: {fileID: 0}
-  tutorialComplete: []
-  nextScene: prototype
+  explainDummy:
+  - {fileID: 8300000, guid: dd8150c527cde634dbcc63b0662839e3, type: 3}
+  - {fileID: 8300000, guid: d6f5394397c19cd4b872792fed111cd4, type: 3}
+  dummyHit:
+  - {fileID: 8300000, guid: 70c5f49d09f34314286b3b0f648d9c6b, type: 3}
+  - {fileID: 8300000, guid: e5d065a6f67820d46a9c765b8ce8ae18, type: 3}
+  askZombieRight:
+  - {fileID: 8300000, guid: 392b0810e2a0ffa4e9e143c1905ac276, type: 3}
+  - {fileID: 8300000, guid: 8190a7416d4e5af4e8aed388a792ae0b, type: 3}
+  zombieRightHit:
+  - {fileID: 8300000, guid: a8ea7a3ee933b8d42a7762552ab3e5ba, type: 3}
+  askRealZombie:
+  - {fileID: 8300000, guid: fbd3cbef5b828784ab31d629ff80a8cb, type: 3}
+  realZombieHit:
+  - {fileID: 8300000, guid: cd1effdb300bb384dbac7d4847292d3c, type: 3}
+  realZombieReachedYou:
+  - {fileID: 8300000, guid: 57755c3c60b92fc418edb1b0eb5fff14, type: 3}
+  askLobber:
+  - {fileID: 8300000, guid: 7019dbeb2a7721447802506ed89fc101, type: 3}
+  - {fileID: 8300000, guid: 417a18f534d894147a30f2f55ef01251, type: 3}
+  lobHowTo: []
+  lobberHit:
+  - {fileID: 8300000, guid: 6929881f3f24a6642832b263648e34b4, type: 3}
+  tappedCivilian:
+  - {fileID: 8300000, guid: 5bc6bba8909501b4f864e645a68f5618, type: 3}
+  holdLonger: []
+  chargeHoldSeconds: 1.5
+  explainWave:
+  - {fileID: 8300000, guid: 8a3317c7b125b794280599e682583512, type: 3}
+  waveMultiple:
+  - {fileID: 8300000, guid: 835947a527cf420409a9f0825e04d8d9, type: 3}
+  waveCivilianShot:
+  - {fileID: 8300000, guid: 5e09fdf1c2c02614eab576d6e4fd6bf0, type: 3}
+  waveTimeUp:
+  - {fileID: 8300000, guid: 1bd6a9c551efc024ca74643884250b57, type: 3}
+  waveSeconds: 30
+  hintGoLeft:
+  - {fileID: 8300000, guid: 3ca0b884dd7531f4fb4946b9fa14f3a0, type: 3}
+  hintGoRight:
+  - {fileID: 8300000, guid: 0c01c5b22e8e8d04197597a3c2fa8046, type: 3}
+  hintShootHere:
+  - {fileID: 8300000, guid: dc65968a6ff9e0d4b9d85a5d857d7d0c, type: 3}
+  - {fileID: 8300000, guid: daa0270923000a0469039f23f798ec24, type: 3}
+  hintLobHere:
+  - {fileID: 8300000, guid: c495a4e03a76b9f48949e15a7cf070dd, type: 3}
+  wrongWay:
+  - {fileID: 8300000, guid: 95a184ceab13d974aab71685f068f252, type: 3}
+  hitWall:
+  - {fileID: 8300000, guid: 58a46eb48dd413643a2d5593a2de7bf1, type: 3}
+  nearCivilian:
+  - {fileID: 8300000, guid: 8190a7416d4e5af4e8aed388a792ae0b, type: 3}
+  missedEmptyLane:
+  - {fileID: 8300000, guid: 56304ed9b4268c746a07a956531fb930, type: 3}
+  shotCivilian:
+  - {fileID: 8300000, guid: 1f64a8c88108eaa408da0c55ec4f7aff, type: 3}
+  zombieSpawn: {fileID: 8300000, guid: f163dddc3cd0c724dbdd6c9586d48ba2, type: 3}
+  zombieWalkLoop: {fileID: 8300000, guid: f5cdc0f8cc09dd64f93ea833bc4dca40, type: 3}
+  zombieScream: {fileID: 8300000, guid: aafde3d86a7941849b68c75de1b86dc5, type: 3}
+  zombieDeath: {fileID: 8300000, guid: f5cc85c3b26fc8941b54b40d7cf143c1, type: 3}
+  zombieEscape: {fileID: 8300000, guid: 24516e4b9f3e1b549beb81a1dcc039fc, type: 3}
+  civilianSpawn: {fileID: 8300000, guid: 4bd61084d053c8d438303a3d313ebfee, type: 3}
+  civilianWalkLoop: {fileID: 8300000, guid: 0f7cb75184a855e419ce506c721ca984, type: 3}
+  civilianHit: {fileID: 8300000, guid: d623c1c324cec5143af60c60b26e05e4, type: 3}
+  civilianEscape: {fileID: 0}
+  gunShot: {fileID: 8300000, guid: 06d9264a08fc1564690d4f34105df879, type: 3}
+  lobCharge: {fileID: 8300000, guid: a7c06be5f81ce9d4c9de080334d0da7c, type: 3}
+  lobFire: {fileID: 8300000, guid: 8877e85ca327c99409e9eabee2b0665e, type: 3}
+  lobRelease: {fileID: 8300000, guid: 7241a2d10313b454180d3d8dd78acd94, type: 3}
+  wallThud: {fileID: 8300000, guid: 04208db4c6707004e9382884a8937e27, type: 3}
+  footstep: {fileID: 8300000, guid: 8fc66b759485ab441901bb77babefe90, type: 3}
+  fireAmbience: {fileID: 8300000, guid: 46f2878969d398c4d8800ec48ca5be80, type: 3}
+  tutorialComplete:
+  - {fileID: 8300000, guid: 13811427003e9b24b86f289be9672ee2, type: 3}
+  nextScene: Level1
+  calibrationDone:
+  - {fileID: 8300000, guid: 4f187b1acd09f4b44b82687360ed4b77, type: 3}
+  explainLanes:
+  - {fileID: 8300000, guid: 88ea0e5747ea84942a00bd8db2b5958f, type: 3}
+  explainSoundDirection:
+  - {fileID: 8300000, guid: 7ca14f7dc875d9446ad81c072ac194fa, type: 3}
+  explainLob:
+  - {fileID: 8300000, guid: 9f468406c2322bd4d8c518bbfa5d2f7f, type: 3}
+  inRightLane:
+  - {fileID: 8300000, guid: 7a6192f34053f594db46aa677fde2fb7, type: 3}
+  tryAgain:
+  - {fileID: 8300000, guid: 2239af6919693af4fba3b0fcd5896d7a, type: 3}
+  praiseShort:
+  - {fileID: 8300000, guid: ec5b97acaa2f87b4cba347f6d5a4a53f, type: 3}
+  lobKeepInMind:
+  - {fileID: 8300000, guid: ea5f22576b2adc44f9a4b3faec11d943, type: 3}
+  patience:
+  - {fileID: 8300000, guid: f368a19f99ab5a34aa510af81a13cac3, type: 3}
+  - {fileID: 8300000, guid: 9b1b47c80f9b41d4a9381be974ca60e1, type: 3}
+  - {fileID: 8300000, guid: ae08f78de46ccf64b9b39565ccf4e6e6, type: 3}
+  closing:
+  - {fileID: 8300000, guid: 6a79d1e1a23e39345bfe2ce590705ed8, type: 3}
+  idleRepeatSeconds: 8
 --- !u!4 &1018947146
 Transform:
   m_ObjectHideFlags: 0

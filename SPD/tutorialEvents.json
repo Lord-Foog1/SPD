@@ -1,0 +1,51 @@
+{
+    "sessions": [
+        {
+            "startedAt": "2026-10-27 23:16:30",
+            "playthrough": 0,
+            "completed": false,
+            "totalSeconds": 12.730539321899414,
+            "totalScore": 0,
+            "steps": [
+                {
+                    "step": "0_repeatHelp",
+                    "seconds": 5.738761901855469,
+                    "attempts": 0,
+                    "skipped": false,
+                    "wrongPresses": 0,
+                    "wallHits": 0,
+                    "ctrlRepeats": 0,
+                    "idleRepeats": 0,
+                    "shotsFired": 0,
+                    "shotsMissed": 0,
+                    "zombiesKilled": 0,
+                    "zombiesEscaped": 0,
+                    "civiliansShot": 0,
+                    "civiliansPassed": 0,
+                    "lobsFired": 0,
+                    "lobsEarly": 0,
+                    "score": 0
+                },
+                {
+                    "step": "1_intro",
+                    "seconds": 6.991777420043945,
+                    "attempts": 0,
+                    "skipped": false,
+                    "wrongPresses": 0,
+                    "wallHits": 0,
+                    "ctrlRepeats": 0,
+                    "idleRepeats": 0,
+                    "shotsFired": 0,
+                    "shotsMissed": 0,
+                    "zombiesKilled": 0,
+                    "zombiesEscaped": 0,
+                    "civiliansShot": 0,
+                    "civiliansPassed": 0,
+                    "lobsFired": 0,
+                    "lobsEarly": 0,
+                    "score": 0
+                }
+            ]
+        }
+    ]
+}
