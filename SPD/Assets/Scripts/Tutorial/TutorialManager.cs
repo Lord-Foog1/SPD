@@ -80,7 +80,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private string nextScene = "Prototype";
 
     [Header("Extras (optional)")]
-    // Optional narrator lines. An empty slot is skipped silently (no TTS, no delay).
+    // Optional narrator lines. An empty slot is skipped silently (no delay, no warning).
     [SerializeField] private AudioClip[] explainLanes;          // after correctRight, before Step 4
     [SerializeField] private AudioClip[] explainSoundDirection; // start of Step 5, before askZombieRight
     [SerializeField] private AudioClip[] explainApproach;       // Step 6, after askRealZombie
@@ -94,30 +94,6 @@ public class TutorialManager : MonoBehaviour
 
     [Header("Timing")]
     [SerializeField] private float idleRepeatSeconds = 8f;
-
-    // Placeholder lines, spoken with text-to-speech until a clip is recorded
-    private const string T_RepeatHelp = "If you want me to repeat what I just said, press Control, and I'll repeat the last thing I said.";
-    private const string T_ExplainDummy = "I'm placing a dummy zombie in the middle lane, in front of you. Press Space to shoot it.";
-    private const string T_DummyHit = "Nice shot! The dummy is down.";
-    private const string T_AskZombieRight = "Now there's a zombie on your right and a civilian on your left. Move and shoot the zombie.";
-    private const string T_ZombieRightHit = "Good job, you got the zombie and kept the civilian safe.";
-    private const string T_AskRealZombie = "Here comes a real zombie in the middle lane. Shoot it before it reaches you.";
-    private const string T_RealZombieHit = "Great, you stopped it in time.";
-    private const string T_ReachedYou = "The zombie reached you. Let's try that again.";
-    private const string T_AskLobber = "A civilian is in the middle lane, with a zombie behind them. Hold the Up arrow until you hear the charge sound, then let go, to lob a shot over the civilian and hit the zombie.";
-    private const string T_LobberHit = "Perfect, your charged shot arched over the civilian and hit the zombie.";
-    private const string T_TappedCivilian = "Space shoots straight and hits the civilian in front. Hold the Up arrow instead, then let go, to lob over them.";
-    private const string T_HoldLonger = "Hold the Up arrow longer, until you hear the charge sound, then let go.";
-    private const string T_GoLeft = "The target is to your left. Press left.";
-    private const string T_GoRight = "The target is to your right. Press right.";
-    private const string T_ShootHere = "The target is in this lane. Press Space to shoot.";
-    private const string T_LobHere = "The target is in this lane. Hold the Up arrow until the charge sound, then let go.";
-    private const string T_WrongWay = "That's the wrong way.";
-    private const string T_Wall = "That's the edge, you can't go further.";
-    private const string T_NearCivilian = "Careful, that's the civilian. Don't shoot them.";
-    private const string T_Missed = "Nothing in this lane. You missed.";
-    private const string T_ShotCivilian = "You shot a civilian! Never shoot civilians. Let's try again.";
-    private const string T_Complete = "Tutorial complete. Get ready, the real game starts now.";
 
     private int lane = 1; // 0 = left, 1 = middle, 2 = right
     private readonly Target[] lanes = new Target[3];
@@ -137,7 +113,7 @@ public class TutorialManager : MonoBehaviour
     private readonly int[] nextIndex = new int[4];
     private bool targetsActive;
     private AudioClip[] lastClips; // last guide line, for Ctrl repeat
-    private string lastText;
+    private readonly System.Collections.Generic.HashSet<string> warnedSlots = new System.Collections.Generic.HashSet<string>();
     private bool inRightLaneSaid; // inRightLane plays once per shooting step
 
     private IEnumerator Start()
@@ -159,7 +135,7 @@ public class TutorialManager : MonoBehaviour
         lane = 1;
 
         // STEP 0: How to repeat (Ctrl)
-        yield return Say(repeatHelp, T_RepeatHelp);
+        yield return Say(repeatHelp, nameof(repeatHelp));
 
         // STEP 1: Introduction
         yield return PlayAudioList(introduction);
@@ -190,40 +166,40 @@ public class TutorialManager : MonoBehaviour
 
         // STEP 4: Dummy zombie in front (middle lane)
         SetTargets(Target.None, Target.Zombie, Target.None, -1, dummySound != null ? new[] { dummySound } : zombieSounds);
-        yield return Say(explainDummy, T_ExplainDummy);
-        yield return ShootStep(1, explainDummy, T_ExplainDummy, false, false);
+        yield return Say(explainDummy, nameof(explainDummy));
+        yield return ShootStep(1, explainDummy, nameof(explainDummy), false, false);
         StopTargets();
-        yield return Say(dummyHit, T_DummyHit);
+        yield return Say(dummyHit, nameof(dummyHit));
 
         // STEP 5: Zombie right, civilian left
         SetTargets(Target.Civilian, Target.None, Target.Zombie, -1, zombieSounds);
         yield return SayExtra(explainSoundDirection);
-        yield return Say(askZombieRight, T_AskZombieRight);
-        yield return ShootStep(2, askZombieRight, T_AskZombieRight, false, false);
+        yield return Say(askZombieRight, nameof(askZombieRight));
+        yield return ShootStep(2, askZombieRight, nameof(askZombieRight), false, false);
         StopTargets();
-        yield return Say(zombieRightHit, T_ZombieRightHit);
+        yield return Say(zombieRightHit, nameof(zombieRightHit));
         yield return SayExtra(praiseShort);
 
         // STEP 6: Real zombie approaching in the middle lane
         SetTargets(Target.None, Target.Zombie, Target.None, -1, zombieSounds);
-        yield return Say(askRealZombie, T_AskRealZombie);
+        yield return Say(askRealZombie, nameof(askRealZombie));
         yield return SayExtra(explainApproach);
-        yield return ShootStep(1, askRealZombie, T_AskRealZombie, false, true);
+        yield return ShootStep(1, askRealZombie, nameof(askRealZombie), false, true);
         StopTargets();
-        yield return Say(realZombieHit, T_RealZombieHit);
+        yield return Say(realZombieHit, nameof(realZombieHit));
         yield return SayExtra(praiseShort);
 
         // STEP 7: Civilian in the middle, zombie behind: lob over
         SetTargets(Target.None, Target.Civilian, Target.None, 1, zombieSounds);
         yield return SayExtra(explainLob);
-        yield return Say(askLobber, T_AskLobber);
-        yield return ShootStep(1, askLobber, T_AskLobber, true, false);
+        yield return Say(askLobber, nameof(askLobber));
+        yield return ShootStep(1, askLobber, nameof(askLobber), true, false);
         StopTargets();
-        yield return Say(lobberHit, T_LobberHit);
+        yield return Say(lobberHit, nameof(lobberHit));
         yield return SayExtra(lobKeepInMind);
 
         // STEP 8: Tutorial completed
-        yield return Say(tutorialComplete, T_Complete);
+        yield return Say(tutorialComplete, nameof(tutorialComplete));
         yield return SayExtra(closing);
 
         // STEP 9: Load actual game
@@ -231,7 +207,7 @@ public class TutorialManager : MonoBehaviour
     }
 
     // One shooting exercise. Loops until the right target is hit.
-    private IEnumerator ShootStep(int targetLane, AudioClip[] ask, string askText, bool lobStep, bool approach)
+    private IEnumerator ShootStep(int targetLane, AudioClip[] ask, string askSlot, bool lobStep, bool approach)
     {
         stepDone = false;
         approachTime = 0f;
@@ -256,10 +232,10 @@ public class TutorialManager : MonoBehaviour
                 {
                     StopTargets();
                     PlaySfx(hitZombie != null ? hitZombie : beepLow);
-                    yield return Say(realZombieReachedYou, T_ReachedYou);
+                    yield return Say(realZombieReachedYou, nameof(realZombieReachedYou));
                     approachTime = 0f;
                     RestartTargets();
-                    yield return Say(ask, askText);
+                    yield return Say(ask, askSlot);
                     yield return WaitForKeysReleased();
                     lastInputTime = Time.time;
                     continue;
@@ -290,7 +266,7 @@ public class TutorialManager : MonoBehaviour
                 if (keyboard.spaceKey.wasPressedThisFrame && holdStart < 0f)
                 {
                     idleRepeats = 0;
-                    yield return OnShot(false, targetLane, ask, askText, lobStep);
+                    yield return OnShot(false, targetLane, ask, askSlot, lobStep);
                     continue;
                 }
 
@@ -316,11 +292,11 @@ public class TutorialManager : MonoBehaviour
                         holdStart = -1f;
                         if (charged)
                         {
-                            yield return OnShot(true, targetLane, ask, askText, lobStep);
+                            yield return OnShot(true, targetLane, ask, askSlot, lobStep);
                         }
                         else
                         {
-                            yield return Say(holdLonger, T_HoldLonger);
+                            yield return Say(holdLonger, nameof(holdLonger));
                             yield return WaitForKeysReleased();
                             lastInputTime = Time.time;
                         }
@@ -332,7 +308,7 @@ public class TutorialManager : MonoBehaviour
             // Idle: repeat the instruction
             if (!approach && holdStart < 0f && Time.time - lastInputTime > idleRepeatSeconds)
             {
-                yield return Say(ask, askText);
+                yield return Say(ask, askSlot);
                 yield return LaneHint(targetLane, lobStep);
                 idleRepeats++;
                 if (idleRepeats == 2)
@@ -350,7 +326,7 @@ public class TutorialManager : MonoBehaviour
         if (newLane < 0 || newLane > 2)
         {
             PlaySfx(wallSound != null ? wallSound : beepLow);
-            yield return Say(hitWall, T_Wall);
+            yield return Say(hitWall, nameof(hitWall));
             yield return LaneHint(targetLane, lobStep);
         }
         else
@@ -374,9 +350,9 @@ public class TutorialManager : MonoBehaviour
             else
             {
                 if (lanes[lane] == Target.Civilian)
-                    yield return Say(nearCivilian, T_NearCivilian);
+                    yield return Say(nearCivilian, nameof(nearCivilian));
                 else if (after > before)
-                    yield return Say(wrongWay, T_WrongWay);
+                    yield return Say(wrongWay, nameof(wrongWay));
                 yield return LaneHint(targetLane, lobStep);
             }
         }
@@ -385,7 +361,7 @@ public class TutorialManager : MonoBehaviour
         lastInputTime = Time.time;
     }
 
-    private IEnumerator OnShot(bool lob, int targetLane, AudioClip[] ask, string askText, bool lobStep)
+    private IEnumerator OnShot(bool lob, int targetLane, AudioClip[] ask, string askSlot, bool lobStep)
     {
         if (lob)
         {
@@ -413,16 +389,16 @@ public class TutorialManager : MonoBehaviour
             PlaySfx(hitCivilian);
             StopTargets();
             if (lobStep && lane == targetLane)
-                yield return Say(tappedCivilian, T_TappedCivilian);
+                yield return Say(tappedCivilian, nameof(tappedCivilian));
             else
-                yield return Say(shotCivilian, T_ShotCivilian);
+                yield return Say(shotCivilian, nameof(shotCivilian));
             approachTime = 0f;
             RestartTargets();
-            yield return Say(ask, askText);
+            yield return Say(ask, askSlot);
         }
         else
         {
-            yield return Say(missedEmptyLane, T_Missed);
+            yield return Say(missedEmptyLane, nameof(missedEmptyLane));
             yield return SayExtra(tryAgain);
             yield return LaneHint(targetLane, lobStep);
         }
@@ -433,10 +409,10 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator LaneHint(int targetLane, bool lobStep)
     {
-        if (lane > targetLane) yield return Say(hintGoLeft, T_GoLeft);
-        else if (lane < targetLane) yield return Say(hintGoRight, T_GoRight);
-        else if (lobStep) yield return Say(hintLobHere, T_LobHere);
-        else yield return Say(hintShootHere, T_ShootHere);
+        if (lane > targetLane) yield return Say(hintGoLeft, nameof(hintGoLeft));
+        else if (lane < targetLane) yield return Say(hintGoRight, nameof(hintGoRight));
+        else if (lobStep) yield return Say(hintLobHere, nameof(hintLobHere));
+        else yield return Say(hintShootHere, nameof(hintShootHere));
     }
 
     private void MoveLane(int dir)
@@ -566,52 +542,18 @@ public class TutorialManager : MonoBehaviour
         return clip;
     }
 
-    // Plays recorded clips if any are assigned, otherwise a TTS placeholder.
-    private IEnumerator Say(AudioClip[] clips, string placeholder)
+    // Plays the recorded clips of a slot. No text-to-speech: an empty slot stays
+    // silent and logs one warning with the slot name, so missing lines are visible.
+    private IEnumerator Say(AudioClip[] clips, string slot)
     {
-        if (clips != null)
+        if (HasClips(clips))
         {
-            foreach (AudioClip clip in clips)
-            {
-                if (clip != null)
-                {
-                    yield return PlayAudioList(clips);
-                    yield break;
-                }
-            }
-        }
-
-        if (string.IsNullOrEmpty(placeholder))
+            yield return PlayAudioList(clips);
             yield break;
-
-        Debug.Log("[Tutorial] " + placeholder, this);
-
-        lastClips = null;
-        lastText = placeholder;
-
-        if (UAP_AccessibilityManager.IsEnabled())
-        {
-            UAP_AccessibilityManager.Say(placeholder);
-            float start = Time.time;
-            float maxWait = 2f + placeholder.Length * 0.09f;
-            yield return null;
-            while (Time.time - start < maxWait &&
-                   (Time.time - start < 0.3f || UAP_AccessibilityManager.IsSpeaking()))
-            {
-                if (CtrlPressed())
-                {
-                    // Restart the current line
-                    UAP_AccessibilityManager.Say(placeholder, true, true, UAP_AudioQueue.EInterrupt.All);
-                    start = Time.time;
-                }
-                yield return null;
-            }
         }
-        else
-        {
-            PlaySfx(beepHigh);
-            yield return new WaitForSeconds(0.5f);
-        }
+
+        if (!string.IsNullOrEmpty(slot) && warnedSlots.Add(slot))
+            Debug.LogWarning("[Tutorial] No recorded clip in slot '" + slot + "', skipped.", this);
     }
 
     // Play every recording in a list, in order
@@ -626,7 +568,6 @@ public class TutorialManager : MonoBehaviour
             yield break;
 
         lastClips = clips;
-        lastText = null;
 
         for (int i = 0; i < clips.Length; i++)
         {
@@ -659,7 +600,7 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    // Optional extra line: silent skip when empty (no TTS, no delay, no log).
+    // Optional extra line: silent skip when empty (no delay, no log).
     // Does not become the "last guide line", so Ctrl still repeats the main instruction.
     private IEnumerator SayExtra(AudioClip[] clips)
     {
@@ -667,10 +608,8 @@ public class TutorialManager : MonoBehaviour
             yield break;
 
         AudioClip[] keepClips = lastClips;
-        string keepText = lastText;
         yield return PlayAudioList(clips);
         lastClips = keepClips;
-        lastText = keepText;
     }
 
     private static bool HasClips(AudioClip[] clips)
@@ -680,13 +619,11 @@ public class TutorialManager : MonoBehaviour
         return false;
     }
 
-    // Ctrl: replay the last guide line (clip list or TTS)
+    // Ctrl: replay the last recorded guide line (nothing yet: no-op)
     private IEnumerator RepeatLast()
     {
         if (lastClips != null)
             yield return PlayAudioList(lastClips);
-        else if (!string.IsNullOrEmpty(lastText))
-            yield return Say(null, lastText);
     }
 
     private bool CtrlPressed()
@@ -765,7 +702,7 @@ public class TutorialManager : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    // Right-click the component header > "Assign default tutorial sounds", then save the scene.
+    // Inspector: TutorialManager component menu (three dots) > "Assign default tutorial sounds", then save the scene.
     [ContextMenu("Assign default tutorial sounds")]
     private void AssignDefaultSounds()
     {
@@ -776,25 +713,72 @@ public class TutorialManager : MonoBehaviour
         EditorUtility.SetDirty(this);
     }
 
+    private const string NewClips = "Assets/Sounds/Newtutorialmaterial/";
+    private const string IntroClips = "Assets/Sounds/Tutorial.intro/";
+
+    // Fills only EMPTY slots (PickSet/Pick keep anything already set in the Inspector).
     private void FillMissingSounds()
     {
+        // Sound effects
         gunShot = Pick(gunShot, "Assets/Sounds/Player/gunshot.mp3");
-        moveSound = Pick(moveSound, "Assets/Sounds/Player/step_sound.mp3");
+        // step_sound.mp3 is a 15.5 s loop that stacks on every lane move: use the short footstep.
+        if (moveSound != null && AssetDatabase.GetAssetPath(moveSound).EndsWith("/step_sound.mp3")) moveSound = null;
+        moveSound = Pick(moveSound, "Assets/Sounds/Player/footstep_1.mp3");
         hitZombie = Pick(hitZombie, "Assets/Sounds/Monster/Standard/ZombieDeath_2.wav");
         hitCivilian = Pick(hitCivilian, "Assets/Sounds/Civilllian/CivilianOld_hit1.wav");
         zombieSounds = PickSet(zombieSounds, "Assets/Sounds/Monster/Standard/ZombieSpawn_2.wav");
         civilianSounds = PickSet(civilianSounds,
             "Assets/Sounds/Civilllian/CivilianOld_idle2.wav",
             "Assets/Sounds/Civilllian/CivilianOld_idle3.wav");
+
+        // New recordings (Newtutorialmaterial, file name = spoken line)
+        repeatHelp = PickSet(repeatHelp, NewClips + "If you want me to repeat myself press ctrl and ill repeat the last thing i said.wav");
+        askRealZombie = PickSet(askRealZombie, NewClips + "Here comes a real zombie in the middle lane.wav");
+        realZombieReachedYou = PickSet(realZombieReachedYou, NewClips + "The zombie reached you.wav");
+        tappedCivilian = PickSet(tappedCivilian, NewClips + "Space shots toward the front. hold the up arrow to lob.wav");
+        hintGoLeft = PickSet(hintGoLeft, NewClips + "Target on the left, press left.wav");
+        hintGoRight = PickSet(hintGoRight, NewClips + "Test on the right, press right.wav");
+        hintShootHere = PickSet(hintShootHere, NewClips + "Target in this lane.wav", NewClips + "Press space to shoot.wav");
+        hintLobHere = PickSet(hintLobHere, NewClips + "The target is in this lane, hold the up arrow.wav");
+        wrongWay = PickSet(wrongWay, NewClips + "Thats the wrong way.wav");
+        hitWall = PickSet(hitWall, NewClips + "Ouch that a wall.wav");
+        missedEmptyLane = PickSet(missedEmptyLane, NewClips + "Nothing in this lane.wav");
+
+        // New recordings: extras
+        explainLanes = PickSet(explainLanes, NewClips + "PRess the left or right arrow to move a lane at a time.wav");
+        explainSoundDirection = PickSet(explainSoundDirection, NewClips + "Zombies makes sound from the lane they come from, move there.wav");
+        explainApproach = PickSet(explainApproach, NewClips + "Zombie gets loader the closer they get.wav");
+        explainLob = PickSet(explainLob, NewClips + "Lob shots is the only way to shot awhats behind a civilian.wav");
+        inRightLane = PickSet(inRightLane, NewClips + "Great you are in the right lane now, take the shot.wav");
+        tryAgain = PickSet(tryAgain, NewClips + "Almost, try again.wav");
+        praiseShort = PickSet(praiseShort, NewClips + "Nice oneee.wav");
+        lobKeepInMind = PickSet(lobKeepInMind, NewClips + "thats the lob.wav");
+        patience = PickSet(patience, NewClips + "Take your time.wav", NewClips + "Im not goping anywhere.wav", NewClips + "I still get payed on the clock.wav");
+        closing = PickSet(closing, NewClips + "I taught you all i know, lets go.wav");
+
+        // Earlier recordings (Tutorial.intro), so no step is left silent now that there is no text-to-speech
+        explainDummy = PickSet(explainDummy, IntroClips + "Testing you weapomn.wav", IntroClips + "Dont move to the sides.wav");
+        dummyHit = PickSet(dummyHit, IntroClips + "Well Done.wav", IntroClips + "Shoot the dead Dead.wav");
+        askZombieRight = PickSet(askZombieRight, IntroClips + "Civilian and zombie dummy.wav", IntroClips + "Dont shoot civilians.wav");
+        zombieRightHit = PickSet(zombieRightHit, IntroClips + "you shot the correct target.wav");
+        askLobber = PickSet(askLobber, IntroClips + "Testing mortar function.wav", IntroClips + "Testing mortar - Press dowm MK1.wav", IntroClips + "Once released - MK 1.wav");
+        lobberHit = PickSet(lobberHit, IntroClips + "Released button success.wav");
+        holdLonger = PickSet(holdLonger, IntroClips + "Released to early.wav");
+        shotCivilian = PickSet(shotCivilian, IntroClips + "Dont shoot the civilian.wav");
+        nearCivilian = PickSet(nearCivilian, IntroClips + "Dont shoot civilians.wav");
     }
 
     private static AudioClip[] PickSet(AudioClip[] current, params string[] paths)
     {
-        if (current != null && current.Length > 0) return current;
-        AudioClip[] clips = new AudioClip[paths.Length];
-        for (int i = 0; i < paths.Length; i++)
-            clips[i] = AssetDatabase.LoadAssetAtPath<AudioClip>(paths[i]);
-        return clips;
+        if (HasClips(current)) return current;
+        var clips = new System.Collections.Generic.List<AudioClip>();
+        foreach (string path in paths)
+        {
+            AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+            if (clip != null) clips.Add(clip);
+            else Debug.LogWarning("[Tutorial] Default clip not found: " + path);
+        }
+        return clips.ToArray();
     }
 
     private static AudioClip Pick(AudioClip current, string path)
