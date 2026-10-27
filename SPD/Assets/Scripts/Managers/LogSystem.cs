@@ -16,7 +16,7 @@ public class LogSystem : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
+        path = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "playerEvents.json");
     }
 
     public static void ResetCount()
@@ -29,7 +29,7 @@ public class LogSystem : MonoBehaviour
 
     public void SaveEvent(string eventType, float gameTimeLeft, string gamePoints = "Null", string lane = "Null")
     {
-        path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
+        path = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "playerEvents.json");
 
         if (eventType == "#EnemyKilled") totalEnemyKilled++;
         if (eventType == "#EnemySpawned") totalEnemySpawned++;
