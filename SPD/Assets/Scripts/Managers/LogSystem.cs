@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.IO;
 using System.Runtime.Serialization.Json;
@@ -7,16 +8,33 @@ public class LogSystem : MonoBehaviour
 {
     private string path;
     private GameManager gameManager;
+    private static int totalEnemySpawned;
+    private static int totalEnemyKilled;
+    private static int totalCivilianSpwaned;
+    private static int totalCivilianKilled;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
+        path = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "playerEvents.json");
+    }
+
+    public static void ResetCount()
+    {
+        totalEnemySpawned = 0;
+        totalEnemyKilled = 0;
+        totalCivilianKilled = 0;
+        totalCivilianSpwaned = 0;
     }
 
     public void SaveEvent(string eventType, float gameTimeLeft, string gamePoints = "Null", string lane = "Null")
     {
-        path = Path.Combine(Application.persistentDataPath, "playerEvents.json");
+        path = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "playerEvents.json");
+
+        if (eventType == "#EnemyKilled") totalEnemyKilled++;
+        if (eventType == "#EnemySpawned") totalEnemySpawned++;
+        if (eventType == "#CivilianKilled") totalCivilianKilled++;
+        if (eventType == "#CivilianSpawned") totalCivilianSpwaned++;
 
         LoggedEvent newEvent = new LoggedEvent
         {
@@ -25,7 +43,11 @@ public class LogSystem : MonoBehaviour
             playthrough = SettingsManager.playthrough,
             points = gamePoints,
             timeLeftOnRound = gameTimeLeft,
-            occupiedLane = lane
+            occupiedLane = lane,
+            totalEnemyKilled = totalEnemyKilled,
+            totalCivilianKilled = totalCivilianKilled,
+            totalCivilianSpwaned = totalCivilianSpwaned,
+            totalEnemySpawned = totalEnemySpawned
         };
 
         EventListWrapper wrapper = new EventListWrapper();

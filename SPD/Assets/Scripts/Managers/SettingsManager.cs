@@ -88,6 +88,13 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
+    public static void SetSoundLevels()
+    {
+        playerSoundLevel = 0.25f;
+        monsterSoundLevel = 0.40f;
+        ambienceSoundLevel = 0.05f;
+    }
+
     private IEnumerator StopSoundAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);

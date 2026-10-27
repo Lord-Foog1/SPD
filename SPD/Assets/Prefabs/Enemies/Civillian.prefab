@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6975385498852225824}
   - component: {fileID: -6191314296798181006}
   - component: {fileID: -2220592309705280006}
+  - component: {fileID: 1614972371948064922}
   m_Layer: 0
   m_Name: Civillian
   m_TagString: Civillian
@@ -180,14 +181,15 @@ MonoBehaviour:
   enemyDamage: 50
   enemyReward: -100
   enemyHealth: 1
-  enemyGroans:
-  - {fileID: 8300000, guid: 4bd61084d053c8d438303a3d313ebfee, type: 3}
+  idleSounds:
   - {fileID: 8300000, guid: 0f7cb75184a855e419ce506c721ca984, type: 3}
-  spawnSound: {fileID: 0}
+  spawnSound: {fileID: 8300000, guid: 4bd61084d053c8d438303a3d313ebfee, type: 3}
   deathSound: {fileID: 8300000, guid: d623c1c324cec5143af60c60b26e05e4, type: 3}
   attackSound: {fileID: 0}
   muffledSound: {fileID: 0}
   escapeSound: {fileID: 8300000, guid: cecd61cc1444c1e489e5eaeb9485f222, type: 3}
+  soundDuration: 1.5
+  playCooldown: 0.5
 --- !u!82 &-2220592309705280006
 AudioSource:
   m_ObjectHideFlags: 0
@@ -201,18 +203,18 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.75
+  m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 2.040372
-  MaxDistance: 500
+  MinDistance: 2
+  MaxDistance: 15
   Pan2D: 1
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -276,6 +278,31 @@ AudioSource:
     - serializedVersion: 3
       time: 0
       value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!169 &1614972371948064922
+AudioLowPassFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2444179556522089278}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_LowpassResonanceQ: 1
+  lowpassLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.09049568
       inSlope: 0
       outSlope: 0
       tangentMode: 0

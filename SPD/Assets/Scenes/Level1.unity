@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 7172780}
   m_Layer: 0
   m_Name: EnemyLane_2
-  m_TagString: Untagged
+  m_TagString: LaneBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 35351797}
   m_Layer: 0
   m_Name: PlayerLane_3
-  m_TagString: Untagged
+  m_TagString: LaneBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -542,7 +542,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 0.85
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -975,7 +975,7 @@ GameObject:
   - component: {fileID: 1194119569}
   m_Layer: 0
   m_Name: EnemyLane_1
-  m_TagString: Untagged
+  m_TagString: LaneBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1190,7 +1190,7 @@ GameObject:
   - component: {fileID: 1208590913}
   m_Layer: 0
   m_Name: PlayerLane_1
-  m_TagString: Untagged
+  m_TagString: LaneBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1277,7 +1277,7 @@ GameObject:
   - component: {fileID: 1541058056}
   m_Layer: 0
   m_Name: EnemyLane_3
-  m_TagString: Untagged
+  m_TagString: LaneBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1462,7 +1462,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 0.85
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -1571,7 +1571,7 @@ GameObject:
   - component: {fileID: 1762178618}
   m_Layer: 0
   m_Name: PlayerLane_2
-  m_TagString: Untagged
+  m_TagString: LaneBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1778,7 +1778,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 22474968, guid: 89f4a0ae7ea3fa84ea56c91291d7bd87, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1.5000229
+      value: -1.5000305
       objectReference: {fileID: 0}
     - target: {fileID: 4973883477652662, guid: 89f4a0ae7ea3fa84ea56c91291d7bd87, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1837,6 +1837,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManager
       objectReference: {fileID: 0}
+    - target: {fileID: 1966556905210914571, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: finishText
       value: 
@@ -1847,11 +1851,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: maxWaitTime
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: minwaitTime
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: spawnAmount
@@ -1867,7 +1871,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: enemies.Array.size
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: 'enemies.Array.data[0]'
@@ -1892,11 +1896,11 @@ PrefabInstance:
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: 'enemies.Array.data[5]'
       value: 
-      objectReference: {fileID: 2444179556522089278, guid: 41061ed567c93444bafd54731765dbf4, type: 3}
+      objectReference: {fileID: 2444179556522089278, guid: 916354f05dfca0c448946c0d9e9aae44, type: 3}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: 'enemies.Array.data[6]'
       value: 
-      objectReference: {fileID: 2444179556522089278, guid: 41061ed567c93444bafd54731765dbf4, type: 3}
+      objectReference: {fileID: 5170120347674911566, guid: e73ce91c571f1da46bf39028bb793068, type: 3}
     - target: {fileID: 2826120898437031435, guid: 8cf1e826ac779c44898ed95a17d542b0, type: 3}
       propertyPath: 'enemies.Array.data[7]'
       value: 

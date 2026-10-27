@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Enemy : MonoBehaviour
 {
@@ -20,10 +23,11 @@ public class Enemy : MonoBehaviour
     private AudioSource source;
     private BoxCollider2D boxCollider;
     private SpriteRenderer spriteRenderer;
+    private AudioLowPassFilter filter;
 
     [Header("Sound")]
     [Tooltip("Idle ljuden går här")]
-    [SerializeField] AudioClip[] enemyGroans;
+    [SerializeField] AudioClip[] idleSounds;
 
     [SerializeField] AudioClip spawnSound;
     [SerializeField] AudioClip deathSound;
@@ -31,32 +35,76 @@ public class Enemy : MonoBehaviour
     [SerializeField] AudioClip muffledSound;
     [SerializeField] AudioClip escapeSound;
 
+    [Header("Sound Duration")]
+    [SerializeField] private float soundDuration = 2.0f;
+    [SerializeField] private float playCooldown = 0.5f;
+    private float nextPlayTime;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        gameManager = FindObjectsOfType<GameManager>()[0];
+
+        if (gameObject.CompareTag("Civillian"))
+        {
+            LogSystem log = new LogSystem();
+            log.SaveEvent("#CivilianSpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+        }
+        if (gameObject.CompareTag("Enemy"))
+        {
+            LogSystem log = new LogSystem();
+            log.SaveEvent("#EnemySpawned", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
+        }
+
         source = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
+        filter = GetComponent<AudioLowPassFilter>();
+
+        filter.enabled = false;
 
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Make sound
-        MakeSound(spawnSound);
+        if (spawnSound)
+        {
+            MakeSound(spawnSound);
 
-        gameManager = FindObjectsOfType<GameManager>()[0];
+            source.loop = true;
+
+            StartCoroutine(StartIdleSounds(1.6f));
+        }
 
         rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));
 
         // source.PlayOneShot(enemyGroans[UnityEngine.Random.Range(0, enemyGroans.Length)]);
-        source.loop = true;
 
         boxCollider = GetComponent<BoxCollider2D>();
+
+        if(idleSounds.Length > 0)
+        {
+
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         
+        Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
+        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
+
+        if (hit && (hit.collider.gameObject.CompareTag("Civillian") || hit.collider.gameObject.CompareTag("Enemy")))
+        {
+            filter.enabled = true;
+            Debug.Log("Hit");
+        }
+        else
+        {
+            filter.enabled = false;
+            Debug.Log("No Hit");
+        }
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -94,17 +142,6 @@ public class Enemy : MonoBehaviour
         {
             gameManager.ChangePoints(enemyDamage);
 
-            if (gameObject.CompareTag("Enemy"))
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#EnemyEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
-            else if (gameObject.CompareTag("Civillian"))
-            {
-                LogSystem log = new LogSystem();
-                log.SaveEvent("#CivilianEscaped", gameManager.GetTimeLeft(), gameManager.GetPoints().ToString(), transform.position.x.ToString());
-            }
-
             source.Stop();
             MakeSound(escapeSound);
             Destroy(this.gameObject, 1.5f);
@@ -116,13 +153,44 @@ public class Enemy : MonoBehaviour
         }
         if(collision.gameObject.tag == "SoundTrigger")
         {
-            // MakeSound(attackSound)
+            MakeSound(attackSound);
         }
     }
 
     void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+        if (source && sound)
+        {
+            if (Time.time < nextPlayTime) return;
+
+            nextPlayTime = Time.time + playCooldown;
+
+            StopAllCoroutines();
+            source.Stop();
+            if (gameObject.CompareTag("Civillian"))
+            {
+                source.PlayOneShot(sound, SettingsManager.monsterSoundLevel + 0.5f);
+            }
+            else
+            {
+                source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+            }
+
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
+        }
+    }
+
+    private IEnumerator StopSoundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        source.Stop();
+    }
+
+    private IEnumerator StartIdleSounds(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        source.resource = idleSounds[0];
+        source.Play();
     }
 
     public void SetSoundPosition(float lane)

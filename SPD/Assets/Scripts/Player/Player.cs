@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.VirtualTexturing;
@@ -32,10 +34,19 @@ public class Player : MonoBehaviour
     [Header("Sound")]
     [SerializeField] AudioClip playerShoot;
     [SerializeField] AudioClip[] playerMove;
-    [SerializeField] AudioClip changeWeapon;
+    [SerializeField] AudioClip chargeWeapon;
+    [SerializeField] AudioClip firedChargedWeapon;
+    [SerializeField] AudioClip releaseChargingWeapon;
     [SerializeField] AudioClip reloadSound;
+    [SerializeField] AudioClip wallHit;
+    [SerializeField] AudioClip noAmmoSound;
 
-    private AudioSource source;
+    [Header("Sound Duration")]
+    [SerializeField] private float soundDuration = 1f;
+    [SerializeField] private float playCooldown = 0.2f;
+    private float nextPlayTime;
+
+    private AudioSource[] sources;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -50,18 +61,18 @@ public class Player : MonoBehaviour
         weaponCooldownTimeStamp = Time.time;
         moveTimeStamp = Time.time;
 
-        source = GetComponent<AudioSource>();
+        sources = GetComponents<AudioSource>();
         ammo = maxAmmo;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (moveLeft.IsPressed() && moveTimeStamp + moveCooldown <= Time.time)
+        if (moveLeft.WasPressedThisFrame() && moveTimeStamp + moveCooldown <= Time.time)
         {
             if (transform.position == playerLanes[0].transform.position)
             {
-                // MakeSound(wallHit);
+                MakeSound(wallHit);
             }
             else
             {
@@ -72,11 +83,11 @@ public class Player : MonoBehaviour
             
             moveTimeStamp = Time.time;
         }
-        if (moveRight.IsPressed() && moveTimeStamp + moveCooldown <= Time.time)
+        if (moveRight.WasPressedThisFrame() && moveTimeStamp + moveCooldown <= Time.time)
         {
             if (transform.position == playerLanes[2].transform.position)
             {
-                // MakeSound(wallHit);
+                MakeSound(wallHit);
             }
             else
             {
@@ -122,12 +133,14 @@ public class Player : MonoBehaviour
             {
                 //play outOfAmmo sound
                 Debug.Log("play outOfAmmo sound");
+                MakeSound(noAmmoSound);
             }
         }
 
         if (chargeSpecial.WasPressedThisFrame())
         {
             //make chargeSpecialSound
+            MakeSound(chargeWeapon);
             Debug.Log("started charging");
             moveLeft.Disable();
             moveRight.Disable();
@@ -144,6 +157,7 @@ public class Player : MonoBehaviour
 
             if (specialShotReady)
             {
+                MakeSound(firedChargedWeapon);
                 specialShotReady = false;
                 Debug.Log("special shot");
                 Instantiate(archingBullet, this.transform.position + new Vector3(0, bulletSpawnOffset), this.transform.rotation);
@@ -151,7 +165,8 @@ public class Player : MonoBehaviour
             else
             {
                 Debug.Log("stopped charging");
-                source.Stop();
+                sources[0].Stop();
+                MakeSound(releaseChargingWeapon);
             }
         }
 
@@ -165,6 +180,27 @@ public class Player : MonoBehaviour
 
     void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, SettingsManager.playerSoundLevel);
+        if (sources[1] && playerMove.Contains(sound))
+        {
+            if (Time.time < nextPlayTime) return;
+
+            nextPlayTime = Time.time + playCooldown;
+
+            StopAllCoroutines();
+            sources[1].Stop();
+            sources[1].PlayOneShot(sound, SettingsManager.playerSoundLevel);
+
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
+        }
+        else
+        {
+            sources[0].PlayOneShot(sound, SettingsManager.playerSoundLevel);
+        }
+    }
+
+    private IEnumerator StopSoundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        sources[1].Stop();
     }
 }
