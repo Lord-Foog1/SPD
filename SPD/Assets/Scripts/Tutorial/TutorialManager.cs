@@ -8,59 +8,88 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
-// Audio-only tutorial. Built our own way (scripted steps, recorded narrator lines only),
-// but every game sound, rule and timing mirrors Level 1/2 (Enemy.cs, Player.cs, Bullet.cs
-// and the level prefabs/scenes), so the player hears the same game.
-// Scope (Alfred, 27 Oct): the tutorial ONLY teaches move left, move right, shoot, lob, and
-// civilian vs zombie. Ammo/reload, score, round timer and special enemies (charger, lane jumper,
-// fast zombie) are NOT taught here; they are announced in the levels. Ammo is unlimited.
+// ===================================================================================
+// TutorialManager – min ljud-tutorial för SPD (Alfred)
+// ===================================================================================
+// Det här är tutorialen som spelaren kör innan Level 1. Allt sker med ljud, inget ska
+// behöva ses: en inspelad röst ("operatören") guidar, och spelet låter exakt som i
+// Level 1/2. Jag har byggt stegen själv, men alla spelljud, regler och tider har jag
+// kopierat från Enemy.cs, Player.cs, Bullet.cs och level-prefabsen/scenerna.
+//
+// Tutorialen lär BARA ut fem saker: gå vänster, gå höger, skjuta, lobba (mortar) och
+// att skilja på civil och zombie. Ammo/reload, poäng, rundtimer och specialfiender
+// lärs inte ut här, det kommer i levlarna.
+// Ammo är obegränsad i tutorialen.
+//
+// Stegen i ordning (se Start() längre ner):
+//   0 Ctrl-hjälp   1 Intro (+ eldljudet)   2 Vänster   3 Höger (+ förklaring av filer)
+//   4 Skjut en docka i mitten   5 Civil vänster, zombie höger   6 En riktig zombie som går
+//   7 Lobba över en civil   8 Övningsvåg 30 s   9 Avslutning   -> laddar Level1
+//
+// Rösten: bara inspelade repliker, ingen TTS. Är en slot tom loggar jag en varning en
+// gång och steget fortsätter ändå. Ctrl spelar alltid upp den senaste instruktionen igen.
+// Spelarens resultat per steg sparas i tutorialEvents.json (bredvid playerEvents.json).
 public class TutorialManager : MonoBehaviour
 {
+    // Två sorters mål i tutorialen: zombie (ska skjutas) och civil (ska inte skjutas).
     private enum Kind { Zombie, Civilian }
+    // Vad spelaren gjorde den här framen. ReadAction() returnerar en av dessa.
     private enum Act { None, Ctrl, Move, Wall, Shot, ChargeStart, LobFired, LobEarly }
 
+    // guideSource är AudioSourcen som operatörens röst spelas på (sätts i Inspectorn).
     [Header("Audio Sources")]
     [SerializeField] private AudioSource guideSource;
+    // Om den är på skalar jag rösten med Operator-reglaget i menyn (SettingsManager.operatorSoundLevel).
     [Tooltip("Multiply the narrator by the menu's Operator volume slider (SettingsManager.operatorSoundLevel).")]
     [SerializeField] private bool guideUsesOperatorVolume = true;
 
+    // Steg 0: "Tryck Ctrl om du vill att jag upprepar". Spelas först av allt.
     [Header("Repeat Help")]
     [SerializeField] private AudioClip[] repeatHelp;
 
+    // Steg 1: introt. Eldljudet från levlarna startar här.
     [Header("Introduction")]
     [SerializeField] private AudioClip[] introduction;
 
+    // Steg 3: be spelaren gå höger, rätta om hen trycker vänster, beröm när det blir rätt.
     [Header("Right Calibration")]
     [SerializeField] private AudioClip[] askRight;
     [SerializeField] private AudioClip[] wrongRight;
     [SerializeField] private AudioClip[] correctRight;
 
+    // Steg 2: samma sak fast för vänster (vänster kommer först i inspelningarna).
     [Header("Left Calibration")]
     [SerializeField] private AudioClip[] askLeft;
     [SerializeField] private AudioClip[] wrongLeft;
     [SerializeField] private AudioClip[] correctLeft;
 
+    // Steg 4: en docka i mittenfilen. explainDummy förklarar Space, dummyHit spelas vid träff.
     [Header("Step 4: Dummy in front")]
     [SerializeField] private AudioClip[] explainDummy;
     [SerializeField] private AudioClip[] dummyHit;
 
+    // Steg 5: civil i vänster fil, zombie i höger. Spelaren ska gå åt rätt håll och skjuta zombien.
     [Header("Step 5: Zombie right, civilian left")]
     [SerializeField] private AudioClip[] askZombieRight;
     [SerializeField] private AudioClip[] zombieRightHit;
 
+    // Steg 6: en riktig zombie som går mot spelaren. reachedYou spelas om den hinner fram.
     [Header("Step 6: Real zombie, level timing")]
     [SerializeField] private AudioClip[] askRealZombie;
     [SerializeField] private AudioClip[] realZombieHit;
     [SerializeField] private AudioClip[] realZombieReachedYou;
 
+    // Steg 7: civil framför, zombie bakom. Spelaren måste lobba (håll pil upp, släpp).
     [Header("Step 7: Lob")]
     [SerializeField] private AudioClip[] askLobber;
-    [SerializeField] private AudioClip[] lobHowTo;              // NEW (record): hold until the charge sound fades, then let go
+    [SerializeField] private AudioClip[] lobHowTo;              // NY (spelas in): "håll tills laddljudet tonar ut, släpp sen"
     [SerializeField] private AudioClip[] lobberHit;
     [SerializeField] private AudioClip[] tappedCivilian;
-    [SerializeField] private AudioClip[] holdLonger;            // re-record: the old take says "wait for the click"
-    [SerializeField] private float chargeHoldSeconds = 1.5f;    // Level1/2 scene override: Hold(duration=1.5)
+    [SerializeField] private AudioClip[] holdLonger;            // ska spelas in igen: gamla tagningen säger "vänta på klicket"
+    [SerializeField] private float chargeHoldSeconds = 1.5f;    // samma som Level1/2-scenerna: Hold(duration=1.5), alltså 1,5 s laddning
 
+    // Steg 8: övningsvågen. explainWave innan, waveMultiple när 3+ zombies lever,
+    // waveCivilianShot om man skjuter en civil, waveTimeUp när tiden är slut.
     [Header("Step 8: Practice wave (zombies and civilians only, Level 1 pace)")]
     [SerializeField] private AudioClip[] explainWave;
     [SerializeField] private AudioClip[] waveMultiple;
@@ -68,6 +97,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip[] waveTimeUp;
     [SerializeField] private float waveSeconds = 30f;
 
+    // Reaktioner som kan spelas i skjutstegen 4-7: tips om fil (vänster/höger/här), fel håll,
+    // vägg, nära en civil, bom i tom fil och skjuten civil.
     [Header("Reactions")]
     [SerializeField] private AudioClip[] hintGoLeft;
     [SerializeField] private AudioClip[] hintGoRight;
@@ -79,6 +110,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip[] missedEmptyLane;
     [SerializeField] private AudioClip[] shotCivilian;
 
+    // Spelets egna ljud. Fylls i från level-prefabsen så tutorialen låter som riktiga spelet.
     [Header("Level sounds (synced from the level prefabs by 'Assign default tutorial sounds')")]
     [SerializeField] private AudioClip zombieSpawn;
     [SerializeField] private AudioClip zombieWalkLoop;
@@ -88,7 +120,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip civilianSpawn;
     [SerializeField] private AudioClip civilianWalkLoop;
     [SerializeField] private AudioClip civilianHit;
-    [SerializeField] private AudioClip civilianEscape;          // empty in Civillian.prefab today (silent, like the levels)
+    [SerializeField] private AudioClip civilianEscape;          // tom i Civillian.prefab idag (tyst, precis som i levlarna)
     [SerializeField] private AudioClip gunShot;
     [SerializeField] private AudioClip lobCharge;
     [SerializeField] private AudioClip lobFire;
@@ -97,50 +129,57 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip footstep;
     [SerializeField] private AudioClip fireAmbience;
 
+    // Steg 9: avslutningsrepliken, och vilken scen som laddas efteråt (Level1).
     [Header("Ending")]
     [SerializeField] private AudioClip[] tutorialComplete;
     [SerializeField] private string nextScene = "Level1";
 
     [Header("Extras (optional)")]
-    // Optional narrator lines. An empty slot is skipped silently (no delay, no warning).
-    [SerializeField] private AudioClip[] calibrationDone;       // after correctRight: Fm7 "Looks like your headset is calibrated."
-    [SerializeField] private AudioClip[] explainLanes;          // after correctRight, before Step 4
-    [SerializeField] private AudioClip[] explainSoundDirection; // start of Step 5, before askZombieRight
-    [SerializeField] private AudioClip[] explainLob;            // Step 7, before askLobber
-    [SerializeField] private AudioClip[] inRightLane;           // first arrival in the target lane per step (non-lob steps)
-    [SerializeField] private AudioClip[] tryAgain;              // after missedEmptyLane
-    [SerializeField] private AudioClip[] praiseShort;           // after zombieRightHit and realZombieHit
-    [SerializeField] private AudioClip[] lobKeepInMind;         // after lobberHit
-    [SerializeField] private AudioClip[] patience;              // second idle repeat in a row during a shooting step
-    [SerializeField] private AudioClip[] closing;               // after tutorialComplete, before the next scene
+    // Extra repliker som är frivilliga. Är en slot tom hoppar jag bara över den (ingen paus, ingen varning).
+    [SerializeField] private AudioClip[] calibrationDone;       // efter correctRight: Fm7 "Looks like your headset is calibrated."
+    [SerializeField] private AudioClip[] explainLanes;          // efter correctRight, innan steg 4: hur man byter fil
+    [SerializeField] private AudioClip[] explainSoundDirection; // början av steg 5, innan askZombieRight: lyssna var ljudet kommer ifrån
+    [SerializeField] private AudioClip[] explainLob;            // steg 7, innan askLobber: vad en lob är
+    [SerializeField] private AudioClip[] inRightLane;           // första gången spelaren kommer till rätt fil i ett steg (inte i lob-steget)
+    [SerializeField] private AudioClip[] tryAgain;              // efter missedEmptyLane: "Almost. Try that again."
+    [SerializeField] private AudioClip[] praiseShort;           // efter zombieRightHit och realZombieHit: kort beröm
+    [SerializeField] private AudioClip[] lobKeepInMind;         // efter lobberHit: "that's the lob"
+    [SerializeField] private AudioClip[] patience;              // andra gången i rad jag upprepar instruktionen i ett skjutsteg
+    [SerializeField] private AudioClip[] closing;               // efter tutorialComplete, precis innan nästa scen laddas
 
     [Header("Timing")]
+    // Hur många sekunder spelaren får vara stilla innan jag upprepar instruktionen.
     [SerializeField] private float idleRepeatSeconds = 8f;
 
-    // ---- Level values (Level1/2 scenes, prefabs, Enemy.cs, Player.cs, Bullet.cs) ----
-    private const float LaneX = 5f;              // EnemyLane/PlayerLane x = -5 / 0 / +5
-    private const float SpawnY = 4f;             // EnemyLane y
-    private const float PlayerY = -4f;           // PlayerLane y
-    private const float WalkSpeed = 1f;          // speed 50 force * 0.02 fixed step = 1 unit/s
-    private const float IdleStartAge = 1.6f;     // Enemy.StartIdleSounds(1.6f)
-    private const float MobSoundDuration = 1.5f; // StandardEnemy/Civillian soundDuration
-    private const float MobPlayCooldown = 0.5f;  // Enemy playCooldown
-    private const float ScreamAge = 5.3f;        // enters SoundTrigger (y = -2.3)
-    private const float KillBoxAge = 9.7f;       // reaches KillBox (y = -6.69)
+    // ---- Värden från levlarna (Level1/2-scenerna, prefabsen, Enemy.cs, Player.cs, Bullet.cs) ----
+    // Jag har kopierat dem hit så att tutorialen beter sig och låter som i spelet.
+    private const float LaneX = 5f;              // filerna ligger på x = -5 / 0 / +5 (EnemyLane/PlayerLane)
+    private const float SpawnY = 4f;             // där fienderna spawnar (EnemyLane y)
+    private const float PlayerY = -4f;           // där spelaren står (PlayerLane y)
+    private const float WalkSpeed = 1f;          // speed 50 (force) * 0.02 fixed step = 1 enhet/s
+    private const float IdleStartAge = 1.6f;     // gå-loopen startar efter 1,6 s (Enemy.StartIdleSounds(1.6f))
+    private const float MobSoundDuration = 1.5f; // ett fiendeljud stängs av efter 1,5 s (soundDuration i prefabsen)
+    private const float MobPlayCooldown = 0.5f;  // minst 0,5 s mellan två fiendeljud (Enemy playCooldown)
+    private const float ScreamAge = 5.3f;        // zombien går in i SoundTrigger (y = -2.3) och skriker
+    private const float KillBoxAge = 9.7f;       // zombien når KillBox (y = -6.69) och tar sig förbi
+    // Y-läget där KillBox ligger, räknat från spawn och gånghastighet.
     private const float KillBoxY = SpawnY - WalkSpeed * KillBoxAge;
-    private const float DestroyDelay = 1.5f;     // Destroy(gameObject, 1.5f)
-    private const float MuffleRay = 3.5f;        // Enemy.Update raycast length
-    private const float LowPassCurveValue = 0.09049568f; // StandardEnemy/Civillian lowpassLevelCustomCurve
-    private const float BulletSpeed = 10f;       // bulletSpeed 500 * 0.02
-    private const float WeaponCooldown = 0.3f;   // Player.prefab
+    private const float DestroyDelay = 1.5f;     // fienden tas bort 1,5 s efter att den dött (Destroy(gameObject, 1.5f))
+    private const float MuffleRay = 3.5f;        // längden på raycasten i Enemy.Update som gör ljudet dämpat
+    private const float LowPassCurveValue = 0.09049568f; // lowpass-värdet från prefabsens lowpassLevelCustomCurve
+    private const float BulletSpeed = 10f;       // kulans fart: bulletSpeed 500 * 0.02 = 10 enheter/s
+    private const float WeaponCooldown = 0.3f;   // minst 0,3 s mellan två skott (Player.prefab)
+    // Lite spärr så att en knapptryckning inte flyttar spelaren två filer.
     private const float MoveCooldown = 0.1f;
-    private const float StepSoundDuration = 2f;  // Player.prefab soundDuration (footstep source)
+    private const float StepSoundDuration = 2f;  // fotstegsljudet stängs av efter 2 s (soundDuration i Player.prefab)
+    // Minsta tid mellan två fotstegsljud.
     private const float StepPlayCooldown = 0.2f;
+    // Samma poäng som i levlarna. Jag räknar dem tyst bara för loggen, rösten säger aldrig poängen.
     private const int ZombieReward = 100, ZombieEscapePenalty = -100, CivilianShotPenalty = -100, CivilianEscapeReward = 50;
-    private const float DefaultOperatorLevel = 0.5f; // MainMenu Operator slider default
+    private const float DefaultOperatorLevel = 0.5f; // standardvärdet på Operator-reglaget i MainMenu
 
-    // Narrator takes that contradict the level behaviour (no "click" when the lob is ready,
-    // almost no "louder when closer"). They are never played, even if still assigned.
+    // Gamla tagningar som säger fel saker om spelet (det finns inget "klick" när loben är laddad,
+    // och zombies blir knappt starkare när de kommer närmare). De spelas aldrig, även om de ligger kvar i en slot.
     private static readonly string[] RetiredClips =
     {
         "Testing mortar - Press dowm MK1",
@@ -148,6 +187,9 @@ public class TutorialManager : MonoBehaviour
         "Zombie gets loader the closer they get",
     };
 
+    // Ett mål i en fil (zombie eller civil). Det är min egen enkla version av en Enemy:
+    // age/idleAt/stopAt räknas i fiendens egen tid (står still när den pausas), destroyAt och
+    // nextPlayTime i vanlig Time.time.
     private class Mob
     {
         public Kind kind;
@@ -165,6 +207,7 @@ public class TutorialManager : MonoBehaviour
         public AudioLowPassFilter filter;
     }
 
+    // Ett skott på väg. victim är målet det kommer träffa, hitTime när kulan är framme.
     private class Shot
     {
         public Mob victim;
@@ -173,6 +216,7 @@ public class TutorialManager : MonoBehaviour
         public Mob killed;
     }
 
+    // Loggen för ett steg i tutorialEvents.json: tid, försök, fel, Ctrl, skott, träffar osv.
     [System.Serializable]
     private class StepLog
     {
@@ -195,6 +239,7 @@ public class TutorialManager : MonoBehaviour
         public int score;
     }
 
+    // En genomkörning av tutorialen (en session) med alla steg i ordning.
     [System.Serializable]
     private class SessionLog
     {
@@ -206,25 +251,29 @@ public class TutorialManager : MonoBehaviour
         public List<StepLog> steps = new List<StepLog>();
     }
 
+    // Hela filen tutorialEvents.json: en lista med alla sessioner som körts.
     [System.Serializable]
     private class TutorialLogFile
     {
         public List<SessionLog> sessions = new List<SessionLog>();
     }
 
-    private int lane = 1; // 0 = left, 1 = middle, 2 = right
+    private int lane = 1; // 0 = vänster, 1 = mitten, 2 = höger
+    // Filen spelaren stod i innan förra förflyttningen (för att veta om hen gick åt fel håll).
     private int previousLane = 1;
+    // Mittpunkten i världen som filerna räknas från (10 enheter framför lyssnaren).
     private Vector3 origin;
     private readonly List<Mob> mobs = new List<Mob>();
     private readonly List<Shot> shots = new List<Shot>();
-    private AudioSource playerSource;  // Player source 0: 3D at the player (shots, click, reload, charge, wall thud)
-    private AudioSource stepSource;    // Player source 1: 2D footsteps
+    private AudioSource playerSource;  // som Player-källa 0: 3D vid spelaren (skott, lob-laddning, väggduns)
+    private AudioSource stepSource;    // som Player-källa 1: 2D, fotsteg
     private readonly List<AudioSource> ambienceSources = new List<AudioSource>();
     private float stepStopAt = -1f;
     private float nextStepTime;
     private float guideBaseVolume = 1f;
 
-    // Ammo is unlimited in the tutorial (reload is announced in the levels, not taught here).
+    // Ammo är obegränsad i tutorialen (reload presenteras i levlarna, inte här).
+    // Här håller jag koll på cooldowns och lob-laddningen, som i Player.cs.
     private float lastShotTime = -10f;
     private float lastMoveTime = -10f;
     private bool charging;
@@ -233,18 +282,22 @@ public class TutorialManager : MonoBehaviour
     private float chargeStart;
     private Shot lastShot;
 
+    // I de guidade stegen fryser målen medan rösten pratar, så man inte förlorar på att lyssna.
     private bool pauseMobsWhileTalking = true;
     private int score;
     private int zombieEscapes;
     private int civilianPasses;
     private int civiliansShotTotal;
 
+    // Senaste gången spelaren gjorde något (för att veta när jag ska upprepa instruktionen).
     private float lastInputTime;
     private bool stepDone;
-    private AudioClip[] lastClips; // last guide line, for Ctrl repeat
+    private AudioClip[] lastClips; // senaste instruktionen, den som Ctrl spelar upp igen
+    // Slots som jag redan varnat för, så att varje tom slot bara loggas en gång.
     private readonly HashSet<string> warnedSlots = new HashSet<string>();
-    private bool inRightLaneSaid; // inRightLane plays once per shooting step
+    private bool inRightLaneSaid; // inRightLane spelas bara en gång per skjutsteg
 
+    // Loggen: hela filen, sessionen just nu, steget just nu och tider för dem.
     private TutorialLogFile logFile;
     private SessionLog session;
     private StepLog current = new StepLog { step = "setup" };
@@ -252,6 +305,8 @@ public class TutorialManager : MonoBehaviour
     private float sessionStartTime;
     private string logPath;
 
+    // Här kör jag hela tutorialen från början till slut, ett steg i taget.
+    // Varje steg börjar med BeginStep och slutar med EndStep, som skriver loggen.
     private IEnumerator Start()
     {
         if (guideSource == null)
@@ -261,6 +316,8 @@ public class TutorialManager : MonoBehaviour
         }
         guideSource.loop = false;
 
+// Innan stegen: fyll tomma slots (bara i editorn), ta bort gamla tagningar, sätt volymer,
+// skapa ljudkällorna, starta loggen och ställ spelaren i mittenfilen.
 #if UNITY_EDITOR
         FillMissingSounds();
 #endif
@@ -271,37 +328,39 @@ public class TutorialManager : MonoBehaviour
         lane = 1;
         PlacePlayer();
 
-        // STEP 0: How to repeat (Ctrl)
+        // STEG 0: berätta att Ctrl upprepar det jag sa senast.
         BeginStep("0_repeatHelp");
         yield return Say(repeatHelp, nameof(repeatHelp));
         EndStep();
 
-        // STEP 1: Introduction (the levels' fire ambience starts here)
+        // STEG 1: introt. Här startar också eldljudet från levlarna.
         BeginStep("1_intro");
         StartAmbience();
         yield return PlayAudioList(introduction);
         EndStep();
 
-        // STEP 2: Face left first, matching the recorded instructions.
+        // STEG 2: vänster först, eftersom inspelningarna är i den ordningen.
+        // Fel pil ger wrongLeft + frågan igen, är man stilla 8 s upprepar jag frågan.
         BeginStep("2_left");
         yield return PlayAudioList(askLeft);
         yield return WaitForDirection(Key.LeftArrow, Key.RightArrow, wrongLeft, askLeft);
-        MoveLane(-1); // middle -> left
+        MoveLane(-1); // mitten -> vänster (med fotstegsljud)
         yield return PlayAudioList(correctLeft);
         EndStep();
 
-        // STEP 3: correctLeft may already say "now right";
-        // leave askRight empty in that case to avoid repeating it.
+        // STEG 3: höger. Om correctLeft redan säger "nu höger" kan askRight lämnas tom,
+        // så slipper man höra det två gånger.
         BeginStep("3_right");
         yield return PlayAudioList(askRight);
         yield return WaitForDirection(Key.RightArrow, Key.LeftArrow, wrongRight, askRight);
-        MoveLane(1); // left -> middle
+        MoveLane(1); // vänster -> mitten
         yield return PlayAudioList(correctRight);
         if (!ContainsAny(correctRight, calibrationDone)) yield return SayExtra(calibrationDone);
         yield return SayExtra(explainLanes);
         EndStep();
 
-        // STEP 4: Dummy zombie in front (middle lane). Level zombie sounds, standing still.
+        // STEG 4: en docka i mittenfilen som står still, med zombiens riktiga ljud.
+        // Klart när spelaren skjuter den. dummy() ställer upp steget igen om det måste börja om.
         BeginStep("4_dummy");
         System.Action dummy = () => { ClearMobs(); SpawnMob(Kind.Zombie, 1, SpawnY, false); };
         dummy();
@@ -311,7 +370,8 @@ public class TutorialManager : MonoBehaviour
         yield return Say(dummyHit, nameof(dummyHit));
         EndStep();
 
-        // STEP 5: Zombie right, civilian left. Pan is fixed per lane, like the levels.
+        // STEG 5: civil i vänster fil, zombie i höger. Panoreringen är fast per fil, som i levlarna.
+        // Spelaren ska höra var zombien är, gå dit och skjuta den, inte den civila.
         BeginStep("5_direction");
         System.Action pair = () => { ClearMobs(); SpawnMob(Kind.Civilian, 0, SpawnY, false); SpawnMob(Kind.Zombie, 2, SpawnY, false); };
         pair();
@@ -323,8 +383,8 @@ public class TutorialManager : MonoBehaviour
         yield return SayExtra(praiseShort);
         EndStep();
 
-        // STEP 6: Real zombie walking down the middle lane on level timing:
-        // groan -> walking loop -> scream at 5.3 s -> silence -> escape laugh at 9.7 s.
+        // STEG 6: en riktig zombie som går ner i mittenfilen med levelns tider:
+        // stön -> gå-loop -> skrik vid 5,3 s -> tyst -> skratt vid KillBox vid 9,7 s.
         BeginStep("6_realZombie");
         yield return Say(askRealZombie, nameof(askRealZombie));
         System.Action walker = () => { ClearMobs(); SpawnMob(Kind.Zombie, 1, SpawnY, true); };
@@ -335,14 +395,14 @@ public class TutorialManager : MonoBehaviour
         yield return SayExtra(praiseShort);
         EndStep();
 
-        // STEP 7: Civilian in front, zombie behind it (muffled): lob over.
+        // STEG 7: en civil framför och en zombie bakom (dämpat ljud). Spelaren måste lobba över.
         BeginStep("7_lob");
         System.Action lobSetup = () => { ClearMobs(); SpawnMob(Kind.Civilian, 1, 1f, false); SpawnMob(Kind.Zombie, 1, 3f, false); };
         lobSetup();
         yield return SayExtra(explainLob);
         yield return Say(askLobber, nameof(askLobber));
-        // askLobber never names the key. Until lobHowTo is recorded, hintLobHere
-        // ("...hold the up arrow until the charge sound and then let go") says it.
+        // askLobber säger aldrig vilken knapp det är. Tills lobHowTo är inspelad säger
+        // hintLobHere det ("...hold the up arrow until the charge sound and then let go").
         if (HasClips(lobHowTo)) yield return SayExtra(lobHowTo);
         else yield return SayExtra(hintLobHere);
         yield return ShootStep(1, askLobber, nameof(askLobber), true, lobSetup);
@@ -351,31 +411,33 @@ public class TutorialManager : MonoBehaviour
         yield return SayExtra(lobKeepInMind);
         EndStep();
 
-        // STEP 8 (new): ~30 s practice wave at Level 1 pace using only the skills above:
-        // move, shoot, lob, civilian vs zombie. Zombies and civilians only, unlimited ammo,
-        // no score/timer talk, no special enemies.
+        // STEG 8: ungefär 30 s övningsvåg i Level 1-tempo med bara det vi lärt oss:
+        // gå, skjuta, lobba, civil eller zombie. Bara zombies och civila, obegränsad ammo,
+        // inget snack om poäng eller tid, inga specialfiender.
         BeginStep("8_practiceWave");
         yield return MiniWave();
         EndStep();
 
-        // STEP 9: Tutorial completed
+        // STEG 9: tutorialen är klar. Avslutningsrepliker, sen markerar jag sessionen som klar i loggen.
         BeginStep("9_end");
         yield return Say(tutorialComplete, nameof(tutorialComplete));
         yield return SayExtra(closing);
         EndStep();
         FinishLog();
 
-        // STEP 10: Load the first level, the same way the menu's Level 1 button does.
+        // STEG 10: ladda första leveln, på samma sätt som Level 1-knappen i menyn gör.
         LoadNextScene();
     }
 
-    // ---------------------------------------------------------------- guided shooting steps
+    // ---------------------------------------------------------------- guidade skjutsteg
 
-    // One shooting exercise. Loops until a zombie in targetLane is hit.
+    // Ett skjutsteg (steg 4-7). Loopar tills spelaren dödar en zombie i targetLane.
+    // Varje frame läser jag vad spelaren gör och svarar: Ctrl upprepar, vägg/fel håll ger tips,
+    // skott väntar in kulan. Gör spelaren inget på 8 s upprepar jag frågan (inte medan zombien går).
     private IEnumerator ShootStep(int targetLane, AudioClip[] ask, string askSlot, bool lobStep, System.Action respawn, bool walking = false)
     {
         stepDone = false;
-        int idleRepeats = 0; // idle repeats in a row, for the patience line
+        int idleRepeats = 0; // hur många upprepningar i rad, för patience-repliken
         int escapesBefore = zombieEscapes;
         inRightLaneSaid = false;
         pauseMobsWhileTalking = true;
@@ -385,11 +447,12 @@ public class TutorialManager : MonoBehaviour
 
         while (!stepDone)
         {
+            // Den gående zombien (steg 6) har tagit sig förbi: nytt försök med en ny zombie.
             if (walking)
             {
                 if (zombieEscapes != escapesBefore)
                 {
-                    // The escape laugh has already played from the zombie (like the levels).
+                    // Skrattet har redan spelats från zombien (som i levlarna).
                     escapesBefore = zombieEscapes;
                     current.attempts++;
                     yield return WaitWhileGuideOrSeconds(1.0f);
@@ -405,6 +468,7 @@ public class TutorialManager : MonoBehaviour
             Act act = ReadAction();
             if (act != Act.None) idleRepeats = 0;
 
+            // Svara på det spelaren gjorde.
             switch (act)
             {
                 case Act.Ctrl:
@@ -428,7 +492,7 @@ public class TutorialManager : MonoBehaviour
                     if (HasClips(holdLonger)) yield return Say(holdLonger, nameof(holdLonger));
                     else
                     {
-                        // Until "Too early..." is recorded: "Almost. Try that again." (LaneHint below names the key).
+                        // Tills "Too early..." är inspelad: "Almost. Try that again." (LaneHint nedanför säger vilken knapp)
                         WarnEmpty(nameof(holdLonger));
                         yield return SayExtra(tryAgain);
                     }
@@ -444,7 +508,8 @@ public class TutorialManager : MonoBehaviour
                     break;
             }
 
-            // Idle: repeat the instruction (not while a real zombie is walking)
+            // Stilla för länge: upprepa instruktionen + tips (inte medan en riktig zombie går
+            // eller medan man laddar en lob). Andra gången i rad lägger jag till en patience-replik.
             if (!walking && !charging && Time.time - lastInputTime > idleRepeatSeconds)
             {
                 current.idleRepeats++;
@@ -460,6 +525,8 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    // Spelaren bytte fil. Kom hen till rätt fil säger jag det (en gång), annars kollar jag om
+    // hen står framför en civil eller gick åt fel håll, och ger ett tips om vart hen ska.
     private IEnumerator OnMoved(int targetLane, bool lobStep)
     {
         int before = Mathf.Abs(previousLane - targetLane);
@@ -467,8 +534,8 @@ public class TutorialManager : MonoBehaviour
 
         if (lane == targetLane)
         {
-            // First arrival this step: inRightLane replaces the "shoot here" hint.
-            // Empty slot, lob step or later arrivals: the normal hint, as before.
+            // Första gången man kommer rätt i ett steg: inRightLane istället för "skjut här"-tipset.
+            // Tom slot, lob-steget eller senare gånger: vanliga tipset.
             if (!lobStep && !inRightLaneSaid && HasClips(inRightLane))
             {
                 inRightLaneSaid = true;
@@ -494,16 +561,18 @@ public class TutorialManager : MonoBehaviour
         lastInputTime = Time.time;
     }
 
+    // Spelaren sköt (eller lobbade). Jag väntar tills kulan är framme och kollar vad den träffade:
+    // rätt zombie = steget klart, civil = tillsägelse och omstart, tom fil = bom + tips.
     private IEnumerator OnShot(Shot shot, int targetLane, AudioClip[] ask, string askSlot, bool lobStep, System.Action respawn)
     {
-        // Wait for the bullet to travel (10 units/s, like Bullet.cs).
+        // Vänta på att kulan flyger fram (10 enheter/s, som Bullet.cs).
         while (shot != null && !shot.done) yield return null;
         Mob hit = shot != null ? shot.killed : null;
 
         if (hit != null && hit.kind == Kind.Zombie && hit.lane == targetLane)
         {
             stepDone = true;
-            yield return WaitWhileGuideOrSeconds(0.8f); // let the death groan be heard
+            yield return WaitWhileGuideOrSeconds(0.8f); // låt dödsljudet höras klart
             yield break;
         }
 
@@ -511,6 +580,7 @@ public class TutorialManager : MonoBehaviour
         {
             current.wrongPresses++;
             yield return WaitWhileGuideOrSeconds(0.8f);
+            // I lob-steget betyder det att man tryckte Space istället för att lobba.
             if (lobStep && lane == targetLane)
                 yield return Say(tappedCivilian, nameof(tappedCivilian));
             else
@@ -527,7 +597,7 @@ public class TutorialManager : MonoBehaviour
         }
         else
         {
-            // Killed a zombie in another lane (no such setup today): carry on.
+            // Dödade en zombie i en annan fil (finns inte i något steg idag): fortsätt bara.
             yield return LaneHint(targetLane, lobStep);
         }
 
@@ -535,6 +605,7 @@ public class TutorialManager : MonoBehaviour
         lastInputTime = Time.time;
     }
 
+    // Tipset om vart spelaren ska: gå vänster, gå höger, eller (i rätt fil) skjut/lobba här.
     private IEnumerator LaneHint(int targetLane, bool lobStep)
     {
         if (lane > targetLane) yield return Say(hintGoLeft, nameof(hintGoLeft));
@@ -543,21 +614,22 @@ public class TutorialManager : MonoBehaviour
         else yield return Say(hintShootHere, nameof(hintShootHere));
     }
 
-    // ---------------------------------------------------------------- new steps
+    // ---------------------------------------------------------------- övningsvågen
 
-    // Step 8: practice wave (zombies and civilians only), spawns 3-4 s apart (Level 1: 3-5 s), 2-3 alive at once,
-    // two zombies stacked in one lane, a zombie behind a civilian (lob), unlimited ammo. Ends like a round:
-    // everything is removed at once when time is up.
+    // Steg 8: övningsvågen (bara zombies och civila). En ny var 3-4:e sekund (Level 1: 3-5 s), 2-3 lever
+    // samtidigt, två zombies i samma fil och en zombie bakom en civil (lob). Obegränsad ammo.
+    // Slutar som en runda: allt försvinner på en gång när tiden är slut.
     private IEnumerator MiniWave()
     {
         yield return Say(explainWave, nameof(explainWave));
 
+        // Schemat: när (sekunder), vad och i vilken fil (0 = vänster, 1 = mitten, 2 = höger).
         float[] times = { 0f, 4f, 8f, 11f, 15f, 18f, 22f, 25f };
         Kind[] kinds = { Kind.Zombie, Kind.Zombie, Kind.Civilian, Kind.Zombie, Kind.Zombie, Kind.Zombie, Kind.Civilian, Kind.Zombie };
         int[] spawnLanes = { 0, 2, 1, 1, 0, 0, 2, 1 };
 
         ClearMobs();
-        pauseMobsWhileTalking = false; // like a real round: nothing waits for the narrator
+        pauseMobsWhileTalking = false; // som en riktig runda: ingenting väntar på rösten
         int scoreBefore = score;
         int next = 0;
         bool saidMultiple = false;
@@ -575,6 +647,7 @@ public class TutorialManager : MonoBehaviour
             }
 
             Act act = ReadAction();
+            // Här blockerar jag aldrig spelet: Ctrl och kommentarerna spelas bara om rösten är tyst.
             if (act == Act.Ctrl && !guideSource.isPlaying) StartCoroutine(RepeatLast());
 
             if (civiliansShotTotal != civShotBefore)
@@ -590,7 +663,7 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
 
-        // Time over: like GameManager, every zombie and civilian is removed at once.
+        // Tiden är slut: som i GameManager tas alla zombies och civila bort på en gång.
         ClearMobs();
         charging = false;
         lobReady = false;
@@ -600,21 +673,24 @@ public class TutorialManager : MonoBehaviour
         yield return Say(waveTimeUp, nameof(waveTimeUp));
     }
 
-    // ---------------------------------------------------------------- player (mirrors Player.cs)
+    // ---------------------------------------------------------------- spelaren (som Player.cs)
 
+    // Läser tangentbordet en gång per frame och gör samma sak som Player.cs:
+    // pilar = byt fil (vägg = duns), Space = skott, håll pil upp = ladda lob, Ctrl = upprepa.
     private Act ReadAction()
     {
         Keyboard keyboard = Keyboard.current;
 
         if (keyboard == null) return Act.None;
 
-        // While charging, move/shoot are disabled (like Player.cs).
+        // Medan man laddar loben går det inte att gå eller skjuta (som i Player.cs).
+        // Efter 1,5 s är loben redo. Släpper man innan dess blir det inget skott.
         if (charging)
         {
             if (!chargeChecked && Time.time - chargeStart >= chargeHoldSeconds)
             {
                 chargeChecked = true;
-                lobReady = true; // no ready sound in the levels
+                lobReady = true; // inget "redo"-ljud i levlarna heller
             }
             if (!keyboard.upArrowKey.isPressed)
             {
@@ -622,11 +698,12 @@ public class TutorialManager : MonoBehaviour
                 if (lobReady)
                 {
                     lobReady = false;
-                    PlayPlayer(lobFire); // the lob uses no ammo, like the levels
+                    PlayPlayer(lobFire); // loben drar ingen ammo, som i levlarna
                     lastShot = Fire(true);
                     current.lobsFired++;
                     return Act.LobFired;
                 }
+                // Släppte för tidigt: laddljudet stoppas och släppljudet spelas.
                 playerSource.Stop();
                 PlayPlayer(lobRelease);
                 current.lobsEarly++;
@@ -642,6 +719,7 @@ public class TutorialManager : MonoBehaviour
             return Act.Ctrl;
         }
 
+        // Vänster/höger pil: byt fil. Utanför kanten blir det väggduns istället.
         int dir = 0;
         if (keyboard.leftArrowKey.wasPressedThisFrame) dir = -1;
         else if (keyboard.rightArrowKey.wasPressedThisFrame) dir = 1;
@@ -660,8 +738,9 @@ public class TutorialManager : MonoBehaviour
             return Act.Move;
         }
 
-        // R (reload) does nothing here: ammo is unlimited in the tutorial.
+        // R (reload) gör ingenting här: ammo är obegränsad i tutorialen.
 
+        // Space: vanligt skott med skottljudet från spelet.
         if (keyboard.spaceKey.wasPressedThisFrame && Time.time >= lastShotTime + WeaponCooldown)
         {
             lastShotTime = Time.time;
@@ -670,6 +749,7 @@ public class TutorialManager : MonoBehaviour
             return Act.Shot;
         }
 
+        // Pil upp: börja ladda loben (laddljudet spelas).
         if (keyboard.upArrowKey.wasPressedThisFrame)
         {
             charging = true;
@@ -683,6 +763,7 @@ public class TutorialManager : MonoBehaviour
         return Act.None;
     }
 
+    // Flyttar spelaren en fil och spelar fotsteg.
     private void MoveLane(int dir)
     {
         previousLane = lane;
@@ -691,18 +772,21 @@ public class TutorialManager : MonoBehaviour
         PlayStep();
     }
 
+    // Flyttar spelarens ljudkälla till rätt fil, så skotten hörs därifrån.
     private void PlacePlayer()
     {
         if (playerSource != null)
             playerSource.transform.position = origin + new Vector3((lane - 1) * LaneX, PlayerY, 0f);
     }
 
+    // Spelarljud (skott, lob, vägg) på Player-volymen från menyn.
     private void PlayPlayer(AudioClip clip)
     {
         if (clip != null && playerSource != null)
             playerSource.PlayOneShot(clip, PlayerLevel);
     }
 
+    // Fotsteg som i Player.cs: lite cooldown, och ljudet stängs av efter 2 s i Update().
     private void PlayStep()
     {
         if (footstep == null || stepSource == null || Time.time < nextStepTime) return;
@@ -712,18 +796,20 @@ public class TutorialManager : MonoBehaviour
         stepStopAt = Time.time + StepSoundDuration;
     }
 
-    // Normal bullet: first zombie/civilian in the lane. Lob (arching bullet): skips the first
-    // one and kills the next one in the lane; nothing if there is no second one.
+    // Vanligt skott: träffar första zombie/civil i filen. Lob (bågskott): hoppar över den
+    // första och träffar nästa i filen, finns ingen andra blir det ingen träff.
     private Shot Fire(bool lob)
     {
         current.shotsFired++;
         Mob victim = FirstInLane(lane, lob ? 1 : 0);
         Shot shot = new Shot { victim = victim };
+        // Kulan tar tid: avståndet till målet delat med kulans fart.
         shot.hitTime = Time.time + (victim != null ? Mathf.Max(0f, victim.y - PlayerY) / BulletSpeed : 0f);
         shots.Add(shot);
         return shot;
     }
 
+    // Kollar vilka kulor som kommit fram den här framen: lever målet dör det, annars är det en bom.
     private void ResolveShots()
     {
         for (int i = shots.Count - 1; i >= 0; i--)
@@ -742,8 +828,10 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    // ---------------------------------------------------------------- enemies (mirrors Enemy.cs)
+    // ---------------------------------------------------------------- fiender (som Enemy.cs)
 
+    // Skapar ett mål med en egen 3D-ljudkälla i rätt fil, med samma inställningar som prefabsen:
+    // fast panorering per fil, linjär rolloff 2-15 och en lowpass som slås på när något står framför.
     private Mob SpawnMob(Kind kind, int mobLane, float y, bool walking)
     {
         Mob m = new Mob { kind = kind, lane = mobLane, y = y, walking = walking };
@@ -753,7 +841,7 @@ public class TutorialManager : MonoBehaviour
         m.source.playOnAwake = false;
         m.source.volume = 1f;
         m.source.priority = 128;
-        m.source.panStereo = mobLane == 1 ? 0f : (mobLane > 1 ? 1f : -1f); // Enemy.SetSoundPosition
+        m.source.panStereo = mobLane == 1 ? 0f : (mobLane > 1 ? 1f : -1f); // som Enemy.SetSoundPosition: vänster -1, mitten 0, höger 1
         {
             m.source.spatialBlend = 1f;
             m.source.rolloffMode = AudioRolloffMode.Linear;
@@ -770,29 +858,33 @@ public class TutorialManager : MonoBehaviour
         mobs.Add(m);
         PlaceMob(m);
 
+        // Spawnljudet direkt, och gå-loopen startar efter 1,6 s (sköts i Update).
         MobSound(m, kind == Kind.Zombie ? zombieSpawn : civilianSpawn);
         m.idleAt = IdleStartAge;
         return m;
     }
 
+    // Flyttar målets ljudkälla till dess fil och y-läge.
     private void PlaceMob(Mob m)
     {
         if (m.source != null)
             m.source.transform.position = origin + new Vector3((m.lane - 1) * LaneX, m.y, 0f);
     }
 
-    // Enemy.MakeSound: cooldown, stop, one-shot at monster level (+0.5 for civilians), stop after soundDuration.
+    // Som Enemy.MakeSound: cooldown, stoppa, spela en gång på Monster-volymen (+0,5 för civila),
+    // och stäng av ljudet efter 1,5 s.
     private void MobSound(Mob m, AudioClip clip)
     {
         if (m.source == null || clip == null) return;
         if (Time.time < m.nextPlayTime) return;
         m.nextPlayTime = Time.time + MobPlayCooldown;
-        m.idleAt = -1f; // StopAllCoroutines
+        m.idleAt = -1f; // motsvarar StopAllCoroutines: gå-loopen startar inte igen
         m.source.Stop();
         m.source.PlayOneShot(clip, m.kind == Kind.Civilian ? MonsterLevel + 0.5f : MonsterLevel);
         m.stopAt = m.age + MobSoundDuration;
     }
 
+    // Målet blev träffat: dödsljud (zombie) eller skrik (civil), poäng till loggen, tas bort efter 1,5 s.
     private void Kill(Mob m)
     {
         m.alive = false;
@@ -813,6 +905,7 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    // Målet kom förbi spelaren (KillBox): zombien skrattar (-100), en civil ger +50 tyst.
     private void Escape(Mob m)
     {
         m.alive = false;
@@ -829,10 +922,12 @@ public class TutorialManager : MonoBehaviour
             score += CivilianEscapeReward;
             civilianPasses++;
             current.civiliansPassed++;
-            MobSound(m, civilianEscape); // empty in the levels: the walking loop just carries on
+            MobSound(m, civilianEscape); // tom i levlarna: gå-loopen fortsätter bara
         }
     }
 
+    // Varje frame: stäng av fotsteg, följ Ambience-reglaget, flytta/åldra målen, starta
+    // gå-loopar, skrik och KillBox, dämpa ljud bakom andra mål och kolla kulorna.
     private void Update()
     {
         if (stepStopAt >= 0f && Time.time >= stepStopAt)
@@ -841,8 +936,9 @@ public class TutorialManager : MonoBehaviour
             if (stepSource != null) stepSource.Stop();
         }
         foreach (AudioSource a in ambienceSources)
-            if (a != null) a.volume = AmbienceLevel; // GameManager.UpdateSoundVolume
+            if (a != null) a.volume = AmbienceLevel; // som GameManager.UpdateSoundVolume
 
+        // Pratar rösten i ett guidat steg står målen still (deras tid går inte).
         bool paused = pauseMobsWhileTalking && guideSource != null && guideSource.isPlaying;
         float dt = paused ? 0f : Time.deltaTime;
 
@@ -863,30 +959,33 @@ public class TutorialManager : MonoBehaviour
             if (m.idleAt >= 0f && m.age >= m.idleAt)
             {
                 m.idleAt = -1f;
+                // Dags för gå-loopen.
                 AudioClip loop = m.kind == Kind.Zombie ? zombieWalkLoop : civilianWalkLoop;
                 if (loop != null)
                 {
-                    // Enemy.StartIdleSounds: Play() at the source volume (1), not scaled by the slider.
+                    // Som Enemy.StartIdleSounds: Play() på källans volym (1), inte skalad med reglaget.
                     m.source.clip = loop;
                     m.source.loop = true;
                     m.source.Play();
                 }
             }
             if (!m.alive) continue;
+            // Gående mål rör sig mot spelaren med 1 enhet/s.
             if (m.walking)
             {
                 m.y = SpawnY - WalkSpeed * m.age;
                 if (m.kind == Kind.Zombie && !m.screamed && m.age >= ScreamAge)
                 {
                     m.screamed = true;
-                    MobSound(m, zombieScream); // stops the loop; silent ~1.5 s later until the KillBox
+                    MobSound(m, zombieScream); // stoppar loopen, sen är det tyst ca 1,5 s senare tills KillBox
                 }
                 if (m.age >= KillBoxAge) Escape(m);
             }
             PlaceMob(m);
         }
 
-        // Muffle: low-pass when another zombie/civilian is within 3.5 units in front (Enemy.Update raycast).
+        // Dämpning: lowpass när en annan zombie/civil står inom 3,5 enheter framför (som raycasten i Enemy.Update).
+        // Jag mäter från framkanten på den bakre (y - 0,6) till bakkanten på den främre (y + 0,5).
         foreach (Mob m in mobs)
         {
             if (m.filter == null) continue;
@@ -905,6 +1004,7 @@ public class TutorialManager : MonoBehaviour
         ResolveShots();
     }
 
+    // Målen i en fil sorterade från närmast spelaren. skip = 0 ger första, 1 ger den bakom (lob).
     private Mob FirstInLane(int l, int skip)
     {
         List<Mob> inLane = new List<Mob>();
@@ -915,6 +1015,7 @@ public class TutorialManager : MonoBehaviour
     }
 
 
+    // Hur många levande mål av en sort som finns just nu.
     private int AliveCount(Kind kind)
     {
         int n = 0;
@@ -922,34 +1023,38 @@ public class TutorialManager : MonoBehaviour
         return n;
     }
 
+    // Tar bort ett mål och dess ljudkälla helt.
     private void RemoveMob(Mob m)
     {
         mobs.Remove(m);
         if (m.source != null) Destroy(m.source.gameObject);
     }
 
+    // Tömmer alla mål och kulor, används när ett steg börjar om eller är klart.
     private void ClearMobs()
     {
         for (int i = mobs.Count - 1; i >= 0; i--) RemoveMob(mobs[i]);
-        foreach (Shot s in shots) s.done = true; // a step waiting on a bullet must not hang
+        foreach (Shot s in shots) s.done = true; // ett steg som väntar på en kula får inte fastna
         shots.Clear();
     }
 
-    // ---------------------------------------------------------------- audio setup and volumes
+    // ---------------------------------------------------------------- ljudkällor och volymer
 
+    // Volymerna kommer direkt från reglagen i menyn (SettingsManager).
     private static float MonsterLevel => SettingsManager.monsterSoundLevel;
     private static float PlayerLevel => SettingsManager.playerSoundLevel;
     private static float AmbienceLevel => SettingsManager.ambienceSoundLevel;
 
     private void InitVolumes()
     {
-        // The statics are 0 until the menu has set them (tutorial opened directly in the editor).
-        // Then use the menu defaults (SettingsManager.SetSoundLevels: player 0.25, monster 0.4,
-        // ambience 0.05), so the tutorial and the Level 1 that follows are audible.
+        // Reglagen är 0 tills menyn har satt dem (t.ex. om man startar tutorialen direkt i editorn).
+        // Då använder jag menyns standardvärden (SettingsManager.SetSoundLevels: player 0.25, monster 0.4,
+        // ambience 0.05), så att både tutorialen och Level 1 efteråt hörs.
         if (SettingsManager.monsterSoundLevel <= 0f && SettingsManager.playerSoundLevel <= 0f &&
             SettingsManager.ambienceSoundLevel <= 0f)
             SettingsManager.SetSoundLevels();
 
+        // Rösten: volymen från Inspectorn gånger Operator-reglaget (0,5 om det inte är satt).
         guideBaseVolume = guideSource.volume;
         if (guideUsesOperatorVolume)
         {
@@ -960,7 +1065,8 @@ public class TutorialManager : MonoBehaviour
 
     private void CreateSources()
     {
-        // Same listener as the levels: Main Camera at (0, 0, -10). Lanes sit 10 units in front of it.
+        // Samma lyssnare som i levlarna: Main Camera på (0, 0, -10). Filerna ligger 10 enheter framför den.
+        // Finns ingen AudioListener lägger jag till en så att man ändå hör något.
         AudioListener listener = FindFirstObjectByType<AudioListener>();
         if (listener == null)
         {
@@ -971,18 +1077,19 @@ public class TutorialManager : MonoBehaviour
         origin = listener.transform.position + new Vector3(0f, 0f, 10f);
 
         playerSource = NewSource("PlayerSounds");
-        playerSource.spatialBlend = 1f; // Player.prefab source 0: 3D, logarithmic 1-500
+        playerSource.spatialBlend = 1f; // som Player.prefab källa 0: 3D, logaritmisk 1-500
         playerSource.rolloffMode = AudioRolloffMode.Logarithmic;
         playerSource.minDistance = 1f;
         playerSource.maxDistance = 500f;
-        stepSource = NewSource("PlayerSteps"); // Player.prefab source 1: 2D
+        stepSource = NewSource("PlayerSteps"); // som Player.prefab källa 1: 2D
         PlacePlayer();
     }
 
+    // Startar eldljudet till vänster och höger, som i levlarna (en gång).
     private void StartAmbience()
     {
         if (fireAmbience == null || ambienceSources.Count > 0) return;
-        // Level1/2 LightLeft / LightRight: looping FireSound, 3D logarithmic, volume = ambience slider.
+        // Level1/2 LightLeft / LightRight: FireSound i loop, 3D logaritmisk, volym = Ambience-reglaget.
         Vector3[] positions = { new Vector3(-9.1f, -4f, 0f), new Vector3(9.2f, -4f, 0f) };
         for (int i = 0; i < 2; i++)
         {
@@ -1001,6 +1108,7 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    // Skapar en tom 2D-ljudkälla som barn till tutorial-objektet.
     private AudioSource NewSource(string sourceName)
     {
         GameObject go = new GameObject(sourceName);
@@ -1011,6 +1119,7 @@ public class TutorialManager : MonoBehaviour
         return source;
     }
 
+    // Tar bort de gamla tagningarna (RetiredClips) från de slots där de kan ligga kvar.
     private void RetireContradictingClips()
     {
         askLobber = WithoutRetired(askLobber);
@@ -1022,6 +1131,7 @@ public class TutorialManager : MonoBehaviour
         lobHowTo = WithoutRetired(lobHowTo);
     }
 
+    // Ger tillbaka listan utan tomma platser och utan gamla tagningar (jämför på klippets namn).
     private static AudioClip[] WithoutRetired(AudioClip[] clips)
     {
         if (clips == null) return null;
@@ -1034,6 +1144,7 @@ public class TutorialManager : MonoBehaviour
         return keep.ToArray();
     }
 
+    // Laddar nästa scen. Är den tom, "prototype" eller inte med i Build Settings blir det Level1.
     private void LoadNextScene()
     {
         string target = nextScene;
@@ -1046,17 +1157,17 @@ public class TutorialManager : MonoBehaviour
         }
         if (target == "Level1" || target == "Level2")
         {
-            // Same as LevelLoader.StartGame(): new playthrough number for playerEvents.json.
+            // Samma som LevelLoader.StartGame(): nytt playthrough-nummer till playerEvents.json.
             SettingsManager.playthrough++;
             LogSystem.ResetCount();
         }
         SceneManager.LoadScene(target);
     }
 
-    // ---------------------------------------------------------------- narrator
+    // ---------------------------------------------------------------- rösten
 
-    // Plays the recorded clips of a slot. No text-to-speech: an empty slot stays
-    // silent and logs one warning with the slot name, so missing lines are visible.
+    // Spelar upp de inspelade klippen i en slot. Ingen TTS: är sloten tom blir det tyst och jag
+    // loggar en varning med slotens namn, så man ser vilka repliker som saknas.
     private IEnumerator Say(AudioClip[] clips, string slot)
     {
         if (HasClips(clips))
@@ -1067,6 +1178,7 @@ public class TutorialManager : MonoBehaviour
         WarnEmpty(slot);
     }
 
+    // Kollar om något av klippen redan finns i listan (så Fm7 inte spelas två gånger).
     private static bool ContainsAny(AudioClip[] list, AudioClip[] clips)
     {
         if (list == null || clips == null) return false;
@@ -1075,13 +1187,14 @@ public class TutorialManager : MonoBehaviour
         return false;
     }
 
+    // Loggar en tom slot, men bara första gången.
     private void WarnEmpty(string slot)
     {
         if (!string.IsNullOrEmpty(slot) && warnedSlots.Add(slot))
             Debug.LogWarning("[Tutorial] No recorded clip in slot '" + slot + "', skipped.", this);
     }
 
-    // Play every recording in a list, in order
+    // Spelar alla klipp i listan i ordning och väntar tills de är klara. Listan blir "senaste repliken" för Ctrl.
     private IEnumerator PlayAudioList(AudioClip[] clips)
     {
         if (!HasClips(clips) || guideSource == null)
@@ -1098,7 +1211,7 @@ public class TutorialManager : MonoBehaviour
             guideSource.clip = clip;
             guideSource.Play();
 
-            // Wait until the current recording finishes
+            // Vänta tills klippet har spelat klart
             bool restart = false;
             while (guideSource.isPlaying)
             {
@@ -1112,7 +1225,7 @@ public class TutorialManager : MonoBehaviour
 
             if (restart)
             {
-                // Ctrl while speaking: restart this line from the beginning
+                // Ctrl medan jag pratar: börja om just den här repliken från början
                 current.ctrlRepeats++;
                 guideSource.Stop();
                 i--;
@@ -1121,8 +1234,8 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    // Optional extra line: silent skip when empty (no delay, no log).
-    // Does not become the "last guide line", so Ctrl still repeats the main instruction.
+    // Frivillig extra-replik: tyst om sloten är tom (ingen paus, ingen logg).
+    // Den blir inte "senaste repliken", så Ctrl upprepar fortfarande huvudinstruktionen.
     private IEnumerator SayExtra(AudioClip[] clips)
     {
         if (!HasClips(clips))
@@ -1133,6 +1246,7 @@ public class TutorialManager : MonoBehaviour
         lastClips = keepClips;
     }
 
+    // Sant om listan har minst ett riktigt klipp.
     private static bool HasClips(AudioClip[] clips)
     {
         if (clips == null) return false;
@@ -1140,13 +1254,14 @@ public class TutorialManager : MonoBehaviour
         return false;
     }
 
-    // Ctrl: replay the last recorded guide line (nothing yet: no-op)
+    // Ctrl: spela senaste instruktionen igen (finns ingen än händer inget)
     private IEnumerator RepeatLast()
     {
         if (lastClips != null)
             yield return PlayAudioList(lastClips);
     }
 
+    // Väntar minst så många sekunder, och längre om rösten fortfarande pratar.
     private IEnumerator WaitWhileGuideOrSeconds(float seconds)
     {
         float end = Time.time + seconds;
@@ -1154,6 +1269,7 @@ public class TutorialManager : MonoBehaviour
             yield return null;
     }
 
+    // Sant den frame som vänster eller höger Ctrl trycks ner.
     private bool CtrlPressed()
     {
         Keyboard keyboard = Keyboard.current;
@@ -1161,14 +1277,15 @@ public class TutorialManager : MonoBehaviour
                (keyboard.leftCtrlKey.wasPressedThisFrame || keyboard.rightCtrlKey.wasPressedThisFrame);
     }
 
-    // Wait for the correct movement
+    // Steg 2 och 3: vänta tills spelaren trycker rätt pil. Fel pil ger rättelsen + frågan igen,
+    // Ctrl upprepar, och är spelaren stilla 8 s upprepar jag frågan.
     private IEnumerator WaitForDirection(
         Key correctKey,
         Key wrongKey,
         AudioClip[] wrongAudio,
         AudioClip[] repeatInstruction)
     {
-        // Avoid accepting a key held during narration.
+        // Ta inte emot en knapp som hölls nere medan jag pratade.
         yield return WaitForKeysReleased();
         lastInputTime = Time.time;
 
@@ -1187,24 +1304,24 @@ public class TutorialManager : MonoBehaviour
                 else if (keyboard[wrongKey].wasPressedThisFrame)
                 {
                     current.wrongPresses++;
-                    // Play correction
+                    // Spela rättelsen
                     yield return PlayAudioList(wrongAudio);
 
-                    // Repeat the instruction
+                    // Upprepa instruktionen
                     yield return PlayAudioList(repeatInstruction);
 
-                    // Wait for fresh input
+                    // Vänta på ett nytt tryck
                     yield return WaitForKeysReleased();
                     lastInputTime = Time.time;
                 }
                 else if (keyboard[correctKey].wasPressedThisFrame)
                 {
-                    // Correct input
+                    // Rätt knapp
                     yield break;
                 }
             }
 
-            // Idle: repeat the instruction
+            // Stilla för länge: upprepa instruktionen
             if (Time.time - lastInputTime > idleRepeatSeconds)
             {
                 current.idleRepeats++;
@@ -1216,7 +1333,7 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    // Wait until movement, shoot, lob and reload keys are released
+    // Väntar tills pilarna, Space och R är släppta, så ett gammalt tryck inte räknas
     private IEnumerator WaitForKeysReleased()
     {
         while (Keyboard.current != null &&
@@ -1229,16 +1346,17 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
 
-        // Start listening on the following frame
+        // Börja lyssna först nästa frame
         yield return null;
     }
 
-    // ---------------------------------------------------------------- playtest log (tutorialEvents.json)
+    // ---------------------------------------------------------------- testloggen (tutorialEvents.json)
 
-    // Written next to playerEvents.json (project folder in the editor, next to the _Data folder in a build),
-    // with JsonUtility like LogSystem. One session per run, one entry per step, rewritten at each step end.
+    // Sparas bredvid playerEvents.json (projektmappen i editorn, bredvid _Data-mappen i ett bygge),
+    // med JsonUtility som LogSystem. En session per körning, en rad per steg, skrivs om efter varje steg.
     private void StartLog()
     {
+        // Läser in den gamla filen om den finns, så tidigare körningar sparas.
         try
         {
             logPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "tutorialEvents.json");
@@ -1259,12 +1377,14 @@ public class TutorialManager : MonoBehaviour
         sessionStartTime = Time.time;
     }
 
+    // Startar loggen för ett nytt steg.
     private void BeginStep(string stepName)
     {
         current = new StepLog { step = stepName };
         stepStartTime = Time.time;
     }
 
+    // Avslutar steget: sparar tiden, lägger till steget i sessionen och skriver filen.
     private void EndStep()
     {
         current.seconds = Time.time - stepStartTime;
@@ -1274,6 +1394,7 @@ public class TutorialManager : MonoBehaviour
         WriteLog();
     }
 
+    // Hela tutorialen är klar: markera sessionen som completed och skriv filen.
     private void FinishLog()
     {
         session.completed = true;
@@ -1282,6 +1403,7 @@ public class TutorialManager : MonoBehaviour
         WriteLog();
     }
 
+    // Skriver hela filen. Går det fel loggar jag bara en varning, tutorialen ska aldrig krascha av loggen.
     private void WriteLog()
     {
         if (string.IsNullOrEmpty(logPath)) return;
@@ -1296,7 +1418,8 @@ public class TutorialManager : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    // Inspector: TutorialManager component menu (three dots) > "Assign default tutorial sounds", then save the scene.
+    // Inspectorn: TutorialManager-komponentens meny (tre prickar) > "Assign default tutorial sounds",
+    // spara sen scenen. Den fyller tomma slots, tar bort gamla tagningar och sätter Next Scene till Level1.
     [ContextMenu("Assign default tutorial sounds")]
     private void AssignDefaultSounds()
     {
@@ -1308,6 +1431,7 @@ public class TutorialManager : MonoBehaviour
         EditorUtility.SetDirty(this);
     }
 
+    // Mapparna och prefabsen som standardljuden hämtas från.
     private const string NewClips = "Assets/Sounds/Newtutorialmaterial/";
     private const string IntroClips = "Assets/Sounds/Tutorial.intro/";
     private const string Ucs = "Assets/Sounds/Ljudklipp_UCS_Remastered/";
@@ -1315,11 +1439,12 @@ public class TutorialManager : MonoBehaviour
     private const string CivilianPrefab = "Assets/Prefabs/Enemies/Civillian.prefab";
     private const string PlayerPrefab = "Assets/Prefabs/Player/Player.prefab";
 
-    // Level sounds are always re-read from the level prefabs (read only), so the tutorial follows
-    // any change the team makes there. Voice slots: fills only EMPTY slots (PickSet keeps Inspector choices).
+    // Spelljuden läses alltid om från level-prefabsen (bara läsning), så tutorialen följer med om
+    // teamet ändrar något där. Röst-slots: bara TOMMA fylls (PickSet behåller det som valts i Inspectorn).
+    // Körs också i början av Start() i editorn, så det funkar i Play mode även om man inte sparat.
     private void FillMissingSounds()
     {
-        // Level sounds, same clips as Level 1/2
+        // Spelljud, samma klipp som Level 1/2 (fallback-sökvägen om prefaben inte har något)
         zombieSpawn = LevelClip(ZombiePrefab, "Enemy", "spawnSound", "Assets/Sounds/Monster/Standard/ZombieSpawn_2.wav");
         zombieWalkLoop = LevelClip(ZombiePrefab, "Enemy", "idleSounds.Array.data[0]", "Assets/Sounds/Monster/Standard/ZombieAttack_2.wav");
         zombieScream = LevelClip(ZombiePrefab, "Enemy", "attackSound", "Assets/Sounds/Monster/Standard/ZombieAttack_3.wav");
@@ -1337,7 +1462,7 @@ public class TutorialManager : MonoBehaviour
         footstep = LevelClip(PlayerPrefab, "Player", "playerMove.Array.data[0]", "Assets/Sounds/Player/step_sound.mp3");
         fireAmbience = Pick(fireAmbience, "Assets/Sounds/Ambience/FireSound.mp3");
 
-        // New recordings (Newtutorialmaterial, file name = spoken line)
+        // Nya inspelningar (Newtutorialmaterial, filnamnet = det som sägs)
         repeatHelp = PickSet(repeatHelp, NewClips + "If you want me to repeat myself press ctrl and ill repeat the last thing i said.wav");
         askRealZombie = PickSet(askRealZombie, NewClips + "Here comes a real zombie in the middle lane.wav");
         realZombieReachedYou = PickSet(realZombieReachedYou, NewClips + "The zombie reached you.wav");
@@ -1350,8 +1475,8 @@ public class TutorialManager : MonoBehaviour
         hitWall = PickSet(hitWall, NewClips + "Ouch that a wall.wav");
         missedEmptyLane = PickSet(missedEmptyLane, NewClips + "Nothing in this lane.wav");
 
-        // New recordings: extras ("Zombie gets loader the closer they get" is retired: the levels barely get louder)
-        calibrationDone = PickSet(calibrationDone, "Assets/Sounds/FirstMovement/Fm7-DoneLR.wav");            // "Looks like your headset is calibrated."
+        // Nya inspelningar: extra ("Zombie gets loader the closer they get" används inte: levlarna blir knappt starkare)
+        calibrationDone = PickSet(calibrationDone, "Assets/Sounds/FirstMovement/Fm7-DoneLR.wav");            // säger: "Looks like your headset is calibrated."
         explainLanes = PickSet(explainLanes, NewClips + "PRess the left or right arrow to move a lane at a time.wav");
         explainSoundDirection = PickSet(explainSoundDirection, NewClips + "Zombies makes sound from the lane they come from, move there.wav");
         explainLob = PickSet(explainLob, NewClips + "Lob shots is the only way to shot awhats behind a civilian.wav");
@@ -1362,32 +1487,33 @@ public class TutorialManager : MonoBehaviour
         patience = PickSet(patience, NewClips + "Take your time.wav", NewClips + "Im not goping anywhere.wav", NewClips + "I still get payed on the clock.wav");
         closing = PickSet(closing, NewClips + "I taught you all i know, lets go.wav");
 
-        // Earlier recordings (Tutorial.intro)
+        // Tidigare inspelningar (Tutorial.intro)
         explainDummy = PickSet(explainDummy, IntroClips + "Testing you weapomn.wav", IntroClips + "Dont move to the sides.wav");
         dummyHit = PickSet(dummyHit, IntroClips + "Well Done.wav", IntroClips + "Shoot the dead Dead.wav");
         askZombieRight = PickSet(askZombieRight, IntroClips + "Civilian and zombie dummy.wav", IntroClips + "Dont shoot civilians.wav");
         zombieRightHit = PickSet(zombieRightHit, IntroClips + "you shot the correct target.wav");
-        // "Press dowm MK1" says "until you hear a click": the levels have no click, so it is left out.
+        // "Press dowm MK1" säger "until you hear a click": levlarna har inget klick, så den är bortplockad.
         askLobber = PickSet(askLobber, IntroClips + "Testing mortar function.wav", IntroClips + "Once released - MK 1.wav");
         lobberHit = PickSet(lobberHit, IntroClips + "Released button success.wav");
-        // holdLonger: "Released to early" says "wait for the click", so the slot stays empty until re-recorded.
+        // holdLonger: "Released to early" säger "wait for the click", så sloten står tom tills den spelas in igen.
         shotCivilian = PickSet(shotCivilian, IntroClips + "Dont shoot the civilian.wav");
         nearCivilian = PickSet(nearCivilian, IntroClips + "Dont shoot civilians.wav");
 
-        // Operator clips from Ljudklipp_UCS_Remastered (machine-transcribed; check by ear)
-        realZombieHit = PickSet(realZombieHit, Ucs + "Hit/Hit_Remaster_3.wav");                       // "Target neutralized."
-        explainWave = PickSet(explainWave, Ucs + "Guidance/Guidance_Remaster_15.wav");                // "Targets approaching from multiple directions."
-        waveMultiple = PickSet(waveMultiple, Ucs + "Intense/Intense_Remaster_3.wav");                 // "...multiple contacts closing in."
-        waveCivilianShot = PickSet(waveCivilianShot, Ucs + "CivilianKill/CivilianKill_Remaster_5.wav"); // "I will pretend that I didn't see that."
-        waveTimeUp = PickSet(waveTimeUp, Ucs + "Ljud1/Ljud1_Remaster_1.wav");                         // "Alright, that's time."
-        tutorialComplete = PickSet(tutorialComplete, Ucs + "Ljud1/Ljud1_Remaster_4.wav");             // "Alright, it looks like we're finished here."
+        // Operatörsklipp från Ljudklipp_UCS_Remastered (maskintranskriberade, lyssna och kolla)
+        realZombieHit = PickSet(realZombieHit, Ucs + "Hit/Hit_Remaster_3.wav");                       // säger: "Target neutralized."
+        explainWave = PickSet(explainWave, Ucs + "Guidance/Guidance_Remaster_15.wav");                // säger: "Targets approaching from multiple directions."
+        waveMultiple = PickSet(waveMultiple, Ucs + "Intense/Intense_Remaster_3.wav");                 // säger: "...multiple contacts closing in."
+        waveCivilianShot = PickSet(waveCivilianShot, Ucs + "CivilianKill/CivilianKill_Remaster_5.wav"); // säger: "I will pretend that I didn't see that."
+        waveTimeUp = PickSet(waveTimeUp, Ucs + "Ljud1/Ljud1_Remaster_1.wav");                         // säger: "Alright, that's time."
+        tutorialComplete = PickSet(tutorialComplete, Ucs + "Ljud1/Ljud1_Remaster_4.wav");             // säger: "Alright, it looks like we're finished here."
 
-        // Lines still to be recorded (Voice_lines_to_record_20261027). Save them in Newtutorialmaterial with
-        // exactly these names and they are picked up here; until then the slots stay empty (no warning).
+        // Repliker som ska spelas in (Voice_lines_to_record_20261027). Spara dem i Newtutorialmaterial med
+        // exakt de här namnen så plockas de upp här. Tills dess står sloten tom (ingen varning).
         lobHowTo = PickIfRecorded(lobHowTo, "Hold the up arrow until the charge sound fades, then let go.wav");
         holdLonger = PickIfRecorded(holdLonger, "Too early, the lob wasnt charged yet.wav");
     }
 
+    // Fyller en tom slot med en ny inspelning om filen finns, annars händer inget.
     private static AudioClip[] PickIfRecorded(AudioClip[] current, string fileName)
     {
         if (HasClips(current)) return current;
@@ -1395,7 +1521,7 @@ public class TutorialManager : MonoBehaviour
         return clip != null ? new[] { clip } : current;
     }
 
-    // Reads a clip from a level prefab without changing it; falls back to the known path.
+    // Läser ett klipp från en level-prefab utan att ändra den. Finns inget där tar jag den kända sökvägen.
     private static AudioClip LevelClip(string prefabPath, string component, string property, string fallbackPath)
     {
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
@@ -1412,6 +1538,7 @@ public class TutorialManager : MonoBehaviour
         return fallbackPath != null ? AssetDatabase.LoadAssetAtPath<AudioClip>(fallbackPath) : null;
     }
 
+    // Fyller en tom slot med klippen på sökvägarna. Saknas en fil loggar jag en varning.
     private static AudioClip[] PickSet(AudioClip[] current, params string[] paths)
     {
         if (HasClips(current)) return current;
@@ -1425,6 +1552,7 @@ public class TutorialManager : MonoBehaviour
         return clips.ToArray();
     }
 
+    // Samma sak för ett enskilt klipp (eldljudet).
     private static AudioClip Pick(AudioClip current, string path)
     {
         return current != null ? current : AssetDatabase.LoadAssetAtPath<AudioClip>(path);
