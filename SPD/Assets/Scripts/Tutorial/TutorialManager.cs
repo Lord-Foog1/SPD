@@ -1511,6 +1511,9 @@ public class TutorialManager : MonoBehaviour
         // exakt de här namnen så plockas de upp här. Tills dess står sloten tom (ingen varning).
         lobHowTo = PickIfRecorded(lobHowTo, "Hold the up arrow until the charge sound fades, then let go.wav");
         holdLonger = PickIfRecorded(holdLonger, "Too early, the lob wasnt charged yet.wav");
+        // "Last drill..." är inspelad nu, så den tar över efter operatörsklippet (Guidance_Remaster_15) innan övningsvågen.
+        // Har jag lagt något annat i explainWave i Inspectorn rör jag det inte.
+        explainWave = ReplaceDefault(explainWave, Ucs + "Guidance/Guidance_Remaster_15.wav", "Last drill, shoot the zombies, spare the civilians.wav");
     }
 
     // Fyller en tom slot med en ny inspelning om filen finns, annars händer inget.
@@ -1519,6 +1522,18 @@ public class TutorialManager : MonoBehaviour
         if (HasClips(current)) return current;
         AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(NewClips + fileName);
         return clip != null ? new[] { clip } : current;
+    }
+
+    // Byter ut ett gammalt standardklipp mot min nya inspelning om filen finns. Är sloten tom fyller jag den,
+    // ligger något annat än standardklippet där (valt i Inspectorn) behåller jag det.
+    private static AudioClip[] ReplaceDefault(AudioClip[] current, string oldPath, string fileName)
+    {
+        AudioClip recorded = AssetDatabase.LoadAssetAtPath<AudioClip>(NewClips + fileName);
+        if (recorded == null) return current;
+        if (!HasClips(current)) return new[] { recorded };
+        AudioClip old = AssetDatabase.LoadAssetAtPath<AudioClip>(oldPath);
+        if (current.Length == 1 && current[0] == old) return new[] { recorded };
+        return current;
     }
 
     // Läser ett klipp från en level-prefab utan att ändra den. Finns inget där tar jag den kända sökvägen.
