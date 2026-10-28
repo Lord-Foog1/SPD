@@ -279,12 +279,14 @@ MonoBehaviour:
   enemyReward: 250
   enemyHealth: 2
   idleSounds:
-  - {fileID: 8300000, guid: 4612981155ca93241ab8267f97836ece, type: 3}
-  spawnSound: {fileID: 8300000, guid: 0795d0d6447e0e04f98adf84a224b996, type: 3}
-  deathSound: {fileID: 8300000, guid: d76879ec19f784349bfdbbda6c2215fc, type: 3}
-  attackSound: {fileID: 8300000, guid: 91a0ef37f821e3540ab5cba1c512d5d2, type: 3}
+  - {fileID: 8300000, guid: bff1183227a499e4a9f37ad0b7c14c65, type: 3}
+  spawnSound: {fileID: 8300000, guid: a7395f16c1dfa5f4789dcc20288c590d, type: 3}
+  deathSound: {fileID: 8300000, guid: e93debdb8c56c304fb1807961d93dd27, type: 3}
+  attackSound: {fileID: 8300000, guid: 331742c70c0651041b5ca4bb541991fd, type: 3}
   muffledSound: {fileID: 0}
-  escapeSound: {fileID: 8300000, guid: 8ce8813ff653d4d4095c9c897f6fb5e2, type: 3}
+  escapeSound: {fileID: 8300000, guid: d0326fdd61b18c14b94ca4b924645404, type: 3}
+  jumpSound: {fileID: 8300000, guid: 7b1709a9d08f3fe419bf8fe6f916924b, type: 3}
+  hitSound: {fileID: 8300000, guid: 1c9780ddf0dbeee448e82082d898d702, type: 3}
   maxTimeBetweenJumps: 5
   minTimeBetweenJumps: 3
   soundDuration: 1.5

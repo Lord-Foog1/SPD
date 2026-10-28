@@ -25,7 +25,8 @@ public class LaneJumper : MonoBehaviour
     [SerializeField] AudioClip attackSound;
     [SerializeField] AudioClip muffledSound;
     [SerializeField] AudioClip escapeSound;
-
+    [SerializeField] AudioClip jumpSound;
+    [SerializeField] AudioClip hitSound;
 
     [SerializeField] int maxTimeBetweenJumps = 5;
     [SerializeField] int minTimeBetweenJumps = 2;
@@ -83,7 +84,8 @@ public class LaneJumper : MonoBehaviour
         if (jumpTimeStamp + timeToNextJump <= Time.time && canJump)
         {
             jumpTimeStamp = Time.time;
-
+            source.PlayOneShot(jumpSound, SettingsManager.monsterSoundLevel);
+            //MakeSound(jumpSound);
             Jump(transform.position.x);
             Debug.Log("Jumped lanes");
 
@@ -133,7 +135,8 @@ public class LaneJumper : MonoBehaviour
             Destroy(collision.gameObject);
 
             jumpTimeStamp = Time.time;
-
+            source.PlayOneShot(hitSound, SettingsManager.monsterSoundLevel);
+            //MakeSound(hitSound);
             Jump(transform.position.x);
             Debug.Log("Jumped lanes");
 
@@ -156,7 +159,8 @@ public class LaneJumper : MonoBehaviour
         if (collision.gameObject.tag == "SoundTrigger")
         {
             canJump = false;
-            MakeSound(attackSound);
+            source.PlayOneShot(attackSound, SettingsManager.monsterSoundLevel);
+            //MakeSound(attackSound);
         }
     }
 
