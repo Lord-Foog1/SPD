@@ -21,8 +21,9 @@ public class LevelLoader : MonoBehaviour
 
     public void StartTutorial()
     {
-        // No playthrough++ / LogSystem.ResetCount() here: TutorialManager does both
-        // when it hands off to Level1, so a tutorial + Level1 run counts as one playthrough.
+        // No playthrough++ / LogSystem.ResetCount() here.
+        // 2026-10-28 (Alfred): efter tutorialen går spelaren tillbaka till huvudmenyn i stället för Level 1,
+        // så TutorialManager räknar inte upp playthrough längre. Det gör StartGame() när spelaren sen startar Level 1.
         SceneManager.LoadScene("Tutorial");
     }
 

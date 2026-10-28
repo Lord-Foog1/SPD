@@ -24,7 +24,9 @@ using UnityEditor;
 // Stegen i ordning (se Start() längre ner):
 //   0 Ctrl-hjälp   1 Intro (+ eldljudet)   2 Vänster   3 Höger (+ förklaring av filer)
 //   4 Skjut en docka i mitten   5 Civil vänster, zombie höger   6 En riktig zombie som går
-//   7 Lobba över en civil   8 Övningsvåg 15 s   9 Avslutning   -> laddar Level1
+//   7 Lobba över en civil   8 Övningsvåg 15 s   9 Avslutning   -> laddar MainMenu
+//   (2026-10-28, Alfred: efter tutorialen går spelaren tillbaka till huvudmenyn i stället för Level 1,
+//    så spelaren själv startar Level 1 från menyn. Förut stod det "laddar Level1" här.)
 //   (2026-10-28, Alfred: övningsvågen är nu 15 s och enklare än den gamla 30 s-vågen, se MiniWave.)
 //
 // Rösten: bara inspelade repliker, ingen TTS. Är en slot tom loggar jag en varning en
@@ -134,10 +136,13 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip footstep;
     [SerializeField] private AudioClip fireAmbience;
 
-    // Steg 9: avslutningsrepliken, och vilken scen som laddas efteråt (Level1).
+    // Steg 9: avslutningsrepliken, och vilken scen som laddas efteråt (MainMenu).
     [Header("Ending")]
     [SerializeField] private AudioClip[] tutorialComplete;
-    [SerializeField] private string nextScene = "Level1";
+    // 2026-10-28 (Alfred): efter tutorialen går spelaren tillbaka till huvudmenyn i stället för Level 1.
+    // Fältet hette nextScene, men Tutorial.unity har sparat "nextScene: Level1" och det värdet hade vunnit över koden.
+    // Med det nya namnet läses "MainMenu" härifrån och det gamla sparade värdet ignoreras (samma knep som practiceWaveSeconds).
+    [SerializeField] private string sceneAfterTutorial = "MainMenu";
 
     [Header("Extras (optional)")]
     // Extra repliker som är frivilliga. Är en slot tom hoppar jag bara över den (ingen paus, ingen varning).
@@ -449,7 +454,8 @@ public class TutorialManager : MonoBehaviour
         EndStep();
         FinishLog();
 
-        // STEG 10: ladda första leveln, på samma sätt som Level 1-knappen i menyn gör.
+        // STEG 10: tillbaka till huvudmenyn.
+        // (2026-10-28, Alfred: efter tutorialen går spelaren tillbaka till huvudmenyn i stället för Level 1.)
         LoadNextScene();
     }
 
@@ -1314,16 +1320,19 @@ public class TutorialManager : MonoBehaviour
         return keep.ToArray();
     }
 
-    // Laddar nästa scen. Är den tom, "prototype" eller inte med i Build Settings blir det Level1.
+    // Laddar nästa scen. Är den tom, "prototype" eller inte med i Build Settings blir det MainMenu.
+    // 2026-10-28 (Alfred): efter tutorialen går spelaren tillbaka till huvudmenyn i stället för Level 1,
+    // så reservscenen är nu MainMenu och inte Level1. Playthrough-räknaren ökar bara om målet ändå är en level;
+    // annars gör menyns Level 1-knapp (LevelLoader.StartGame) det när spelaren startar Level 1.
     private void LoadNextScene()
     {
-        string target = nextScene;
+        string target = sceneAfterTutorial;
         if (string.IsNullOrEmpty(target) || string.Equals(target, "prototype", System.StringComparison.OrdinalIgnoreCase))
-            target = "Level1";
+            target = "MainMenu";
         if (!Application.CanStreamedLevelBeLoaded(target))
         {
-            Debug.LogError("[Tutorial] Scene '" + target + "' is not in Build Settings; trying Level1.", this);
-            target = "Level1";
+            Debug.LogError("[Tutorial] Scene '" + target + "' is not in Build Settings; trying MainMenu.", this);
+            target = "MainMenu";
         }
         if (target == "Level1" || target == "Level2")
         {
@@ -1590,15 +1599,16 @@ public class TutorialManager : MonoBehaviour
 
 #if UNITY_EDITOR
     // Inspectorn: TutorialManager-komponentens meny (tre prickar) > "Assign default tutorial sounds",
-    // spara sen scenen. Den fyller tomma slots, tar bort gamla tagningar och sätter Next Scene till Level1.
+    // spara sen scenen. Den fyller tomma slots, tar bort gamla tagningar och sätter Scene After Tutorial till MainMenu.
+    // (2026-10-28, Alfred: efter tutorialen går spelaren tillbaka till huvudmenyn i stället för Level 1.)
     [ContextMenu("Assign default tutorial sounds")]
     private void AssignDefaultSounds()
     {
         Undo.RecordObject(this, "Assign default tutorial sounds");
         FillMissingSounds();
         RetireContradictingClips();
-        if (string.IsNullOrEmpty(nextScene) || string.Equals(nextScene, "prototype", System.StringComparison.OrdinalIgnoreCase))
-            nextScene = "Level1";
+        if (string.IsNullOrEmpty(sceneAfterTutorial) || string.Equals(sceneAfterTutorial, "prototype", System.StringComparison.OrdinalIgnoreCase))
+            sceneAfterTutorial = "MainMenu";
         EditorUtility.SetDirty(this);
     }
 

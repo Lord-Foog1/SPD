@@ -182,12 +182,14 @@ MonoBehaviour:
   enemyReward: 150
   enemyHealth: 1
   idleSounds:
-  - {fileID: 8300000, guid: 9dc35c9e175e5f544ba66fdcb3b785bc, type: 3}
+  - {fileID: 8300000, guid: fffc0172dedbaaa459479c0b99767e0d, type: 3}
   spawnSound: {fileID: 8300000, guid: 788cfc162f08e3a4781a48740b96219c, type: 3}
   deathSound: {fileID: 8300000, guid: ff6b1d914dd9a78428177cd94d65e5b2, type: 3}
-  attackSound: {fileID: 0}
-  muffledSound: {fileID: 0}
-  escapeSound: {fileID: 0}
+  attackSound: {fileID: 8300000, guid: 80442acd8ca671a408e8d678d2db3593, type: 3}
+  muffledSound: {fileID: 8300000, guid: 5240ee49832327a4dbf3a8307d7d33f2, type: 3}
+  escapeSound: {fileID: 8300000, guid: 5146e333ac14bbe4bb53cd71bb7974c4, type: 3}
+  soundDuration: 1.5
+  playCooldown: 0.5
 --- !u!82 &-2220592309705280006
 AudioSource:
   m_ObjectHideFlags: 0
