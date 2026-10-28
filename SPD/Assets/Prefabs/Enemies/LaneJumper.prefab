@@ -186,10 +186,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 2.040372
-  MaxDistance: 500
+  MinDistance: 2
+  MaxDistance: 15
   Pan2D: 1
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -274,18 +274,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26fc0e981b3cc064087c068ec92fdf62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 75
+  speed: 35
   enemyDamage: -250
   enemyReward: 250
   enemyHealth: 2
-  enemyGroans: []
-  spawnSound: {fileID: 0}
-  deathSound: {fileID: 0}
-  attackSound: {fileID: 0}
+  idleSounds:
+  - {fileID: 8300000, guid: 4612981155ca93241ab8267f97836ece, type: 3}
+  spawnSound: {fileID: 8300000, guid: 0795d0d6447e0e04f98adf84a224b996, type: 3}
+  deathSound: {fileID: 8300000, guid: d76879ec19f784349bfdbbda6c2215fc, type: 3}
+  attackSound: {fileID: 8300000, guid: 91a0ef37f821e3540ab5cba1c512d5d2, type: 3}
   muffledSound: {fileID: 0}
-  escapeSound: {fileID: 0}
-  maxTimeBetweenJumps: 4
-  minTimeBetweenJumps: 2
+  escapeSound: {fileID: 8300000, guid: 8ce8813ff653d4d4095c9c897f6fb5e2, type: 3}
+  maxTimeBetweenJumps: 5
+  minTimeBetweenJumps: 3
+  soundDuration: 1.5
+  playCooldown: 0.5
 --- !u!169 &2207137291203487085
 AudioLowPassFilter:
   m_ObjectHideFlags: 0

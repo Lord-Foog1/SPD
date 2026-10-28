@@ -1,5 +1,8 @@
-using TMPro;
+using System;
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class LaneJumper : MonoBehaviour
 {
@@ -13,8 +16,9 @@ public class LaneJumper : MonoBehaviour
     private AudioSource source;
     private BoxCollider2D boxCollider;
     private SpriteRenderer spriteRenderer;
+    private AudioLowPassFilter filter;
 
-    [SerializeField] AudioClip[] enemyGroans;
+    [SerializeField] AudioClip[] idleSounds;
 
     [SerializeField] AudioClip spawnSound;
     [SerializeField] AudioClip deathSound;
@@ -30,6 +34,11 @@ public class LaneJumper : MonoBehaviour
     private float timeToNextJump;
     private bool canJump;
 
+    [Header("Sound Duration")]
+    [SerializeField] private float soundDuration = 2.0f;
+    [SerializeField] private float playCooldown = 0.5f;
+    private float nextPlayTime;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -40,22 +49,29 @@ public class LaneJumper : MonoBehaviour
 
         source = GetComponent<AudioSource>();
         SetSoundPosition(transform.position.x);
+        filter = GetComponent<AudioLowPassFilter>();
+
+        filter.enabled = false;
 
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Make spawn sound
-        MakeSound(spawnSound, 0.35f);
+        if (spawnSound)
+        {
+            MakeSound(spawnSound);
+
+            source.loop = true;
+
+            StartCoroutine(StartIdleSounds(1.6f));
+        }
 
         rb = GetComponent<Rigidbody2D>();
         rb.AddForce(new Vector2(0, -speed));
 
-        //source.PlayOneShot(enemyGroans[UnityEngine.Random.Range(0, enemyGroans.Length)]);
-        source.loop = true;
-
         boxCollider = GetComponent<BoxCollider2D>();
 
         jumpTimeStamp = Time.time;
-        timeToNextJump = Random.Range(minTimeBetweenJumps, maxTimeBetweenJumps + 1);
+        timeToNextJump = UnityEngine.Random.Range(minTimeBetweenJumps, maxTimeBetweenJumps + 1);
         canJump = true;
     }
 
@@ -71,7 +87,21 @@ public class LaneJumper : MonoBehaviour
             Jump(transform.position.x);
             Debug.Log("Jumped lanes");
 
-            timeToNextJump = Random.Range(minTimeBetweenJumps, maxTimeBetweenJumps + 1);
+            timeToNextJump = UnityEngine.Random.Range(minTimeBetweenJumps, maxTimeBetweenJumps + 1);
+        }
+
+        Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
+        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
+
+        if (hit && (hit.collider.gameObject.CompareTag("Civillian") || hit.collider.gameObject.CompareTag("Enemy")))
+        {
+            filter.enabled = true;
+            Debug.Log("Hit");
+        }
+        else
+        {
+            filter.enabled = false;
+            Debug.Log("No Hit");
         }
     }
 
@@ -90,7 +120,7 @@ public class LaneJumper : MonoBehaviour
             }
 
             source.Stop();
-            MakeSound(deathSound, 0.5f);
+            MakeSound(deathSound);
             source.loop = false;
             boxCollider.enabled = false;
             spriteRenderer.enabled = false;
@@ -101,30 +131,38 @@ public class LaneJumper : MonoBehaviour
             enemyHealth--;
 
             Destroy(collision.gameObject);
-            //make enemy hit sound
+
+            jumpTimeStamp = Time.time;
+
+            Jump(transform.position.x);
+            Debug.Log("Jumped lanes");
+
+            timeToNextJump = UnityEngine.Random.Range(minTimeBetweenJumps, maxTimeBetweenJumps + 1);
         }
         if (collision.gameObject.tag == "Killbox")
         {
             canJump = false;
             gameManager.ChangePoints(enemyDamage);
 
-            //play escape sound
-            Destroy(this.gameObject, 1.5f);
+            MakeSound(escapeSound);
+            Destroy(this.gameObject, 2.5f);
         }
         if (collision.gameObject.tag == "LastChance")
         {
+            canJump = false;
             // rb.AddForce(new Vector2(0, speed));
 
         }
         if (collision.gameObject.tag == "SoundTrigger")
         {
-            // MakeSound(attackSound)
+            canJump = false;
+            MakeSound(attackSound);
         }
     }
 
     void Jump(float currentLane)
     {
-        float linePicker = Random.Range(0, 2);
+        float linePicker = UnityEngine.Random.Range(0, 2);
         if (currentLane == 0) //middle
         {
             if (linePicker < 0.5)
@@ -148,9 +186,33 @@ public class LaneJumper : MonoBehaviour
         }
     }
 
-    void MakeSound(AudioClip sound, float vol)
+    void MakeSound(AudioClip sound)
     {
-        source.PlayOneShot(sound, vol);
+        if (source && sound)
+        {
+            if (Time.time < nextPlayTime) return;
+
+            nextPlayTime = Time.time + playCooldown;
+
+            StopAllCoroutines();
+            source.Stop();
+            
+            source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
+
+            StartCoroutine(StopSoundAfterDelay(soundDuration));
+        }
+    }
+    private IEnumerator StopSoundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        source.Stop();
+    }
+
+    private IEnumerator StartIdleSounds(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        source.resource = idleSounds[0];
+        source.Play();
     }
 
     public void SetSoundPosition(float lane)
