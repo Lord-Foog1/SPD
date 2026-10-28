@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
     private float roundLength;
     private static GameManager current;
     // Repliker som bara ska höras första gången under en spelomgång (static = gäller tills spelet stängs).
-    private static bool saidCharger, saidLaneJumper, saidFastOne, saidOutOfAmmo, saidCivilianThrough, saidScream, saidPointRules;
+    private static bool saidCharger, saidLaneJumper, saidFastOne, saidOutOfAmmo, saidCivilianThrough, saidPointRules;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -287,11 +287,5 @@ public class GameManager : MonoBehaviour
         current.Say("L10_CivilianThrough");
     }
 
-    // Anropas från Enemy.cs: första gången en zombie skriker nära spelaren (L13).
-    public static void NotifyZombieScream()
-    {
-        if (current == null || current.gameOver || saidScream) return;
-        saidScream = true;
-        current.Say("L13_HearThatScream");
-    }
+    // 2026-10-28 (Alfred): Jag tog bort NotifyZombieScream() och flaggan saidScream som spelade L13 "Hear that scream" första gången en zombie skrek, för att jag inte ville ha raden Hear that scream i spelet.
 }

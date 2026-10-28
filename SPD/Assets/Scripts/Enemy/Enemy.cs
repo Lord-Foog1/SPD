@@ -160,8 +160,7 @@ public class Enemy : MonoBehaviour
         {
             MakeSound(attackSound);
 
-            // 2026-10-28 (Alfred): första zombieskriket: "Hear that scream? ... Shoot now!" (L13). Bara zombies som har ett skrik.
-            if (gameObject.CompareTag("Enemy") && attackSound) GameManager.NotifyZombieScream();
+            // 2026-10-28 (Alfred): Jag tog bort anropet till GameManager.NotifyZombieScream() (operatörsraden L13 "Hear that scream"), för att jag inte ville ha raden Hear that scream. Själva skriket ovan spelas som förut.
         }
     }
 
