@@ -173,10 +173,13 @@ public class TutorialManager : MonoBehaviour
     private const float MoveCooldown = 0.1f;
     private const float StepSoundDuration = 2f;  // fotstegsljudet stängs av efter 2 s (soundDuration i Player.prefab)
     // Minsta tid mellan två fotstegsljud.
-    private const float StepPlayCooldown = 0.2f;
+    // 2026-10-28 (Alfred): 0,2 -> 0,5 s. Player.prefab har playCooldown 0.5 (Player.MakeSound för fotsteg),
+    // så nu låter snabba filbyten likadant som i Level 1/2 (fotsteg högst varannan halvsekund).
+    private const float StepPlayCooldown = 0.5f;
     // Samma poäng som i levlarna. Jag räknar dem tyst bara för loggen, rösten säger aldrig poängen.
     private const int ZombieReward = 100, ZombieEscapePenalty = -100, CivilianShotPenalty = -100, CivilianEscapeReward = 50;
-    private const float DefaultOperatorLevel = 0.5f; // standardvärdet på Operator-reglaget i MainMenu
+    // 2026-10-28 (Alfred): DefaultOperatorLevel (0,5) är borttagen. Standardvärdet för Operator sätts nu av
+    // SettingsManager.EnsureDefaultSoundLevels() i InitVolumes, precis som GameManager gör i levlarna.
 
     // Gamla tagningar som säger fel saker om spelet (det finns inget "klick" när loben är laddad,
     // och zombies blir knappt starkare när de kommer närmare). De spelas aldrig, även om de ligger kvar i en slot.
@@ -400,15 +403,23 @@ public class TutorialManager : MonoBehaviour
         System.Action lobSetup = () => { ClearMobs(); SpawnMob(Kind.Civilian, 1, 1f, false); SpawnMob(Kind.Zombie, 1, 3f, false); };
         lobSetup();
         yield return SayExtra(explainLob);
-        yield return Say(askLobber, nameof(askLobber));
-        // askLobber säger aldrig vilken knapp det är. Tills lobHowTo är inspelad säger
-        // hintLobHere det ("...hold the up arrow until the charge sound and then let go").
-        if (HasClips(lobHowTo)) yield return SayExtra(lobHowTo);
-        else yield return SayExtra(hintLobHere);
-        yield return ShootStep(1, askLobber, nameof(askLobber), true, lobSetup);
+        // 2026-10-28 (Alfred): Jag spelar inte längre askLobber ("Testing mortar function" / "Once released")
+        // här, för att det var för många lob-repliker i rad innan spelaren ens fått försöka.
+        // Nu blir det bara explainLob (vad en lob är) och lobHowTo (hur man gör).
+        // Klippen och sloten ligger kvar i inspektorn, de anropas bara inte.
+        // 2026-10-28 (Alfred): lobHowTo är nu huvudinstruktionen i lob-steget, så jag spelar den med Say
+        // (inte SayExtra) så att Ctrl upprepar just den. Tills lobHowTo är inspelad säger hintLobHere
+        // samma sak ("...hold the up arrow...") som reserv, så att steget aldrig blir tyst.
+        AudioClip[] lobAsk = HasClips(lobHowTo) ? lobHowTo : hintLobHere;
+        string lobAskSlot = HasClips(lobHowTo) ? nameof(lobHowTo) : nameof(hintLobHere);
+        yield return Say(lobAsk, lobAskSlot);
+        // 2026-10-28 (Alfred): Jag skickar lobHowTo (eller reserven) till ShootStep istället för askLobber,
+        // så när spelaren står still eller lobbar på en civil upprepas hur man gör, inte "Testing mortar function".
+        yield return ShootStep(1, lobAsk, lobAskSlot, true, lobSetup);
         ClearMobs();
         yield return Say(lobberHit, nameof(lobberHit));
-        yield return SayExtra(lobKeepInMind);
+        // 2026-10-28 (Alfred): Jag spelar inte längre lobKeepInMind ("That's the lob") efter träffen,
+        // för att lobberHit redan bekräftar att det lyckades och det blev en replik för mycket.
         EndStep();
 
         // STEG 8: ungefär 30 s övningsvåg i Level 1-tempo med bara det vi lärt oss:
@@ -489,14 +500,19 @@ public class TutorialManager : MonoBehaviour
                     yield return OnShot(lastShot, targetLane, ask, askSlot, lobStep, respawn);
                     continue;
                 case Act.LobEarly:
+                    // 2026-10-28 (Alfred): Vid för tidigt släpp spelar jag bara holdLonger ("Too early, the lob
+                    // wasn't charged yet"). Förut kom lobHowTo och hintLobHere direkt efter, alltså tre
+                    // lob-repliker i rad, och det var för mycket. lobHowTo spelas bara om holdLonger saknas.
                     if (HasClips(holdLonger)) yield return Say(holdLonger, nameof(holdLonger));
                     else
                     {
                         // Tills "Too early..." är inspelad: "Almost. Try that again." (LaneHint nedanför säger vilken knapp)
                         WarnEmpty(nameof(holdLonger));
                         yield return SayExtra(tryAgain);
+                        yield return SayExtra(lobHowTo);
                     }
-                    yield return SayExtra(lobHowTo);
+                    // 2026-10-28 (Alfred): LaneHint ger nu bara gå vänster/höger om man står i fel fil
+                    // (i rätt fil är den tyst i lob-steget när lobHowTo finns, se LaneHint).
                     yield return LaneHint(targetLane, lobStep);
                     yield return WaitForKeysReleased();
                     lastInputTime = Time.time;
@@ -610,7 +626,14 @@ public class TutorialManager : MonoBehaviour
     {
         if (lane > targetLane) yield return Say(hintGoLeft, nameof(hintGoLeft));
         else if (lane < targetLane) yield return Say(hintGoRight, nameof(hintGoRight));
-        else if (lobStep) yield return Say(hintLobHere, nameof(hintLobHere));
+        // 2026-10-28 (Alfred): I lob-steget spelar jag inte längre hintLobHere som stående tips när spelaren
+        // redan står i rätt fil, för att det blev för många lob-repliker (lobHowTo säger redan hur man gör).
+        // Bara om lobHowTo inte är inspelad än får hintLobHere vara kvar som reserv, annars är det tyst här.
+        // Fel fil ger fortfarande hintGoLeft/hintGoRight ovanför.
+        else if (lobStep)
+        {
+            if (!HasClips(lobHowTo)) yield return Say(hintLobHere, nameof(hintLobHere));
+        }
         else yield return Say(hintShootHere, nameof(hintShootHere));
     }
 
@@ -773,6 +796,7 @@ public class TutorialManager : MonoBehaviour
     }
 
     // Flyttar spelarens ljudkälla till rätt fil, så skotten hörs därifrån.
+    // 2026-10-28 (Alfred): lyssnaren sitter på samma objekt, så den flyttar med (som Player i Level 1/2).
     private void PlacePlayer()
     {
         if (playerSource != null)
@@ -871,8 +895,7 @@ public class TutorialManager : MonoBehaviour
             m.source.transform.position = origin + new Vector3((m.lane - 1) * LaneX, m.y, 0f);
     }
 
-    // Som Enemy.MakeSound: cooldown, stoppa, spela en gång på Monster-volymen (+0,5 för civila),
-    // och stäng av ljudet efter 1,5 s.
+    // Som Enemy.MakeSound: cooldown, stoppa, spela en gång på Monster-volymen och stäng av ljudet efter 1,5 s.
     private void MobSound(Mob m, AudioClip clip)
     {
         if (m.source == null || clip == null) return;
@@ -880,7 +903,9 @@ public class TutorialManager : MonoBehaviour
         m.nextPlayTime = Time.time + MobPlayCooldown;
         m.idleAt = -1f; // motsvarar StopAllCoroutines: gå-loopen startar inte igen
         m.source.Stop();
-        m.source.PlayOneShot(clip, m.kind == Kind.Civilian ? MonsterLevel + 0.5f : MonsterLevel);
+        // 2026-10-28 (Alfred): civila spelades på Monster-volymen + 0,5 här, men Enemy.MakeSound i levlarna spelar
+        // både zombies och civila på bara SettingsManager.monsterSoundLevel. Nu är det samma som i Level 1/2.
+        m.source.PlayOneShot(clip, MonsterLevel);
         m.stopAt = m.age + MobSoundDuration;
     }
 
@@ -1048,39 +1073,46 @@ public class TutorialManager : MonoBehaviour
     private void InitVolumes()
     {
         // Reglagen är 0 tills menyn har satt dem (t.ex. om man startar tutorialen direkt i editorn).
-        // Då använder jag menyns standardvärden (SettingsManager.SetSoundLevels: player 0.25, monster 0.4,
-        // ambience 0.05), så att både tutorialen och Level 1 efteråt hörs.
-        if (SettingsManager.monsterSoundLevel <= 0f && SettingsManager.playerSoundLevel <= 0f &&
-            SettingsManager.ambienceSoundLevel <= 0f)
-            SettingsManager.SetSoundLevels();
+        // 2026-10-28 (Alfred): jag anropar nu samma SettingsManager.EnsureDefaultSoundLevels() som GameManager.Start
+        // i levlarna, istället för min egen koll. Har menyn inte körts får alla reglage menyns standardvärden
+        // (player 0.25, monster 0.4, ambience 0.05, operator 0.5, menu 0.5). Har menyn satt dem rörs ingenting.
+        SettingsManager.EnsureDefaultSoundLevels();
 
-        // Rösten: volymen från Inspectorn gånger Operator-reglaget (0,5 om det inte är satt).
+        // Rösten: volymen från Inspectorn (1 i Tutorial.unity) gånger Operator-reglaget.
         guideBaseVolume = guideSource.volume;
-        if (guideUsesOperatorVolume)
-        {
-            float op = SettingsManager.operatorSoundLevel > 0f ? SettingsManager.operatorSoundLevel : DefaultOperatorLevel;
-            guideSource.volume = guideBaseVolume * op;
-        }
+        ApplyGuideVolume();
+    }
+
+    // 2026-10-28 (Alfred): rösten följer Operator-reglaget på samma sätt som GameManager.PlayVoiceQueue i levlarna
+    // (voiceSource.volume = operatorSoundLevel före varje replik). Förut använde jag 0,5 om reglaget var 0, men
+    // det gör inte levlarna, så nu är rösten lika stark mot skotten och fienderna som i Level 1/2.
+    private void ApplyGuideVolume()
+    {
+        if (guideSource == null) return;
+        guideSource.volume = guideUsesOperatorVolume ? guideBaseVolume * SettingsManager.operatorSoundLevel : guideBaseVolume;
     }
 
     private void CreateSources()
     {
-        // Samma lyssnare som i levlarna: Main Camera på (0, 0, -10). Filerna ligger 10 enheter framför den.
-        // Finns ingen AudioListener lägger jag till en så att man ändå hör något.
-        AudioListener listener = FindFirstObjectByType<AudioListener>();
-        if (listener == null)
-        {
-            Camera cam = Camera.main;
-            listener = (cam != null ? cam.gameObject : gameObject).AddComponent<AudioListener>();
-            Debug.LogWarning("[Tutorial] No AudioListener in the scene; added one.", this);
-        }
-        origin = listener.transform.position + new Vector3(0f, 0f, 10f);
+        // Filerna räknas från en punkt 10 enheter framför kameran (Main Camera på (0, 0, -10)).
+        // 2026-10-28 (Alfred): förut satt lyssnaren kvar på Main Camera, 10 enheter bakom spelaren. I Level 1/2
+        // sitter AudioListener på Player-objektet (tillagd komponent i scenerna) och följer med när man byter fil.
+        // Med lyssnaren på kameran var skottet (3D, logaritmisk 1-500) ca 11 enheter bort och spelades på
+        // ungefär 1/11 av volymen, alltså nästan inte hörbart. Samma sak gjorde fienderna och elden tystare.
+        // Nu stänger jag av lyssnarna i scenen och sätter en lyssnare på spelarens ljudkälla, precis som i levlarna.
+        AudioListener[] sceneListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        Camera cam = Camera.main;
+        Vector3 viewPoint = sceneListeners.Length > 0 ? sceneListeners[0].transform.position
+                          : (cam != null ? cam.transform.position : transform.position);
+        origin = viewPoint + new Vector3(0f, 0f, 10f);
+        foreach (AudioListener l in sceneListeners) l.enabled = false;
 
         playerSource = NewSource("PlayerSounds");
         playerSource.spatialBlend = 1f; // som Player.prefab källa 0: 3D, logaritmisk 1-500
         playerSource.rolloffMode = AudioRolloffMode.Logarithmic;
         playerSource.minDistance = 1f;
         playerSource.maxDistance = 500f;
+        playerSource.gameObject.AddComponent<AudioListener>(); // 2026-10-28 (Alfred): lyssnaren följer spelaren, som i Level 1/2
         stepSource = NewSource("PlayerSteps"); // som Player.prefab källa 1: 2D
         PlacePlayer();
     }
@@ -1090,14 +1122,17 @@ public class TutorialManager : MonoBehaviour
     {
         if (fireAmbience == null || ambienceSources.Count > 0) return;
         // Level1/2 LightLeft / LightRight: FireSound i loop, 3D logaritmisk, volym = Ambience-reglaget.
-        Vector3[] positions = { new Vector3(-9.1f, -4f, 0f), new Vector3(9.2f, -4f, 0f) };
+        // 2026-10-28 (Alfred): exakta lägen och minDistance från LightLeft/LightRight i Level1/2.unity
+        // (förut avrundat till y -4, z 0 och 3,15 för båda).
+        Vector3[] positions = { new Vector3(-9.1f, -3.99f, -0.06737615f), new Vector3(9.2f, -3.95f, -0.06737615f) };
+        float[] minDistances = { 3.1782417f, 3.1322117f };
         for (int i = 0; i < 2; i++)
         {
             AudioSource a = NewSource(i == 0 ? "FireLeft" : "FireRight");
             a.transform.position = origin + positions[i];
             a.spatialBlend = 1f;
             a.rolloffMode = AudioRolloffMode.Logarithmic;
-            a.minDistance = 3.15f;
+            a.minDistance = minDistances[i];
             a.maxDistance = 500f;
             a.panStereo = i == 0 ? -1f : 1f;
             a.clip = fireAmbience;
@@ -1209,6 +1244,7 @@ public class TutorialManager : MonoBehaviour
                 continue;
 
             guideSource.clip = clip;
+            ApplyGuideVolume(); // 2026-10-28 (Alfred): som GameManager, volymen sätts före varje replik
             guideSource.Play();
 
             // Vänta tills klippet har spelat klart
