@@ -24,7 +24,8 @@ using UnityEditor;
 // Stegen i ordning (se Start() längre ner):
 //   0 Ctrl-hjälp   1 Intro (+ eldljudet)   2 Vänster   3 Höger (+ förklaring av filer)
 //   4 Skjut en docka i mitten   5 Civil vänster, zombie höger   6 En riktig zombie som går
-//   7 Lobba över en civil   8 Övningsvåg 30 s   9 Avslutning   -> laddar Level1
+//   7 Lobba över en civil   8 Övningsvåg 15 s   9 Avslutning   -> laddar Level1
+//   (2026-10-28, Alfred: övningsvågen är nu 15 s och enklare än den gamla 30 s-vågen, se MiniWave.)
 //
 // Rösten: bara inspelade repliker, ingen TTS. Är en slot tom loggar jag en varning en
 // gång och steget fortsätter ändå. Ctrl spelar alltid upp den senaste instruktionen igen.
@@ -90,12 +91,16 @@ public class TutorialManager : MonoBehaviour
 
     // Steg 8: övningsvågen. explainWave innan, waveMultiple när 3+ zombies lever,
     // waveCivilianShot om man skjuter en civil, waveTimeUp när tiden är slut.
-    [Header("Step 8: Practice wave (zombies and civilians only, Level 1 pace)")]
+    // 2026-10-28 (Alfred): Jag ändrade rubriken från "Level 1 pace" för att vågen nu är kortare och lugnare än Level 1.
+    [Header("Step 8: Practice wave (zombies and civilians only, 15 s, easier than Level 1)")]
     [SerializeField] private AudioClip[] explainWave;
     [SerializeField] private AudioClip[] waveMultiple;
     [SerializeField] private AudioClip[] waveCivilianShot;
     [SerializeField] private AudioClip[] waveTimeUp;
-    [SerializeField] private float waveSeconds = 30f;
+    // 2026-10-28 (Alfred): Vågen är nu 15 s i stället för 30 s, för att den ska vara kortare och enklare.
+    // Jag döpte om fältet från waveSeconds till practiceWaveSeconds med flit: Tutorial.unity har sparat
+    // "waveSeconds: 30", och med samma namn hade scenen skrivit över 15 med 30. Det nya namnet läser 15 härifrån.
+    [SerializeField] private float practiceWaveSeconds = 15f;
 
     // Reaktioner som kan spelas i skjutstegen 4-7: tips om fil (vänster/höger/här), fel håll,
     // vägg, nära en civil, bom i tom fil och skjuten civil.
@@ -299,6 +304,13 @@ public class TutorialManager : MonoBehaviour
     // Slots som jag redan varnat för, så att varje tom slot bara loggas en gång.
     private readonly HashSet<string> warnedSlots = new HashSet<string>();
     private bool inRightLaneSaid; // inRightLane spelas bara en gång per skjutsteg
+    // 2026-10-28 (Alfred): Fel-fil-tipset ("Target on the left/right...", ca 4 s) upprepades varje gång man
+    // bytte fil, och man kunde inte gå medan det pratade. Nu spelas det i bakgrunden (man kan gå under tiden),
+    // det startas inte om medan det spelar, och samma tips kommer inte igen förrän efter LaneHintCooldown
+    // sekunder, eller när man har varit i rätt fil och gått ur den igen. Upprepningen är bara det kortaste klippet.
+    private const float LaneHintCooldown = 12f;
+    private float laneHintSaidAt = -100f;   // när fel-fil-tipset senast spelades (-100 = inte i det här försöket)
+    private Coroutine laneHintRoutine;      // fel-fil-tipset som spelar just nu i bakgrunden (null = inget)
 
     // Loggen: hela filen, sessionen just nu, steget just nu och tider för dem.
     private TutorialLogFile logFile;
@@ -422,7 +434,8 @@ public class TutorialManager : MonoBehaviour
         // för att lobberHit redan bekräftar att det lyckades och det blev en replik för mycket.
         EndStep();
 
-        // STEG 8: ungefär 30 s övningsvåg i Level 1-tempo med bara det vi lärt oss:
+        // STEG 8: 15 s övningsvåg, lugnare än Level 1, med bara det vi lärt oss:
+        // (2026-10-28, Alfred: var 30 s i Level 1-tempo, nu 15 s och enklare, se MiniWave.)
         // gå, skjuta, lobba, civil eller zombie. Bara zombies och civila, obegränsad ammo,
         // inget snack om poäng eller tid, inga specialfiender.
         BeginStep("8_practiceWave");
@@ -452,6 +465,9 @@ public class TutorialManager : MonoBehaviour
         int escapesBefore = zombieEscapes;
         inRightLaneSaid = false;
         pauseMobsWhileTalking = true;
+        // 2026-10-28 (Alfred): Nytt steg = fel-fil-tipset får spelas fullt igen första gången.
+        StopLaneHint();
+        laneHintSaidAt = -100f;
 
         yield return WaitForKeysReleased();
         lastInputTime = Time.time;
@@ -466,6 +482,10 @@ public class TutorialManager : MonoBehaviour
                     // Skrattet har redan spelats från zombien (som i levlarna).
                     escapesBefore = zombieEscapes;
                     current.attempts++;
+                    // 2026-10-28 (Alfred): "The zombie reached you" är viktigare än fel-fil-tipset, så jag
+                    // stoppar tipset här och börjar om nedkylningen för det nya försöket.
+                    StopLaneHint();
+                    laneHintSaidAt = -100f;
                     yield return WaitWhileGuideOrSeconds(1.0f);
                     yield return Say(realZombieReachedYou, nameof(realZombieReachedYou));
                     respawn();
@@ -483,12 +503,22 @@ public class TutorialManager : MonoBehaviour
             switch (act)
             {
                 case Act.Ctrl:
+                    // 2026-10-28 (Alfred): Ctrl medan fel-fil-tipset spelar i bakgrunden: jag stoppar det och
+                    // spelar senaste repliken (tipset) från början, så två repliker aldrig krockar.
+                    StopLaneHint();
                     yield return RepeatLast();
                     lastInputTime = Time.time;
                     continue;
                 case Act.Wall:
-                    yield return Say(hitWall, nameof(hitWall));
-                    yield return LaneHint(targetLane, lobStep);
+                    // 2026-10-28 (Alfred): Spelar fel-fil-tipset redan räcker väggdunset, ingen ny replik.
+                    // Annars "Ouch that's a wall" som förut, och sen tipset med nedkylning (fel fil) eller
+                    // det vanliga tipset (rätt fil).
+                    if (laneHintRoutine == null)
+                    {
+                        yield return Say(hitWall, nameof(hitWall));
+                        if (lane == targetLane) yield return LaneHint(targetLane, lobStep);
+                        else StartWrongLaneHint(targetLane, null, null);
+                    }
                     yield return WaitForKeysReleased();
                     lastInputTime = Time.time;
                     continue;
@@ -500,6 +530,8 @@ public class TutorialManager : MonoBehaviour
                     yield return OnShot(lastShot, targetLane, ask, askSlot, lobStep, respawn);
                     continue;
                 case Act.LobEarly:
+                    // 2026-10-28 (Alfred): Låt fel-fil-tipset prata klart först, så "Too early" inte avbryter det.
+                    yield return WaitForLaneHint();
                     // 2026-10-28 (Alfred): Vid för tidigt släpp spelar jag bara holdLonger ("Too early, the lob
                     // wasn't charged yet"). Förut kom lobHowTo och hintLobHere direkt efter, alltså tre
                     // lob-repliker i rad, och det var för mycket. lobHowTo spelas bara om holdLonger saknas.
@@ -526,7 +558,8 @@ public class TutorialManager : MonoBehaviour
 
             // Stilla för länge: upprepa instruktionen + tips (inte medan en riktig zombie går
             // eller medan man laddar en lob). Andra gången i rad lägger jag till en patience-replik.
-            if (!walking && !charging && Time.time - lastInputTime > idleRepeatSeconds)
+            // 2026-10-28 (Alfred): Inte medan fel-fil-tipset spelar (lastInputTime sätts när det är klart).
+            if (!walking && !charging && laneHintRoutine == null && Time.time - lastInputTime > idleRepeatSeconds)
             {
                 current.idleRepeats++;
                 yield return Say(ask, askSlot);
@@ -539,6 +572,7 @@ public class TutorialManager : MonoBehaviour
 
             yield return null;
         }
+        StopLaneHint(); // 2026-10-28 (Alfred): säkerhet, inget fel-fil-tips får hänga kvar in i nästa steg
     }
 
     // Spelaren bytte fil. Kom hen till rätt fil säger jag det (en gång), annars kollar jag om
@@ -550,6 +584,10 @@ public class TutorialManager : MonoBehaviour
 
         if (lane == targetLane)
         {
+            // 2026-10-28 (Alfred): Rätt fil: fel-fil-tipset stoppas direkt (det är inaktuellt), och
+            // nedkylningen nollas, så går man ur rätt fil igen får man hela tipset en gång till.
+            StopLaneHint();
+            laneHintSaidAt = -100f;
             // Första gången man kommer rätt i ett steg: inRightLane istället för "skjut här"-tipset.
             // Tom slot, lob-steget eller senare gånger: vanliga tipset.
             if (!lobStep && !inRightLaneSaid && HasClips(inRightLane))
@@ -562,15 +600,20 @@ public class TutorialManager : MonoBehaviour
         }
         else
         {
+            // 2026-10-28 (Alfred): Förut spelades nearCivilian/wrongWay + hela "Target on the left/right"
+            // (blockerande) vid varje filbyte i fel fil, så samma långa tips kom om och om igen när man gick
+            // tillbaka mot målet. Nu startar StartWrongLaneHint tipset i bakgrunden bara om inget tips
+            // redan spelar och nedkylningen har gått ut. Man kan gå medan det pratar.
             Mob front = FirstInLane(lane, 0);
             if (front != null && front.kind == Kind.Civilian)
-                yield return Say(nearCivilian, nameof(nearCivilian));
+                StartWrongLaneHint(targetLane, nearCivilian, nameof(nearCivilian));
             else if (after > before)
             {
                 current.wrongPresses++;
-                yield return Say(wrongWay, nameof(wrongWay));
+                StartWrongLaneHint(targetLane, wrongWay, nameof(wrongWay));
             }
-            yield return LaneHint(targetLane, lobStep);
+            else
+                StartWrongLaneHint(targetLane, null, null);
         }
 
         yield return WaitForKeysReleased();
@@ -584,6 +627,8 @@ public class TutorialManager : MonoBehaviour
         // Vänta på att kulan flyger fram (10 enheter/s, som Bullet.cs).
         while (shot != null && !shot.done) yield return null;
         Mob hit = shot != null ? shot.killed : null;
+        // 2026-10-28 (Alfred): Låt fel-fil-tipset prata klart innan jag säger vad skottet träffade.
+        yield return WaitForLaneHint();
 
         if (hit != null && hit.kind == Kind.Zombie && hit.lane == targetLane)
         {
@@ -624,8 +669,10 @@ public class TutorialManager : MonoBehaviour
     // Tipset om vart spelaren ska: gå vänster, gå höger, eller (i rätt fil) skjut/lobba här.
     private IEnumerator LaneHint(int targetLane, bool lobStep)
     {
-        if (lane > targetLane) yield return Say(hintGoLeft, nameof(hintGoLeft));
-        else if (lane < targetLane) yield return Say(hintGoRight, nameof(hintGoRight));
+        // 2026-10-28 (Alfred): När vänster/höger-tipset spelas här (bom, för tidig lob, stilla 8 s) räknas det
+        // också in i nedkylningen, så nästa filbyte inte säger samma sak direkt igen.
+        if (lane > targetLane) { yield return Say(hintGoLeft, nameof(hintGoLeft)); laneHintSaidAt = Time.time; }
+        else if (lane < targetLane) { yield return Say(hintGoRight, nameof(hintGoRight)); laneHintSaidAt = Time.time; }
         // 2026-10-28 (Alfred): I lob-steget spelar jag inte längre hintLobHere som stående tips när spelaren
         // redan står i rätt fil, för att det blev för många lob-repliker (lobHowTo säger redan hur man gör).
         // Bara om lobHowTo inte är inspelad än får hintLobHere vara kvar som reserv, annars är det tyst här.
@@ -637,19 +684,106 @@ public class TutorialManager : MonoBehaviour
         else yield return Say(hintShootHere, nameof(hintShootHere));
     }
 
+    // 2026-10-28 (Alfred): Fel-fil-tipset utan spam. Spelar redan ett tips, eller har det spelats för mindre än
+    // LaneHintCooldown sekunder sen, händer inget (fotstegen räcker). Första gången i ett försök: före-repliken
+    // (wrongWay/nearCivilian) + hela vänster/höger-setet, som förut. Efter nedkylningen: bara det kortaste klippet
+    // i setet. Det spelas i bakgrunden så att ShootStep fortsätter läsa pilarna. Tomma slots ger bara en varning.
+    private void StartWrongLaneHint(int targetLane, AudioClip[] before, string beforeSlot)
+    {
+        if (laneHintRoutine != null || guideSource == null || lane == targetLane) return;
+        bool firstTime = laneHintSaidAt < 0f;
+        if (!firstTime && Time.time - laneHintSaidAt < LaneHintCooldown) return;
+
+        AudioClip[] hint = lane > targetLane ? hintGoLeft : hintGoRight;
+        if (!HasClips(hint)) WarnEmpty(lane > targetLane ? nameof(hintGoLeft) : nameof(hintGoRight));
+
+        List<AudioClip> list = new List<AudioClip>();
+        if (firstTime)
+        {
+            if (before != null)
+            {
+                if (HasClips(before)) list.AddRange(before);
+                else WarnEmpty(beforeSlot);
+            }
+            if (hint != null) list.AddRange(hint);
+        }
+        else
+        {
+            AudioClip shortest = ShortestClip(hint);
+            if (shortest != null) list.Add(shortest);
+        }
+        list.RemoveAll(c => c == null);
+        if (list.Count == 0) return;
+
+        laneHintSaidAt = Time.time;
+        laneHintRoutine = StartCoroutine(PlayLaneHint(list.ToArray(), hint));
+    }
+
+    // 2026-10-28 (Alfred): Spelar fel-fil-tipset klipp för klipp. Inga inbäddade coroutines, så StopLaneHint
+    // kan stoppa allt på en gång. Varje klipp har en tidsgräns (längd + 0,5 s), så det aldrig fastnar.
+    private IEnumerator PlayLaneHint(AudioClip[] clips, AudioClip[] hintSet)
+    {
+        if (HasClips(hintSet)) lastClips = hintSet; // Ctrl upprepar tipset, som förut
+        foreach (AudioClip clip in clips)
+        {
+            if (clip == null || guideSource == null) continue;
+            guideSource.clip = clip;
+            ApplyGuideVolume();
+            guideSource.Play();
+            float end = Time.time + clip.length + 0.5f;
+            while (guideSource != null && guideSource.isPlaying && Time.time < end) yield return null;
+        }
+        laneHintSaidAt = Time.time; // nedkylningen räknas från när tipset tystnade
+        lastInputTime = Time.time;
+        laneHintRoutine = null;
+    }
+
+    // 2026-10-28 (Alfred): Stoppar fel-fil-tipset om det spelar (bara då rör jag guideSource).
+    private void StopLaneHint()
+    {
+        if (laneHintRoutine == null) return;
+        StopCoroutine(laneHintRoutine);
+        laneHintRoutine = null;
+        if (guideSource != null) guideSource.Stop();
+    }
+
+    // 2026-10-28 (Alfred): Väntar tills fel-fil-tipset har pratat klart (PlayLaneHint har en egen tidsgräns).
+    private IEnumerator WaitForLaneHint()
+    {
+        while (laneHintRoutine != null) yield return null;
+    }
+
+    // 2026-10-28 (Alfred): Kortaste klippet i ett set (för upprepningar), null om setet är tomt.
+    private static AudioClip ShortestClip(AudioClip[] clips)
+    {
+        AudioClip best = null;
+        if (clips == null) return null;
+        foreach (AudioClip c in clips)
+            if (c != null && (best == null || c.length < best.length)) best = c;
+        return best;
+    }
+
     // ---------------------------------------------------------------- övningsvågen
 
-    // Steg 8: övningsvågen (bara zombies och civila). En ny var 3-4:e sekund (Level 1: 3-5 s), 2-3 lever
-    // samtidigt, två zombies i samma fil och en zombie bakom en civil (lob). Obegränsad ammo.
+    // Steg 8: övningsvågen (bara zombies och civila). Obegränsad ammo.
     // Slutar som en runda: allt försvinner på en gång när tiden är slut.
+    // 2026-10-28 (Alfred): Jag gjorde vågen 15 s och enklare än den gamla 30 s-vågen (8 st, en ny var 3-4:e s,
+    // två zombies i samma fil och en lob-situation). Nu: 4 st med 4-4,5 s mellanrum, 3 zombies och 1 civil,
+    // alla i olika filer i följd, ingen samma-fil-par och ingen lob (loben har redan lärts ut i steg 7).
+    // Högst 2 zombies lever samtidigt även om man inte skjuter, så waveMultiple (3+) spelas troligen inte längre.
     private IEnumerator MiniWave()
     {
         yield return Say(explainWave, nameof(explainWave));
 
         // Schemat: när (sekunder), vad och i vilken fil (0 = vänster, 1 = mitten, 2 = höger).
-        float[] times = { 0f, 4f, 8f, 11f, 15f, 18f, 22f, 25f };
-        Kind[] kinds = { Kind.Zombie, Kind.Zombie, Kind.Civilian, Kind.Zombie, Kind.Zombie, Kind.Zombie, Kind.Civilian, Kind.Zombie };
-        int[] spawnLanes = { 0, 2, 1, 1, 0, 0, 2, 1 };
+        // 2026-10-28 (Alfred): Nytt schema för 15 s-vågen (var 8 spawns på 0-25 s). Zombie vänster, zombie höger,
+        // civil i mitten, zombie vänster, så spelaren måste röra sig och ändå välja civil eller zombie.
+        // Zombierna vid 0 och 4,5 s kan nå KillBox (9,7 s) före 15 s och ge -100 som förut. De två sista
+        // (9 och 13 s) hinner inte fram och städas bort vid slutet, precis som de sista i den gamla vågen.
+        // De tre listorna måste vara lika långa.
+        float[] times = { 0f, 4.5f, 9f, 13f };
+        Kind[] kinds = { Kind.Zombie, Kind.Zombie, Kind.Civilian, Kind.Zombie };
+        int[] spawnLanes = { 0, 2, 1, 0 };
 
         ClearMobs();
         pauseMobsWhileTalking = false; // som en riktig runda: ingenting väntar på rösten
@@ -660,7 +794,8 @@ public class TutorialManager : MonoBehaviour
         yield return WaitForKeysReleased();
         float start = Time.time;
 
-        while (Time.time - start < waveSeconds)
+        // 2026-10-28 (Alfred): Läser det nya fältet practiceWaveSeconds (15 s) i stället för waveSeconds.
+        while (Time.time - start < practiceWaveSeconds)
         {
             float t = Time.time - start;
             while (next < times.Length && t >= times[next])
