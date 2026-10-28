@@ -26,7 +26,7 @@ public class Enemy : MonoBehaviour
     private AudioLowPassFilter filter;
 
     [Header("Sound")]
-    [Tooltip("Idle ljuden går här")]
+    [Tooltip("Idle ljuden gï¿½r hï¿½r")]
     [SerializeField] AudioClip[] idleSounds;
 
     [SerializeField] AudioClip spawnSound;
@@ -169,7 +169,7 @@ public class Enemy : MonoBehaviour
             source.Stop();
             if (gameObject.CompareTag("Civillian"))
             {
-                source.PlayOneShot(sound, SettingsManager.monsterSoundLevel + 0.5f);
+                source.PlayOneShot(sound, SettingsManager.monsterSoundLevel);
             }
             else
             {
