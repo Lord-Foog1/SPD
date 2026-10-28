@@ -88,6 +88,17 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
+    // 2026-10-28 (Alfred): anropas när en level startar. Har menyn aldrig satt reglagen (man startade leveln direkt)
+    // var alla volymer 0, så då sätter jag menyns standardvärden: player 0.25, monster 0.4, ambience 0.05, operator 0.5.
+    // Har menyn satt dem rör jag ingenting, även om någon dragit ett reglage till 0.
+    public static void EnsureDefaultSoundLevels()
+    {
+        if (soundSet) return;
+        if (playerSoundLevel <= 0f && monsterSoundLevel <= 0f && ambienceSoundLevel <= 0f) SetSoundLevels();
+        if (operatorSoundLevel <= 0f) operatorSoundLevel = 0.5f;
+        if (menuSoundLevel <= 0f) menuSoundLevel = 0.5f;
+    }
+
     public static void SetSoundLevels()
     {
         playerSoundLevel = 0.25f;

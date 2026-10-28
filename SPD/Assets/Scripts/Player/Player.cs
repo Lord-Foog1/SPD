@@ -134,6 +134,8 @@ public class Player : MonoBehaviour
                 //play outOfAmmo sound
                 Debug.Log("play outOfAmmo sound");
                 MakeSound(noAmmoSound);
+                // 2026-10-28 (Alfred): första tomma klicket säger operatören "Out of ammo. Press R to reload" (L08).
+                GameManager.NotifyOutOfAmmo();
             }
         }
 

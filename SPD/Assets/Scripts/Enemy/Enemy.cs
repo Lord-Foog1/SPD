@@ -60,7 +60,8 @@ public class Enemy : MonoBehaviour
         SetSoundPosition(transform.position.x);
         filter = GetComponent<AudioLowPassFilter>();
 
-        filter.enabled = false;
+        // 2026-10-28 (Alfred): "if (filter)" så att en prefab utan LowPass-filter inte kraschar (FastEnemy saknade det).
+        if (filter) filter.enabled = false;
 
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -94,14 +95,15 @@ public class Enemy : MonoBehaviour
         Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - 0.6f), new Vector2(0, -3.5f));
 
+        // 2026-10-28 (Alfred): samma koll här, filtret används bara om det finns.
         if (hit && (hit.collider.gameObject.CompareTag("Civillian") || hit.collider.gameObject.CompareTag("Enemy")))
         {
-            filter.enabled = true;
+            if (filter) filter.enabled = true;
             Debug.Log("Hit");
         }
         else
         {
-            filter.enabled = false;
+            if (filter) filter.enabled = false;
             Debug.Log("No Hit");
         }
 
@@ -142,6 +144,9 @@ public class Enemy : MonoBehaviour
         {
             gameManager.ChangePoints(enemyDamage);
 
+            // 2026-10-28 (Alfred): första civila som tar sig igenom: "Good, you let the civilian through" (L10).
+            if (gameObject.CompareTag("Civillian")) GameManager.NotifyCivilianThrough();
+
             source.Stop();
             MakeSound(escapeSound);
             Destroy(this.gameObject, 1.5f);
@@ -154,6 +159,9 @@ public class Enemy : MonoBehaviour
         if(collision.gameObject.tag == "SoundTrigger")
         {
             MakeSound(attackSound);
+
+            // 2026-10-28 (Alfred): första zombieskriket: "Hear that scream? ... Shoot now!" (L13). Bara zombies som har ett skrik.
+            if (gameObject.CompareTag("Enemy") && attackSound) GameManager.NotifyZombieScream();
         }
     }
 
@@ -189,6 +197,8 @@ public class Enemy : MonoBehaviour
     private IEnumerator StartIdleSounds(float delay)
     {
         yield return new WaitForSeconds(delay);
+        // 2026-10-28 (Alfred): utan idle-ljud (som FastEnemy hade) blev det IndexOutOfRange här, så då hoppar jag över det.
+        if (idleSounds == null || idleSounds.Length == 0) yield break;
         source.resource = idleSounds[0];
         source.Play();
     }

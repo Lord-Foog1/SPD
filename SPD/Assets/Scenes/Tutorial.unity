@@ -285,15 +285,17 @@ MonoBehaviour:
   askLobber:
   - {fileID: 8300000, guid: 7019dbeb2a7721447802506ed89fc101, type: 3}
   - {fileID: 8300000, guid: 417a18f534d894147a30f2f55ef01251, type: 3}
-  lobHowTo: []
+  lobHowTo:
+  - {fileID: 8300000, guid: e9314efdc9a23404fb6caa31bda08174, type: 3}
   lobberHit:
   - {fileID: 8300000, guid: 6929881f3f24a6642832b263648e34b4, type: 3}
   tappedCivilian:
   - {fileID: 8300000, guid: 5bc6bba8909501b4f864e645a68f5618, type: 3}
-  holdLonger: []
+  holdLonger:
+  - {fileID: 8300000, guid: 6a547bb98f911594eb8c9c514b6735d7, type: 3}
   chargeHoldSeconds: 1.5
   explainWave:
-  - {fileID: 8300000, guid: 8a3317c7b125b794280599e682583512, type: 3}
+  - {fileID: 8300000, guid: 68d41ffeaf25f424f90c39781900cc84, type: 3}
   waveMultiple:
   - {fileID: 8300000, guid: 835947a527cf420409a9f0825e04d8d9, type: 3}
   waveCivilianShot:
