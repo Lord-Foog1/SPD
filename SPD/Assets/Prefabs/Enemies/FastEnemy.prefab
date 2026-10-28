@@ -182,12 +182,12 @@ MonoBehaviour:
   enemyReward: 150
   enemyHealth: 1
   idleSounds:
-  - {fileID: 8300000, guid: fffc0172dedbaaa459479c0b99767e0d, type: 3}
-  spawnSound: {fileID: 8300000, guid: 788cfc162f08e3a4781a48740b96219c, type: 3}
-  deathSound: {fileID: 8300000, guid: ff6b1d914dd9a78428177cd94d65e5b2, type: 3}
-  attackSound: {fileID: 8300000, guid: 80442acd8ca671a408e8d678d2db3593, type: 3}
-  muffledSound: {fileID: 8300000, guid: 5240ee49832327a4dbf3a8307d7d33f2, type: 3}
-  escapeSound: {fileID: 8300000, guid: 5146e333ac14bbe4bb53cd71bb7974c4, type: 3}
+  - {fileID: 8300000, guid: f0c6738ac9b4e744d8da58aa0d7d304d, type: 3}
+  spawnSound: {fileID: 8300000, guid: 0a94a2b8db3bc2747ada17a87e13f52f, type: 3}
+  deathSound: {fileID: 8300000, guid: 8894b071c7cfbe34bbbc8f98b8daead1, type: 3}
+  attackSound: {fileID: 0}
+  muffledSound: {fileID: 0}
+  escapeSound: {fileID: 8300000, guid: f6fa0c3c6f55acf46b907eaabeff6504, type: 3}
   soundDuration: 1.5
   playCooldown: 0.5
 --- !u!82 &-2220592309705280006
@@ -211,10 +211,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 2.040372
-  MaxDistance: 500
+  MinDistance: 2
+  MaxDistance: 15
   Pan2D: 1
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
