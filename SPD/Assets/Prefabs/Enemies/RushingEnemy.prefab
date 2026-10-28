@@ -276,7 +276,7 @@ MonoBehaviour:
   chargeTime: 10
   enemyDamage: -200
   enemySpeed: 1500
-  chargeSound: {fileID: 8300000, guid: bc1fe7766a53f50478e86378dcad35c4, type: 3}
+  chargeSound: {fileID: 8300000, guid: a369b8e8ff1537a4789e16aeaed6981d, type: 3}
   hitPlayerSound: {fileID: 8300000, guid: 04208db4c6707004e9382884a8937e27, type: 3}
   soundDuration: 15
   playCooldown: 0.5
